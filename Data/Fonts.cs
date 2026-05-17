@@ -3,25 +3,10 @@
 *   PROJECT       : D2ArmorCalc
 *   PROGRAMMER    : ExoVizzy
 *   FIRST VERSION : May 17, 2026
-*   DESCRIPTION   : Static definitions for armor fonts, including slot
-*                   restrictions & stacking bonus values.
+*   DESCRIPTION   : Static definitions for all armor fonts, including slot
+*                   restrictions, energy costs, & stacking bonus helpers.
 */
 namespace D2ArmorCalc {
-    //Enum representing which armor slot fonts are restricted to.
-    public enum ArmorSlot {
-        Helmet, Arms, Chestplate, Boots, ClassItem
-    }
-    //Holds data for single font type.
-    public class Font {
-        public Stat Stat {get;}
-        public ArmorSlot Slot {get;}
-        public int EnergyCost {get;}
-        public Font(Stat stat, ArmorSlot slot) {
-            Stat = stat;
-            Slot = slot;
-            EnergyCost = 3;
-        }
-    }
     public static class Fonts {
         //One font definition per stat (slot-locked per game rules).
         public static readonly Font Super = new Font(Stat.Super, ArmorSlot.Helmet);
