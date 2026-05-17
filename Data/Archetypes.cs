@@ -1,10 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*
+*   FILE          : Archetypes.cs
+*   PROJECT       : D2ArmorCalc
+*   PROGRAMMER    : ExoVizzy
+*   FIRST VERSION : May 17, 2026
+*   DESCRIPTION   : Static definitions for all 6 armor archetypes & their
+*                   primary/secondary stat assignments.
+*/
+namespace D2ArmorCalc {
+    //Enum representing all 6 armor stats.
+    public enum Stat {
+        Health, Melee, Grenade, Super, Class, Weapons
+    }
+    //Enum representing all 6 armor archetypes.
+    //Brawler: Melee/Health, Gunner: Weapons/Grenade, Specialist: Class/Weapons, Grenadier: Grenade/Super, Paragon: Super/Melee, Bulwark: Health/Class.
+    public enum ArchetypeType {
+        Brawler, Gunner, Specialist, Grenadier, Paragon, Bulwark
+    }
+    //Holds stat layout for given archetype.
+    public class Archetype {
+        public ArchetypeType Type {get;}
+        public Stat Primary {get;}
+        public Stat Secondary {get;}
+        public Archetype(ArchetypeType type, Stat primary, Stat secondary) {
+            Type = type;
+            Primary = primary;
+            Secondary = secondary;
+        }
+    }
+    //Static lookup for all archetypes.
+    public static class Archetypes {
+        public static readonly Archetype Brawler = new Archetype(ArchetypeType.Brawler, Stat.Melee, Stat.Health);
+        public static readonly Archetype Gunner = new Archetype(ArchetypeType.Gunner, Stat.Weapons, Stat.Grenade);
+        public static readonly Archetype Specialist = new Archetype(ArchetypeType.Specialist, Stat.Class, Stat.Weapons);
+        public static readonly Archetype Grenadier = new Archetype(ArchetypeType.Grenadier, Stat.Grenade, Stat.Super);
+        public static readonly Archetype Paragon = new Archetype(ArchetypeType.Paragon, Stat.Super, Stat.Melee);
+        public static readonly Archetype Bulwark = new Archetype(ArchetypeType.Bulwark, Stat.Health, Stat.Class);
 
-namespace D2ArmorCalc.Data
-{
-    class Archetypes
-    {
+        //All archetypes as array for iteration.
+        public static readonly Archetype[] All = {
+            Brawler, Gunner, Specialist, Grenadier, Paragon, Bulwark
+        };
+        /*
+        Method        : GetTertiaryStats
+        Description   : Returns the 4 stats that are not primary or secondary
+                        for a given archetype (valid tertiary options).
+        Parameters    : Archetype archetype : The archetype to check against.
+        Return Values : Stat[]              : Array of 4 valid tertiary stats.
+        */
+        public static Stat[] GetTertiaryStats(Archetype archetype) {
+            Stat[] all = [Stat.Health, Stat.Melee, Stat.Grenade, Stat.Super, Stat.Class, Stat.Weapons];
+            return Array.FindAll(all, s => s != archetype.Primary && s != archetype.Secondary);
+        }
     }
 }
