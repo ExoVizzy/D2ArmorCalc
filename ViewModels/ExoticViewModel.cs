@@ -12,7 +12,7 @@ using System.ComponentModel;
 
 namespace D2ArmorCalc {
     public class ExoticViewModel : INotifyPropertyChanged {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name){
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

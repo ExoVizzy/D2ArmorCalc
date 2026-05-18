@@ -22,7 +22,7 @@ namespace D2ArmorCalc {
     }
     //Holds mod selection state for single armor slot.
     public class SlotModViewModel : INotifyPropertyChanged {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         public ArmorSlot Slot {get;}
@@ -82,7 +82,7 @@ namespace D2ArmorCalc {
     public class ModViewModel : INotifyPropertyChanged {
         public int MajorModCount => 5 - MinorModCount;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================

@@ -152,9 +152,9 @@ namespace D2ArmorCalc {
     }
     //Lightweight result struct from a single resolve pass.
     public class ResolvedResult {
-        public StatBlock BaseStats {get; set;}
-        public StatBlock ModdedStats {get; set;}
-        public StatBlock FinalStats {get; set;}
+        public StatBlock? BaseStats {get; set;}
+        public StatBlock? ModdedStats {get; set;}
+        public StatBlock? FinalStats {get; set;}
         public int Deficit {get; set;}
         public int Excess {get; set;}
         public int Score {get; set;}

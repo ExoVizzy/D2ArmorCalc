@@ -271,7 +271,7 @@
                                                            VerticalAlignment="Center"
                                                            Margin="8,0,0,0">
                                                     <Run Text="×" />
-                                                    <Run Text="{Binding FontCount}" />
+                                                    <Run Text="{Binding FontCount, Mode=OneWay}" />
                                                 </TextBlock>
                                             </Grid>
                                         </DataTemplate>
@@ -325,15 +325,15 @@
                                     <TextBlock Style="{StaticResource BodyText}"
                                                VerticalAlignment="Center"
                                                Margin="8,0,0,0">
-                                        <Run Text="{Binding ModVM.MinorModCount}" />
+                                        <Run Text="{Binding ModVM.MinorModCount, Mode=OneWay}" />
                                         <Run Text="/ 5" Foreground="{StaticResource TextSecondaryBrush}" />
                                     </TextBlock>
                                 </StackPanel>
                                 <TextBlock Style="{StaticResource SecondaryText}"
                                            Margin="0,6,0,0">
-                                    <Run Text="{Binding ModVM.MinorModCount}" />
+                                    <Run Text="{Binding ModVM.MinorModCount, Mode=OneWay}" />
                                     <Run Text="minor (+5) and" />
-                                    <Run Text="{Binding ModVM.MajorModCount}" />
+                                    <Run Text="{Binding ModVM.MajorModCount, Mode=OneWay}" />
                                     <Run Text="major (+10) stat mods." />
                                 </TextBlock>
                             </StackPanel>
@@ -397,9 +397,9 @@
                                 <TextBlock Style="{StaticResource SecondaryText}"
                                            VerticalAlignment="Center"
                                            Margin="12,0,0,0">
-                                    <Run Text="{Binding FragmentVM.SelectedFragmentCount}" />
+                                    <Run Text="{Binding FragmentVM.SelectedFragmentCount, Mode=OneWay}" />
                                     <Run Text="/" />
-                                    <Run Text="{Binding FragmentVM.MaxFragmentSlots}" />
+                                    <Run Text="{Binding FragmentVM.MaxFragmentSlots, Mode=OneWay}" />
                                     <Run Text="fragments" />
                                 </TextBlock>
                             </StackPanel>

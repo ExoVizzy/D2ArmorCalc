@@ -14,7 +14,7 @@ using System.Windows;
 namespace D2ArmorCalc {
     //Represents single stat row in results display.
     public class StatResultItem : INotifyPropertyChanged {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         public Stat Stat {get;}
@@ -69,17 +69,17 @@ namespace D2ArmorCalc {
     }
     //Represents single armor piece row in results display.
     public class PieceResultItem {
-        public string SlotLabel {get; set;}
-        public string Rarity {get; set;}
-        public string Archetype {get; set;}
-        public string Tertiary {get; set;}
-        public string Focus {get; set;}
-        public string StatMod {get; set;}
-        public string Fonts {get; set;}
-        public string EnergyUsed {get; set;}
+        public string? SlotLabel {get; set;}
+        public string? Rarity {get; set;}
+        public string? Archetype {get; set;}
+        public string? Tertiary {get; set;}
+        public string? Focus {get; set;}
+        public string? StatMod {get; set;}
+        public string? Fonts {get; set;}
+        public string? EnergyUsed {get; set;}
     }
     public class ResultViewModel : INotifyPropertyChanged {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================
@@ -111,17 +111,17 @@ namespace D2ArmorCalc {
         public bool IsMaxsExceeded => _status == BuildStatus.MaxsExceeded;
         public bool HasResult => _buildResult != null && !IsMinsFailed;
         //DIM queries.
-        private string _dimQueryAll;
+        private string? _dimQueryAll;
         public string DimQueryAll {
             get => _dimQueryAll;
             set {_dimQueryAll = value; OnPropertyChanged(nameof(DimQueryAll));}
         }
-        private string _dimQueryLegendary;
+        private string? _dimQueryLegendary;
         public string DimQueryLegendary {
             get => _dimQueryLegendary;
             set {_dimQueryLegendary = value; OnPropertyChanged(nameof(DimQueryLegendary));}
         }
-        private string _dimQueryExotic;
+        private string? _dimQueryExotic;
         public string DimQueryExotic {
             get => _dimQueryExotic;
             set {_dimQueryExotic = value; OnPropertyChanged(nameof(DimQueryExotic));}
@@ -139,7 +139,7 @@ namespace D2ArmorCalc {
         //=====================================================================
         //Private State.
         //=====================================================================
-        private BuildResult _buildResult;
+        private BuildResult? _buildResult;
         //=====================================================================
         //Constructor.
         //=====================================================================

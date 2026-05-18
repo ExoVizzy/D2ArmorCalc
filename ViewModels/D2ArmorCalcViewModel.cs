@@ -16,10 +16,10 @@ namespace D2ArmorCalc {
         public ObservableCollection<TuningSlotViewModel> TuningSlots {get;}
         public ObservableCollection<FontSlotViewModel> FontSlots {get;}
         public RelayCommand GenerateQueriesCommand {get;}
-        private BuildResult _lastResult;
+        private BuildResult? _lastResult;
 
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================
@@ -98,7 +98,7 @@ namespace D2ArmorCalc {
         //Least Wanted Stat.
         //=====================================================================
         public ObservableCollection<string> StatOptions {get;} = ["Health", "Melee", "Grenade", "Super", "Class", "Weapons"];
-        private string _leastWantedStat;
+        private string? _leastWantedStat;
         public string LeastWantedStat {
             get => _leastWantedStat;
             set {
@@ -138,10 +138,12 @@ namespace D2ArmorCalc {
                     DimQueryBuilder.BuildQueries(_lastResult, ExoticVM.GetPlayerClass());
                     ResultVM.UpdateDimQueries(_lastResult); //Make UpdateDimQueries public.
             }, _ => ResultVM.HasResult);
+
             CalculateCommand = new RelayCommand(
                 async _ => await RunCalculationAsync(),
                 _ => CanCalculate
             );
+
             ImportCommand = new RelayCommand(_ => RunImport());
             ExportCommand = new RelayCommand(_ => RunExport(), _ => ResultVM.HasResult);
             ResetCommand = new RelayCommand(_ => Reset());
@@ -345,19 +347,9 @@ namespace D2ArmorCalc {
         Parameters    : None.
         Return Values : void
         */
-        private void RunImport(){
-            if (_lastResult == null) return;
-
-            BuildExport export = ImportExportHelper.BuildToExport(
-                _lastResult, targets, subclassExport,
-                _fontsEnabled, _armorModsEnabled, _subclassCustomization,
-                _customTuning, _t5ExoticEnabled, ExoticVM.CustomRollEnabled,
-                _leastWantedStat, ModVM.MinorModCount
-            );
-            
+        private void RunImport() {
+            BuildExport export = ImportExportHelper.Import();
             if (export == null) return;
-            ImportExportHelper.Export(export);
-
             ApplyImport(export);
         }
         /*
@@ -434,10 +426,11 @@ namespace D2ArmorCalc {
         Parameters    : None.
         Return Values : void
         */
-        private void RunExport(){
+        private void RunExport() {
             if (!ResultVM.HasResult) return;
+            if (_lastResult == null) return;
 
-            StatTargetsExport targets = new(){
+            StatTargetsExport targets = new() {
                 HealthMin = HealthSlider.ToMinValue(), HealthMax = HealthSlider.ToMaxValue(),
                 MeleeMin = MeleeSlider.ToMinValue(), MeleeMax = MeleeSlider.ToMaxValue(),
                 GrenadeMin = GrenadeSlider.ToMinValue(), GrenadeMax = GrenadeSlider.ToMaxValue(),
@@ -446,13 +439,13 @@ namespace D2ArmorCalc {
                 WeaponsMin = WeaponsSlider.ToMinValue(), WeaponsMax = WeaponsSlider.ToMaxValue()
             };
 
-            SubclassExport subclassExport = null;
-            if (_subclassCustomization && FragmentVM.SelectedSubclass != "None"){
+            SubclassExport? subclassExport = null;
+            if (_subclassCustomization && FragmentVM.SelectedSubclass != "None") {
                 Aspect[] aspects = FragmentVM.GetSelectedAspects();
                 Fragment[] fragments = FragmentVM.GetSelectedFragments();
 
-                List<string> aspectNames = [];
-                List<string> fragmentNames = [];
+                List<string> aspectNames = new();
+                List<string> fragmentNames = new();
 
                 foreach (Aspect a in aspects) aspectNames.Add(a.Name);
                 foreach (Fragment f in fragments) fragmentNames.Add(f.Name);
@@ -464,10 +457,22 @@ namespace D2ArmorCalc {
                     Jump = FragmentVM.SelectedJump, Aspects = aspectNames, Fragments = fragmentNames
                 };
             }
-            //NOTE: BuildResult reference would need to be stored on VM.
-            //for full piece export. stubbed here for future implementation.
-            MessageBox.Show("Export is not yet fully implemented for piece data.",
-                "Export", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            var export = ImportExportHelper.BuildToExport(
+                _lastResult,
+                targets,
+                subclassExport,
+                _fontsEnabled,
+                _armorModsEnabled,
+                _subclassCustomization,
+                _customTuning,
+                _t5ExoticEnabled,
+                ExoticVM.CustomRollEnabled,
+                _leastWantedStat,
+                ModVM.MinorModCount
+            );
+
+            ImportExportHelper.Export(export);
         }
         //=====================================================================
         //Reset.

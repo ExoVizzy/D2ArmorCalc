@@ -14,23 +14,23 @@ namespace D2ArmorCalc {
     //Represents single piece of armor & all its relevant properties.
     public class ArmorPiece {
         //Identity.
-        public string Name {get; set;}
+        public string? Name {get; set;}
         public ArmorSlot Slot {get; set;}
         public bool IsCustomRoll {get; set;}
-        public StatBlock CustomStatBlock {get; set;}
+        public StatBlock? CustomStatBlock {get; set;}
         public int StandardPrimary {get; set;}
         public int StandardSecondary {get; set;}
         public int StandardTertiary {get; set;}
         public ArmorRarity Rarity {get; set;}
         //Archetype determines primary (30) and secondary (25) stats.
-        public Archetype Archetype {get; set;}
+        public Archetype? Archetype {get; set;}
         //Tertiary stat is any of the 4 stats not in the archetype (value: 20).
         public Stat TertiaryStat {get; set;}
         //Focus: +5 to focus stat, -5 from any other stat.
         public Stat FocusStat {get; set;}
         public Stat FocusMinus {get; set;}
         //Stat mod in the dedicated stat mod slot (can be null if none).
-        public Mod StatMod {get; set;}
+        public StatMod? StatMod {get; set;}
         //Up to 3 fonts in the general mod slots (slot-locked, validated externally).
         public Font[] Fonts {get; set;}
         //Energy.

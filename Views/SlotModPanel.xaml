@@ -34,9 +34,9 @@
                     <TextBlock Style="{StaticResource SecondaryText}"
                                VerticalAlignment="Center"
                                Margin="0,0,4,0">
-                        <Run Text="{Binding UsedEnergy}" />
+                        <Run Text="{Binding UsedEnergy, Mode=OneWay}" />
                         <Run Text="/" />
-                        <Run Text="{Binding TotalEnergy}" />
+                        <Run Text="{Binding TotalEnergy, Mode=OneWay}" />
                         <Run Text="energy" />
                     </TextBlock>
                     <!-- Energy warning if over budget -->

@@ -18,27 +18,27 @@ namespace D2ArmorCalc {
         //Status of calculation.
         public BuildStatus Status {get; set;}
         //The 5 chosen armor pieces (Helmet, Arms, Chest, Boots, ClassItem).
-        public ArmorPiece Helmet {get; set;}
-        public ArmorPiece Arms {get; set;}
-        public ArmorPiece Chestplate {get; set;}
-        public ArmorPiece Boots {get; set;}
-        public ArmorPiece ClassItem {get; set;}
+        public ArmorPiece? Helmet {get; set;}
+        public ArmorPiece? Arms {get; set;}
+        public ArmorPiece? Chestplate {get; set;}
+        public ArmorPiece? Boots {get; set;}
+        public ArmorPiece? ClassItem {get; set;}
 
         //Stat totals at each stage.
-        public StatBlock BaseStats {get; set;} //Raw armor stats before mods/fonts/fragments.
-        public StatBlock ModdedStats {get; set;} //After mods & fonts applied.
-        public StatBlock FinalStats {get; set;} //After fragments applied (display value).
-        public StatBlock OverflowStats {get; set;} //Amount each stat exceeds 100.
+        public StatBlock? BaseStats {get; set;} //Raw armor stats before mods/fonts/fragments.
+        public StatBlock? ModdedStats {get; set;} //After mods & fonts applied.
+        public StatBlock? FinalStats {get; set;} //After fragments applied (display value).
+        public StatBlock? OverflowStats {get; set;} //Amount each stat exceeds 100.
 
         //Stats that exceeded their maximum target (for disclaimer display).
-        public StatBlock MaxsExceededStats {get; set;}
+        public StatBlock? MaxsExceededStats {get; set;}
 
         //Selected fragments applied to this build.
         public Fragment[] Fragments {get; set;}
         //DIM query strings.
-        public string DimQueryAll {get; set;} //All 5 pieces together.
-        public string DimQueryExotic {get; set;} //Exotic piece only.
-        public string DimQueryLegendary {get; set;} //4 legendary pieces only.
+        public string? DimQueryAll {get; set;} //All 5 pieces together.
+        public string? DimQueryExotic {get; set;} //Exotic piece only.
+        public string? DimQueryLegendary {get; set;} //4 legendary pieces only.
         //Score used internally by algorithm to rank and compare results.
         //Lower is better: represents how far total stats are from targets.
         public int Score {get; set;}

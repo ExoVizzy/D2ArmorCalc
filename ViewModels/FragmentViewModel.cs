@@ -13,7 +13,7 @@ using System.ComponentModel;
 namespace D2ArmorCalc {
     //Wraps Fragment with selection state for UI.
     public class FragmentSelectionItem : INotifyPropertyChanged {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         public Fragment Fragment {get;}
@@ -38,7 +38,7 @@ namespace D2ArmorCalc {
     }
     //Wraps Aspect with selection state for UI.
     public class AspectSelectionItem : INotifyPropertyChanged {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         public Aspect Aspect {get;}
@@ -54,7 +54,7 @@ namespace D2ArmorCalc {
         }
     }
     public class FragmentViewModel : INotifyPropertyChanged {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================
@@ -98,28 +98,28 @@ namespace D2ArmorCalc {
         public ObservableCollection<string> Grenades {get;} = new ObservableCollection<string>();
         public ObservableCollection<string> ClassAbilities {get;} = new ObservableCollection<string>();
         public ObservableCollection<string> Jumps {get;} = new ObservableCollection<string>();
-        private string _selectedSuper;
+        private string? _selectedSuper;
         public string SelectedSuper {
             get => _selectedSuper;
             set {_selectedSuper = value; OnPropertyChanged(nameof(SelectedSuper));}
         }
 
-        private string _selectedMelee;
+        private string? _selectedMelee;
         public string SelectedMelee {
             get => _selectedMelee;
             set {_selectedMelee = value; OnPropertyChanged(nameof(SelectedMelee));}
         }
-        private string _selectedGrenade;
+        private string? _selectedGrenade;
         public string SelectedGrenade {
             get => _selectedGrenade;
             set {_selectedGrenade = value; OnPropertyChanged(nameof(SelectedGrenade));}
         }
-        private string _selectedClassAbility;
+        private string? _selectedClassAbility;
         public string SelectedClassAbility {
             get => _selectedClassAbility;
             set {_selectedClassAbility = value; OnPropertyChanged(nameof(SelectedClassAbility));}
         }
-        private string _selectedJump;
+        private string? _selectedJump;
         public string SelectedJump {
             get => _selectedJump;
             set {_selectedJump = value; OnPropertyChanged(nameof(SelectedJump));}

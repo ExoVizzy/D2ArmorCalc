@@ -7,31 +7,29 @@
 *                   templates for the D2 Armor Calculator application.
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <local:BoolToVisibilityConverter  x:Key="BoolToVisibility" xmlns:local="clr-namespace:D2ArmorCalc" />
-    <local:NonZeroToVisibilityConverter x:Key="NonZeroToVisibility" xmlns:local="clr-namespace:D2ArmorCalc" />
-    <local:IsNegativeConverter x:Key="IsNegativeConverter" xmlns:local="clr-namespace:D2ArmorCalc" />
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:D2ArmorCalc">
 
     <!-- =================================================================== -->
     <!-- Color Palette                                                        -->
     <!-- =================================================================== -->
 
-    <Color x="BackgroundColor"       >#0F1117</Color>
-    <Color x="SurfaceColor"          >#161B27</Color>
-    <Color x="SurfaceAltColor"       >#1E2535</Color>
-    <Color x="BorderColor"           >#2A3347</Color>
-    <Color x="AccentColor"           >#3B82F6</Color>
-    <Color x="AccentHoverColor"      >#60A5FA</Color>
-    <Color x="TextPrimaryColor"      >#E2E8F0</Color>
-    <Color x="TextSecondaryColor"    >#64748B</Color>
-    <Color x="TextMutedColor"        >#374151</Color>
-    <Color x="SuccessColor"          >#22C55E</Color>
-    <Color x="WarningColor"          >#F59E0B</Color>
-    <Color x="ErrorColor"            >#EF4444</Color>
-    <Color x="SliderTrackColor"      >#2A3347</Color>
-    <Color x="SliderRangeColor"      >#3B82F6</Color>
-    <Color x="ThumbColor"            >#3B82F6</Color>
-    <Color x="ThumbHoverColor"       >#60A5FA</Color>
+    <Color x:Key="BackgroundColor"    >#0F1117</Color>
+	<Color x:Key="SurfaceColor"       >#161B27</Color>
+	<Color x:Key="SurfaceAltColor"    >#1E2535</Color>
+	<Color x:Key="BorderColor"        >#2A3347</Color>
+	<Color x:Key="AccentColor"        >#3B82F6</Color>
+	<Color x:Key="AccentHoverColor"   >#60A5FA</Color>
+	<Color x:Key="TextPrimaryColor"   >#E2E8F0</Color>
+	<Color x:Key="TextSecondaryColor" >#64748B</Color>
+	<Color x:Key="TextMutedColor"     >#374151</Color>
+	<Color x:Key="SuccessColor"       >#22C55E</Color>
+	<Color x:Key="WarningColor"       >#F59E0B</Color>
+	<Color x:Key="ErrorColor"         >#EF4444</Color>
+	<Color x:Key="SliderTrackColor"   >#2A3347</Color>
+	<Color x:Key="SliderRangeColor"   >#3B82F6</Color>
+	<Color x:Key="ThumbColor"         >#3B82F6</Color>
+	<Color x:Key="ThumbHoverColor"    >#60A5FA</Color>
 
     <!-- Brushes -->
     <SolidColorBrush x:Key="BackgroundBrush"       Color="{StaticResource BackgroundColor}"    />

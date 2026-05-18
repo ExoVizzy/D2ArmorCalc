@@ -12,9 +12,9 @@ using System.Collections.Concurrent;
 namespace D2ArmorCalc {
     //Input parameters for a calculation run.
     public class CalcInput {
-        public StatBlock Mins {get; set;}
-        public StatBlock Maxs {get; set;}
-        public ArmorPiece Exotic {get; set;}
+        public StatBlock? Mins {get; set;}
+        public StatBlock? Maxs {get; set;}
+        public ArmorPiece? Exotic {get; set;}
         public Fragment[] Fragments {get; set;} = [];
         public Stat LeastWantedStat {get; set;}
         public bool FontsEnabled {get; set;}
