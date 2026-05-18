@@ -4,7 +4,7 @@
 *   PROGRAMMER    : ExoVizzy
 *   FIRST VERSION : May 17, 2026
 *   DESCRIPTION   : Reusable UserControl for single stat row, containing
-*                   enable checkbox, stat label, min textbox, range slider,
+*                   stat label, min textbox, range slider,
 *                   & max textbox with two-way live binding.
 -->
 <UserControl x:Class="D2ArmorCalc.StatSliderControl"
@@ -14,8 +14,6 @@
 
     <Grid Margin="0,4,0,4">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="24"   />
-            <!-- Checkbox -->
             <ColumnDefinition Width="80"   />
             <!-- Stat label -->
             <ColumnDefinition Width="60"   />
@@ -25,12 +23,6 @@
             <ColumnDefinition Width="60"   />
             <!-- Max label + textbox -->
         </Grid.ColumnDefinitions>
-
-        <!-- Enable Checkbox -->
-        <CheckBox Grid.Column="0"
-                  Style="{StaticResource ToggleCheckBox}"
-                  IsChecked="{Binding IsEnabled, Mode=TwoWay}"
-                  VerticalAlignment="Center" />
 
         <!-- Stat Label -->
         <TextBlock Grid.Column="1"
@@ -51,7 +43,6 @@
             <TextBox Width="38"
                      Style="{StaticResource InputTextBox}"
                      Text="{Binding MinValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     IsEnabled="{Binding IsEnabled}"
                      VerticalAlignment="Center" />
         </StackPanel>
 
@@ -60,7 +51,6 @@
                            MinValue="{Binding MinSlider, Mode=TwoWay}"
                            MaxValue="{Binding MaxSlider, Mode=TwoWay}"
                            Stat="{Binding Stat}"
-                           IsEnabled="{Binding IsEnabled}"
                            VerticalAlignment="Center"
                            Margin="4,0,4,0" />
 
@@ -76,7 +66,6 @@
             <TextBox Width="38"
                      Style="{StaticResource InputTextBox}"
                      Text="{Binding MaxValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     IsEnabled="{Binding IsEnabled}"
                      VerticalAlignment="Center" />
         </StackPanel>
     </Grid>

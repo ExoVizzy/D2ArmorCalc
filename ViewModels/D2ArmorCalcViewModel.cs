@@ -14,7 +14,7 @@ using System.Windows;
 namespace D2ArmorCalc {
     public class D2ArmorCalcViewModel : INotifyPropertyChanged {
         public ObservableCollection<TuningSlotViewModel> TuningSlots {get;}
-        public ObservableCollection<FontSlotViewModel> FontSlots {get;}
+        public ObservableCollection<FontStatViewModel> FontStats {get;}
         public RelayCommand GenerateQueriesCommand {get;}
         private BuildResult? _lastResult;
 
@@ -152,18 +152,19 @@ namespace D2ArmorCalc {
             LoadSettings();
 
             TuningSlots = new ObservableCollection<TuningSlotViewModel> {
-                new TuningSlotViewModel("Slot 1", "Weapons", "Health"),
-                new TuningSlotViewModel("Slot 2", "Weapons", "Health"),
-                new TuningSlotViewModel("Slot 3", "Weapons", "Health"),
-                new TuningSlotViewModel("Slot 4", "Weapons", "Health")
+                new("Slot 1", "Weapons", "Health"),
+                new("Slot 2", "Weapons", "Health"),
+                new("Slot 3", "Weapons", "Health"),
+                new("Slot 4", "Weapons", "Health")
             };
 
-            FontSlots = new ObservableCollection<FontSlotViewModel> {
-                new FontSlotViewModel(ArmorSlot.Helmet),
-                new FontSlotViewModel(ArmorSlot.Arms),
-                new FontSlotViewModel(ArmorSlot.Chestplate),
-                new FontSlotViewModel(ArmorSlot.Boots),
-                new FontSlotViewModel(ArmorSlot.ClassItem)
+            FontStats = new ObservableCollection<FontStatViewModel> {
+                new(Stat.Super,   ArmorSlot.Helmet),
+                new(Stat.Grenade, ArmorSlot.Arms),
+                new(Stat.Melee,   ArmorSlot.Arms),
+                new(Stat.Health,  ArmorSlot.Chestplate),
+                new(Stat.Weapons, ArmorSlot.Boots),
+                new(Stat.Class,   ArmorSlot.ClassItem)
             };
         }
         //=====================================================================

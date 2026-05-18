@@ -36,8 +36,8 @@ namespace D2ArmorCalc {
             get => _minValue;
             set {
                 //Clamp between 0 & current max (or StatMax if max is 0).
-                int clampedMax = _maxValue > 0 ? _maxValue : StatHelper.StatMax;
-                _minValue = Math.Max(0, Math.Min(value, clampedMax));
+                _minValue = Math.Max(0, Math.Min(value, _maxValue > 0 ? _maxValue : StatHelper.StatMax));
+                IsEnabled = _minValue > 0 || _maxValue < StatHelper.StatMax;
                 OnPropertyChanged(nameof(MinValue));
                 OnPropertyChanged(nameof(MinSlider));
             }
@@ -47,7 +47,8 @@ namespace D2ArmorCalc {
             get => _maxValue;
             set {
                 //Max must be >= min & <= 200, 0 means not set.
-                _maxValue = value == 0 ? 0 : Math.Max(_minValue, Math.Min(value, StatHelper.StatMax));
+                _maxValue = value == 0 ? 200 : Math.Max(_minValue, Math.Min(value, StatHelper.StatMax));
+                IsEnabled = _minValue > 0 || _maxValue < StatHelper.StatMax;
                 OnPropertyChanged(nameof(MaxValue));
                 OnPropertyChanged(nameof(MaxSlider));
             }
@@ -69,7 +70,7 @@ namespace D2ArmorCalc {
             Label = stat.ToString();
             _isEnabled = false;
             _minValue = 0;
-            _maxValue = 0;
+            _maxValue = 200;
         }
         //=====================================================================
         //Helpers.

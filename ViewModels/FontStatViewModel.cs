@@ -1,5 +1,5 @@
 ﻿/*
-*   FILE          : FontSlotViewModel.cs
+*   FILE          : FontStatViewModel.cs
 *   PROJECT       : D2ArmorCalc
 *   PROGRAMMER    : ExoVizzy
 *   FIRST VERSION : May 17, 2026
@@ -9,17 +9,18 @@
 using System.ComponentModel;
 
 namespace D2ArmorCalc {
-    public class FontSlotViewModel : INotifyPropertyChanged {
+    public class FontStatViewModel : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================
         //Properties.
         //=====================================================================
-        public string SlotLabel {get;}
+        public Stat Stat {get;}
         public ArmorSlot Slot {get;}
-        //Max fonts depends on slot. Arms has 2 font types so max 3 still applies.
-        public int MaxFonts => 3;
+        public string? StatLabel {get;}
+        public string? SlotLabel {get;}
+        public int MaxFonts  => 3;
         private int _fontCount;
         public int FontCount {
             get => _fontCount;
@@ -36,8 +37,10 @@ namespace D2ArmorCalc {
         //=====================================================================
         //Constructor.
         //=====================================================================
-        public FontSlotViewModel(ArmorSlot slot) {
+        public FontStatViewModel(Stat stat, ArmorSlot slot) {
+            Stat = stat;
             Slot = slot;
+            StatLabel = stat.ToString();
             SlotLabel = slot.ToString();
             _fontCount = 0;
         }

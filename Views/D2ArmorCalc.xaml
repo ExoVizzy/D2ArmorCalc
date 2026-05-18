@@ -247,31 +247,41 @@
                                 <TextBlock Text="Fonts per slot:"
                                            Style="{StaticResource SecondaryText}"
                                            Margin="0,0,0,8" />
-                                <ItemsControl ItemsSource="{Binding FontSlots}">
+                                <ItemsControl ItemsSource="{Binding FontStats}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Margin="0,3,0,3">
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="100" />
+                                                    <ColumnDefinition Width="80"  />
+                                                    <ColumnDefinition Width="60"  />
                                                     <ColumnDefinition Width="*"   />
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0"
-                                                           Text="{Binding SlotLabel}"
-                                                           Style="{StaticResource SecondaryText}"
-                                                           VerticalAlignment="Center" />
-                                                <Slider Grid.Column="1"
-                                                        Minimum="0" Maximum="3"
-                                                        Value="{Binding FontCount}"
-                                                        IsSnapToTickEnabled="True"
-                                                        TickFrequency="1"
+                                                        Text="{Binding StatLabel}"
+                                                        Style="{StaticResource SecondaryText}"
                                                         VerticalAlignment="Center" />
-                                                <TextBlock Grid.Column="2"
-                                                           Style="{StaticResource BodyText}"
-                                                           VerticalAlignment="Center"
-                                                           Margin="8,0,0,0">
+                                                <TextBlock Grid.Column="1"
+                                                        Text="{Binding SlotLabel, Mode=OneWay}"
+                                                        Style="{StaticResource SecondaryText}"
+                                                        VerticalAlignment="Center"
+                                                        Opacity="0.5" />
+                                                <Slider Grid.Column="2"
+                                                    Minimum="0" Maximum="3"
+                                                    Value="{Binding FontCount}"
+                                                    IsSnapToTickEnabled="True"
+                                                    TickFrequency="1"
+                                                    VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="3"
+                                                        Style="{StaticResource BodyText}"
+                                                        VerticalAlignment="Center"
+                                                        Margin="8,0,0,0">
                                                     <Run Text="×" />
                                                     <Run Text="{Binding FontCount, Mode=OneWay}" />
+                                                    <Run Text=" (" />
+                                                    <Run Text="{Binding BonusLabel, Mode=OneWay}"
+                                                            Foreground="{StaticResource SuccessBrush}" />
+                                                    <Run Text=")" />
                                                 </TextBlock>
                                             </Grid>
                                         </DataTemplate>
