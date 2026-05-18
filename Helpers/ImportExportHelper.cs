@@ -33,7 +33,7 @@ namespace D2ArmorCalc {
         Return Values : bool               : True if export succeeded, false if
                                              cancelled or error occurred.
         */
-        public static bool Export(BuildExport export) {
+        public static bool Export(BuildExport export){
             SaveFileDialog dialog = new SaveFileDialog {
                 Title = "Export Build", Filter = FileFilter,
                 DefaultExt = FileExtension, FileName = "MyBuild"
@@ -44,7 +44,7 @@ namespace D2ArmorCalc {
                 string json = JsonSerializer.Serialize(export, JsonOptions);
                 File.WriteAllText(dialog.FileName, json);
                 return true;
-            } catch (Exception ex) {
+            } catch (Exception ex){
                 MessageBox.Show($"Export failed: {ex.Message}", "Export Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
@@ -61,7 +61,7 @@ namespace D2ArmorCalc {
         Return Values : BuildExport : Deserialized build snapshot, or null
                                       if cancelled or error occurred.
         */
-        public static BuildExport Import() {
+        public static BuildExport Import(){
             OpenFileDialog dialog = new OpenFileDialog {
                 Title = "Import Build", Filter = FileFilter
             };
@@ -69,21 +69,20 @@ namespace D2ArmorCalc {
 
             try {
                 string json = File.ReadAllText(dialog.FileName);
-                var    export = JsonSerializer.Deserialize<BuildExport>(json, JsonOptions);
+                BuildExport? export = JsonSerializer.Deserialize<BuildExport>(json, JsonOptions);
 
-                if (!IsVersionCompatible(export.ExportVersion)) {
+                if (!IsVersionCompatible(export.ExportVersion)){
                     MessageBox.Show(
                         $"This build file was created with version {export.ExportVersion} " +
                         $"and may not be fully compatible with the current version.",
                         "Version Mismatch", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-
                 return export;
-            } catch (JsonException) {
+            } catch (JsonException){
                 MessageBox.Show("The selected file is not a valid .d2build file.",
                     "Import Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
-            } catch (Exception ex) {
+            } catch (Exception ex){
                 MessageBox.Show($"Import failed: {ex.Message}", "Import Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
@@ -99,7 +98,7 @@ namespace D2ArmorCalc {
         Parameters    : string version : Version string from build file.
         Return Values : bool           : True if version is compatible.
         */
-        private static bool IsVersionCompatible(string version) {
+        private static bool IsVersionCompatible(string version){
             return version == CurrentVersion;
         }
         /*
@@ -123,7 +122,7 @@ namespace D2ArmorCalc {
             BuildResult result, StatTargetsExport targets, SubclassExport subclass,
             bool fontsEnabled, bool armorModsEnabled, bool subclassCustomization,
             bool customTuning, bool t5ExoticEnabled, bool customExoticRoll,
-            string leastWantedStat, int minorModCount) {
+            string leastWantedStat, int minorModCount){
 
             BuildExport export = new BuildExport {
                 ExportVersion = CurrentVersion, StatTargets = targets,
@@ -135,7 +134,7 @@ namespace D2ArmorCalc {
             };
 
             //Serialize each armor piece.
-            foreach (var piece in result.GetPieces()) {
+            foreach (ArmorPiece piece in result.GetPieces()){
                 if (piece == null) continue;
 
                 ArmorPieceExport pieceExport = new ArmorPieceExport {
@@ -144,24 +143,23 @@ namespace D2ArmorCalc {
                     FocusStat = piece.FocusStat.ToString(), FocusMinus = piece.FocusMinus.ToString()
                 };
 
-                if (piece.StatMod != null) {
+                if (piece.StatMod != null){
                     pieceExport.StatModType = piece.StatMod.ModType.ToString();
                     pieceExport.StatModStat = piece.StatMod.Stat.ToString();
                 }
 
-                foreach (var font in piece.Fonts)
-                    pieceExport.Fonts.Add(font.Stat.ToString());
+                foreach (Font font in piece.Fonts) pieceExport.Fonts.Add(font.Stat.ToString());
 
                 export.ArmorPieces.Add(pieceExport);
             }
             //Exotic custom roll.
-            if (customExoticRoll) {
-                var exotic = result.Helmet?.Rarity == ArmorRarity.Exotic ? result.Helmet :
+            if (customExoticRoll){
+                ArmorPiece? exotic = result.Helmet?.Rarity == ArmorRarity.Exotic ? result.Helmet :
                              result.Arms?.Rarity == ArmorRarity.Exotic ? result.Arms :
                              result.Chestplate?.Rarity == ArmorRarity.Exotic ? result.Chestplate :
                              result.Boots?.Rarity == ArmorRarity.Exotic ? result.Boots : result.ClassItem;
 
-                if (exotic != null) {
+                if (exotic != null){
                     export.ExoticSlot = exotic.Slot.ToString();
                     export.ExoticArchetype = exotic.Archetype?.Type.ToString();
                     export.ExoticTertiary = exotic.TertiaryStat.ToString();

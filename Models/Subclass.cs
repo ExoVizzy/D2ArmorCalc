@@ -15,7 +15,7 @@ namespace D2ArmorCalc {
     public class Aspect {
         public string Name {get;}
         public int FragmentSlots {get;}
-        public Aspect(string name, int fragmentSlots) {
+        public Aspect(string name, int fragmentSlots){
             Name = name;
             FragmentSlots = fragmentSlots;
         }

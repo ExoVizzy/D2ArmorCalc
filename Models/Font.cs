@@ -16,7 +16,7 @@ namespace D2ArmorCalc {
         public Stat Stat {get;}
         public ArmorSlot Slot {get;}
         public int EnergyCost {get;}
-        public Font(Stat stat, ArmorSlot slot) {
+        public Font(Stat stat, ArmorSlot slot){
             Stat = stat;
             Slot = slot;
             EnergyCost = 3;

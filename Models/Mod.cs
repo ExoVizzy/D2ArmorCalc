@@ -10,7 +10,7 @@ namespace D2ArmorCalc {
     public class Mod {
         public string Name {get;}
         public int EnergyCost {get;}
-        public Mod(string name, int energyCost) {
+        public Mod(string name, int energyCost){
             Name = name;
             EnergyCost = energyCost;
         }

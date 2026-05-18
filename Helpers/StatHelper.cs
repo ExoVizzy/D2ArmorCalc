@@ -24,7 +24,7 @@ namespace D2ArmorCalc {
         Parameters    : int value : Stat value to clamp.
         Return Values : int       : Clamped stat value.
         */
-        public static int Clamp(int value) {
+        public static int Clamp(int value){
             return Math.Max(StatMin, Math.Min(StatMax, value));
         }
         /*
@@ -34,7 +34,7 @@ namespace D2ArmorCalc {
         Parameters    : int value : Stat value to check.
         Return Values : int       : Overflow amount above 100.
         */
-        public static int GetOverflow(int value) {
+        public static int GetOverflow(int value){
             return value > BuffThreshold ? value - BuffThreshold : 0;
         }
         /*
@@ -45,7 +45,7 @@ namespace D2ArmorCalc {
                         int target : Minimum target to reach.
         Return Values : int        : Deficit amount below the target.
         */
-        public static int GetDeficit(int value, int target) {
+        public static int GetDeficit(int value, int target){
             return value < target ? target - value : 0;
         }
         /*
@@ -57,7 +57,7 @@ namespace D2ArmorCalc {
                         StatBlock mins    : Minimum stat targets.
         Return Values : int               : Sum of all stat deficits.
         */
-        public static int GetTotalDeficit(StatBlock current, StatBlock mins) {
+        public static int GetTotalDeficit(StatBlock current, StatBlock mins){
             int total = 0;
             total += GetDeficit(current.Health, mins.Health);
             total += GetDeficit(current.Melee, mins.Melee);
@@ -76,7 +76,7 @@ namespace D2ArmorCalc {
                         StatBlock maxs    : Maximum stat targets.
         Return Values : int               : Sum of all stat excesses over max.
         */
-        public static int GetTotalExcess(StatBlock current, StatBlock maxs) {
+        public static int GetTotalExcess(StatBlock current, StatBlock maxs){
             int total = 0;
             if (maxs.Health > 0) total += Math.Max(0, current.Health - maxs.Health);
             if (maxs.Melee > 0) total += Math.Max(0, current.Melee - maxs.Melee);
@@ -97,7 +97,7 @@ namespace D2ArmorCalc {
         Parameters    : int statValue : Current Health stat value.
         Return Values : string        : Formatted buff string, or empty if no buff.
         */
-        public static string GetHealthBuff(int statValue) {
+        public static string GetHealthBuff(int statValue){
             int overflow = GetOverflow(statValue);
             if (overflow == 0) return string.Empty;
             double scale = overflow / 100.0;
@@ -113,7 +113,7 @@ namespace D2ArmorCalc {
         Parameters    : int statValue : Current Melee stat value.
         Return Values : string        : Formatted buff string, or empty if no buff.
         */
-        public static string GetMeleeBuff(int statValue) {
+        public static string GetMeleeBuff(int statValue){
             int overflow = GetOverflow(statValue);
             if (overflow == 0) return string.Empty;
             double scale = overflow / 100.0;
@@ -128,7 +128,7 @@ namespace D2ArmorCalc {
         Parameters    : int statValue : Current Grenade stat value.
         Return Values : string        : Formatted buff string, or empty if no buff.
         */
-        public static string GetGrenadeBuff(int statValue) {
+        public static string GetGrenadeBuff(int statValue){
             int overflow = GetOverflow(statValue);
             if (overflow == 0) return string.Empty;
             double scale = overflow / 100.0;
@@ -143,7 +143,7 @@ namespace D2ArmorCalc {
         Parameters    : int statValue : Current Super stat value.
         Return Values : string        : Formatted buff string, or empty if no buff.
         */
-        public static string GetSuperBuff(int statValue) {
+        public static string GetSuperBuff(int statValue){
             int overflow = GetOverflow(statValue);
             if (overflow == 0) return string.Empty;
             double scale = overflow / 100.0;
@@ -158,7 +158,7 @@ namespace D2ArmorCalc {
         Parameters    : int statValue : Current Class stat value.
         Return Values : string        : Formatted buff string, or empty if no buff.
         */
-        public static string GetClassBuff(int statValue) {
+        public static string GetClassBuff(int statValue){
             int overflow = GetOverflow(statValue);
             if (overflow == 0) return string.Empty;
             double scale = overflow / 100.0;
@@ -174,7 +174,7 @@ namespace D2ArmorCalc {
         Parameters    : int statValue : Current Weapons stat value.
         Return Values : string        : Formatted buff string, or empty if no buff.
         */
-        public static string GetWeaponsBuff(int statValue) {
+        public static string GetWeaponsBuff(int statValue){
             int overflow = GetOverflow(statValue);
             if (overflow == 0) return string.Empty;
             double scale = overflow / 100.0;
@@ -190,8 +190,8 @@ namespace D2ArmorCalc {
                         int statValue : Current value of that stat.
         Return Values : string        : Formatted buff string, or empty if no buff.
         */
-        public static string GetBuff(Stat stat, int statValue) {
-            switch (stat) {
+        public static string GetBuff(Stat stat, int statValue){
+            switch (stat){
                 case Stat.Health: return GetHealthBuff(statValue);
                 case Stat.Melee: return GetMeleeBuff(statValue);
                 case Stat.Grenade: return GetGrenadeBuff(statValue);

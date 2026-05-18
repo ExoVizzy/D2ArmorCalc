@@ -1,0 +1,77 @@
+﻿<!--
+*   FILE          : RangeSlider.xaml
+*   PROJECT       : D2ArmorCalc
+*   PROGRAMMER    : ExoVizzy
+*   FIRST VERSION : May 17, 2026
+*   DESCRIPTION   : Custom range slider UserControl with two draggable circle
+*                   thumbs, rounded filled range bar, & buff tooltips
+*                   that only appear when thumb value exceeds 100.
+-->
+<UserControl x:Class="D2ArmorCalc.RangeSlider"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="20">
+
+    <Grid>
+        <!-- Track background -->
+        <Border x:Name="TrackBackground"
+                Height="6"
+                VerticalAlignment="Center"
+                Background="{StaticResource SliderTrackBrush}"
+                CornerRadius="3" />
+
+        <!-- Filled range between thumbs -->
+        <Border x:Name="RangeBar"
+                Height="6"
+                VerticalAlignment="Center"
+                Background="{StaticResource SliderRangeBrush}"
+                CornerRadius="3"
+                HorizontalAlignment="Left" />
+
+        <!-- Canvas for thumb positioning -->
+        <Canvas x:Name="ThumbCanvas"
+                Height="20"
+                VerticalAlignment="Center">
+
+            <!-- Min Thumb -->
+            <Ellipse x:Name="MinThumb"
+                     Width="20" Height="20"
+                     Fill="{StaticResource ThumbBrush}"
+                     Cursor="Hand"
+                     Canvas.Left="0"
+                     Canvas.Top="0">
+                <Ellipse.ToolTip>
+                    <ToolTip x:Name="MinThumbTooltip"
+                             Background="{StaticResource SurfaceAltBrush}"
+                             BorderBrush="{StaticResource BorderBrush}"
+                             Foreground="{StaticResource TextPrimaryBrush}"
+                             FontFamily="{StaticResource PrimaryFont}"
+                             FontSize="11"
+                             Padding="8,4,8,4">
+                        <TextBlock x:Name="MinBuffText" />
+                    </ToolTip>
+                </Ellipse.ToolTip>
+            </Ellipse>
+
+            <!-- Max Thumb -->
+            <Ellipse x:Name="MaxThumb"
+                     Width="20" Height="20"
+                     Fill="{StaticResource ThumbBrush}"
+                     Cursor="Hand"
+                     Canvas.Left="0"
+                     Canvas.Top="0">
+                <Ellipse.ToolTip>
+                    <ToolTip x:Name="MaxThumbTooltip"
+                             Background="{StaticResource SurfaceAltBrush}"
+                             BorderBrush="{StaticResource BorderBrush}"
+                             Foreground="{StaticResource TextPrimaryBrush}"
+                             FontFamily="{StaticResource PrimaryFont}"
+                             FontSize="11"
+                             Padding="8,4,8,4">
+                        <TextBlock x:Name="MaxBuffText" />
+                    </ToolTip>
+                </Ellipse.ToolTip>
+            </Ellipse>
+        </Canvas>
+    </Grid>
+</UserControl>

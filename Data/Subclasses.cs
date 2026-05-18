@@ -13,16 +13,16 @@ namespace D2ArmorCalc {
         //=====================================================================
         //Shared Data.
         //=====================================================================
-        private static readonly string[] WarlockJumps  = {"Strafe Glide", "Burst Glide", "Balanced Glide"};
-        private static readonly string[] TitanJumps    = {"High Lift", "Strafe Lift", "Catapult Lift"};
-        private static readonly string[] HunterJumps   = {"High Jump", "Strafe Jump", "Triple Jump"};
-        private static readonly string[] BlinkJump     = {"High Jump", "Strafe Jump", "Triple Jump", "Blink"};
-        private static readonly string[] WarlockBlink  = {"Strafe Glide", "Burst Glide", "Balanced Glide", "Blink"};
+        private static readonly string[] WarlockJumps = {"Strafe Glide", "Burst Glide", "Balanced Glide"};
+        private static readonly string[] TitanJumps = {"High Lift", "Strafe Lift", "Catapult Lift"};
+        private static readonly string[] HunterJumps = {"High Jump", "Strafe Jump", "Triple Jump"};
+        private static readonly string[] BlinkJump = {"High Jump", "Strafe Jump", "Triple Jump", "Blink"};
+        private static readonly string[] WarlockBlink = {"Strafe Glide", "Burst Glide", "Balanced Glide", "Blink"};
 
         private static readonly string[] WarlockClassAbilities = {"Healing Rift", "Empowering Rift"};
         private static readonly string[] WarlockSolarClassAbilities = {"Healing Rift", "Empowering Rift", "Phoenix Dive"};
-        private static readonly string[] TitanClassAbilities  = {"Rally Barricade", "Towering Barricade"};
-        private static readonly string[] TitanArcClassAbilities  = {"Rally Barricade", "Towering Barricade", "Thruster"};
+        private static readonly string[] TitanClassAbilities = {"Rally Barricade", "Towering Barricade"};
+        private static readonly string[] TitanArcClassAbilities = {"Rally Barricade", "Towering Barricade", "Thruster"};
         private static readonly string[] HunterClassAbilities = {"Marksmans Dodge", "Gamblers Dodge"};
         private static readonly string[] HunterSolarClassAbilities = {"Marksmans Dodge", "Gamblers Dodge", "Acrobats Dodge"};
         //=====================================================================
@@ -173,10 +173,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Warlock,
             fragments: ArcFragments,
             aspects: [
-                new Aspect("Arc Soul", 2),
-                new Aspect("Lightning Surge", 2),
-                new Aspect("Electrostatic Mind", 2),
-                new Aspect("Ionic Sentry", 2)],
+                new Aspect("Arc Soul", 2), new Aspect("Lightning Surge", 2),
+                new Aspect("Electrostatic Mind", 2), new Aspect("Ionic Sentry", 2)],
             supers: ["Stormtrance", "Chaos Reach"],
             melees: ["Chain Lightning", "Ball Lightning"],
             grenades: ArcGrenades,
@@ -188,10 +186,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Warlock,
             fragments: SolarFragments,
             aspects: [
-                new Aspect("Icarus Dash", 2),
-                new Aspect("Heat Rises", 2),
-                new Aspect("Touch of Flame", 2),
-                new Aspect("Hellion", 2)],
+                new Aspect("Icarus Dash", 2), new Aspect("Heat Rises", 2),
+                new Aspect("Touch of Flame", 2), new Aspect("Hellion", 2)],
             supers: ["Daybreak", "Well of Radiance", "Song of Flame"],
             melees: ["Incinerator Snap", "Celestial Fire"],
             grenades: SolarGrenades,
@@ -203,9 +199,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Warlock,
             fragments: VoidFragments,
             aspects: [
-                new Aspect("Chaos Accelerant",       2),
-                new Aspect("Feed the Void",          2),
-                new Aspect("Child of the Old Gods",  2)],
+                new Aspect("Chaos Accelerant", 2), new Aspect("Feed the Void", 2), 
+                new Aspect("Child of the Old Gods", 2)],
             supers: ["Nova Warp", "Nova Bomb Vortex", "Nova Bomb Cataclysm"],
             melees: ["Pocket Singularity"],
             grenades: VoidGrenades,
@@ -217,10 +212,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Warlock,
             fragments: StasisFragments,
             aspects: [
-                new Aspect("Iceflare Bolts", 2),
-                new Aspect("Frostpulse", 2),
-                new Aspect("Bleak Watcher", 2),
-                new Aspect("Glacial Harvest", 2)],
+                new Aspect("Iceflare Bolts", 2), new Aspect("Frostpulse", 2),
+                new Aspect("Bleak Watcher", 2), new Aspect("Glacial Harvest", 2)],
             supers: ["Winters Wrath"],
             melees: ["Penumbral Blast"],
             grenades: StasisGrenades,
@@ -232,10 +225,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Warlock,
             fragments: StrandFragments,
             aspects: [
-                new Aspect("Weavers Call", 2),
-                new Aspect("Mindspun Invocation", 2),
-                new Aspect("Wanderer", 2),
-                new Aspect("Weavewalk", 3)],
+                new Aspect("Weavers Call", 2), new Aspect("Mindspun Invocation", 2),
+                new Aspect("Wanderer", 2), new Aspect("Weavewalk", 3)],
             supers: ["Needlestorm"],
             melees: ["Arcane Needle"],
             grenades: StrandGrenades,
@@ -247,10 +238,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Warlock,
             fragments: PrismaticFragments,
             aspects: [
-                new Aspect("Hellion", 2),
-                new Aspect("Feed the Void", 2),
-                new Aspect("Lightning Surge", 3),
-                new Aspect("Bleak Watcher", 2),
+                new Aspect("Hellion", 2), new Aspect("Feed the Void", 2),
+                new Aspect("Lightning Surge", 3), new Aspect("Bleak Watcher", 2),
                 new Aspect("Weavers Call", 3)],
             supers: ["Song of Flame", "Nova Bomb Cataclysm", "Stormtrance", "Winters Wrath", "Needlestorm"],
             melees: ["Arcane Needle", "Pocket Singularity", "Incinerator Snap", "Chain Lightning", "Penumbral Blast"],
@@ -266,10 +255,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Titan,
             fragments: ArcFragments,
             aspects: [
-                new Aspect("Storms Keep", 2),
-                new Aspect("Touch of Thunder",2),
-                new Aspect("Juggernaut", 2),
-                new Aspect("Knockout", 2)],
+                new Aspect("Storms Keep", 2), new Aspect("Touch of Thunder",2),
+                new Aspect("Juggernaut", 2), new Aspect("Knockout", 2)],
             supers: ["Fists of Havoc", "Thundercrash"],
             melees: ["Thunderclap", "Seismic Strike", "Ballistic Slam"],
             grenades: ArcGrenades,
@@ -281,8 +268,7 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Titan,
             fragments: SolarFragments,
             aspects: [
-                new Aspect("Sol Invictus", 2),
-                new Aspect("Roaring Flames", 2),
+                new Aspect("Sol Invictus", 2), new Aspect("Roaring Flames", 2),
                 new Aspect("Consecration", 3)],
             supers: ["Hammer of Sol", "Burning Maul"],
             melees: ["Hammer Strike", "Throwing Hammer"],
@@ -295,10 +281,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Titan,
             fragments: VoidFragments,
             aspects: [
-                new Aspect("Controlled Demolition", 2),
-                new Aspect("Bastion", 2),
-                new Aspect("Offensive Bulwark", 2),
-                new Aspect("Unbreakable", 3)],
+                new Aspect("Controlled Demolition", 2), new Aspect("Bastion", 2),
+                new Aspect("Offensive Bulwark", 2), new Aspect("Unbreakable", 3)],
             supers: ["Sentinel Shield", "Ward of Dawn", "Twilight Arsenal"],
             melees: ["Shield Bash", "Shield Throw"],
             grenades: VoidGrenades,
@@ -310,10 +294,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Titan,
             fragments: StasisFragments,
             aspects: [
-                new Aspect("Cryoclasm", 3),
-                new Aspect("Tectonic Harvest", 2),
-                new Aspect("Howl of the Storm",  2),
-                new Aspect("Diamond Lance",      3)
+                new Aspect("Cryoclasm", 3), new Aspect("Tectonic Harvest", 2),
+                new Aspect("Howl of the Storm", 2), new Aspect("Diamond Lance", 3)
             ],
             supers: ["Glacial Quake"],
             melees: ["Shiver Strike"],
@@ -326,10 +308,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Titan,
             fragments: StrandFragments,
             aspects: [
-                new Aspect("Into the Fray", 2),
-                new Aspect("Drengrs Lash", 2),
-                new Aspect("Flechette Storm", 2),
-                new Aspect("Banner of War", 2)],
+                new Aspect("Into the Fray", 2), new Aspect("Drengrs Lash", 2),
+                new Aspect("Flechette Storm", 2), new Aspect("Banner of War", 2)],
             supers: ["Bladefury"],
             melees: ["Frenzied Blade"],
             grenades: StrandGrenades,
@@ -341,10 +321,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Titan,
             fragments: PrismaticFragments,
             aspects: [
-                new Aspect("Unbreakable", 3),
-                new Aspect("Consecration", 2),
-                new Aspect("Knockout", 2),
-                new Aspect("Diamond Lance", 3),
+                new Aspect("Unbreakable", 3), new Aspect("Consecration", 2),
+                new Aspect("Knockout", 2), new Aspect("Diamond Lance", 3),
                 new Aspect("Drengrs Lash", 3)],
             supers: ["Thundercrash", "Bladefury", "Twilight Arsenal", "Hammer of Sol", "Glacial Quake"],
             melees: ["Thunderclap", "Shield Throw", "Shiver Strike", "Hammer Strike", "Frenzied Blade"],
@@ -360,10 +338,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Hunter,
             fragments: ArcFragments,
             aspects: [
-                new Aspect("Flow State", 2),
-                new Aspect("Tempest Strike", 2),
-                new Aspect("Lethal Current", 2),
-                new Aspect("Ascension", 3)],
+                new Aspect("Flow State", 2), new Aspect("Tempest Strike", 2),
+                new Aspect("Lethal Current", 2), new Aspect("Ascension", 3)],
             supers: ["Gathering Storm", "Arc Staff", "Storms Edge"],
             melees: ["Combination Blow", "Disorienting Blow"],
             grenades: ArcGrenades,
@@ -375,8 +351,7 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Hunter,
             fragments: SolarFragments,
             aspects: [
-                new Aspect("Knock em Down", 2),
-                new Aspect("On Your Mark", 3),
+                new Aspect("Knock em Down", 2), new Aspect("On Your Mark", 3),
                 new Aspect("Gunpowder Gamble", 2)],
             supers: ["Golden Gun Deadshot", "Golden Gun Marksman", "Blade Barrage"],
             melees: ["Knife Trick", "Lightweight Knife", "Weighted Throwing Knife", "Proximity Explosive Knife"],
@@ -389,10 +364,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Hunter,
             fragments: VoidFragments,
             aspects: [
-                new Aspect("Trappers Ambush", 2),
-                new Aspect("Vanishing Step", 2),
-                new Aspect("Stylish Executioner", 2),
-                new Aspect("On the Prowl", 3)],
+                new Aspect("Trappers Ambush", 2), new Aspect("Vanishing Step", 2),
+                new Aspect("Stylish Executioner", 2), new Aspect("On the Prowl", 3)],
             supers: ["Shadowshot Moebius Quiver", "Shadowshot Deadfall", "Spectral Blades"],
             melees: ["Snare Bomb"],
             grenades: VoidGrenades,
@@ -404,10 +377,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Hunter,
             fragments: StasisFragments,
             aspects: [
-                new Aspect("Winters Shroud", 2),
-                new Aspect("Shatterdive", 2),
-                new Aspect("Grim Harvest", 3),
-                new Aspect("Touch of Winter", 2)],
+                new Aspect("Winters Shroud", 2), new Aspect("Shatterdive", 2),
+                new Aspect("Grim Harvest", 3), new Aspect("Touch of Winter", 2)],
             supers: ["Silence and Squall"],
             melees: ["Withering Blade"],
             grenades: StasisGrenades,
@@ -419,10 +390,8 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Hunter,
             fragments: StrandFragments,
             aspects: [
-                new Aspect("Widows Silk", 2),
-                new Aspect("Ensnaring Slam", 2),
-                new Aspect("Threaded Specter",   3),
-                new Aspect("Whirling Maelstrom", 2)],
+                new Aspect("Widows Silk", 2), new Aspect("Ensnaring Slam", 2),
+                new Aspect("Threaded Specter", 3), new Aspect("Whirling Maelstrom", 2)],
             supers: ["Silkstrike"],
             melees: ["Threaded Spike"],
             grenades: StrandGrenades,
@@ -434,11 +403,9 @@ namespace D2ArmorCalc {
             playerClass: PlayerClass.Hunter,
             fragments: PrismaticFragments,
             aspects: [
-                new Aspect("Ascension",          2),
-                new Aspect("Stylish Executioner",2),
-                new Aspect("Gunpowder Gamble",   3),
-                new Aspect("Winters Shroud",     2),
-                new Aspect("Threaded Specter",   3)],
+                new Aspect("Ascension", 2),  new Aspect("Stylish Executioner",2),
+                new Aspect("Gunpowder Gamble", 3), new Aspect("Winters Shroud", 2),
+                new Aspect("Threaded Specter", 3)],
             supers: ["Golden Gun Marksman", "Silence and Squall", "Storms Edge", "Shadowshot Deadfall", "Silkstrike"],
             melees: ["Threaded Strike", "Withering Blade", "Snare Bomb", "Knife Trick", "Combination Blow"],
             grenades: PrismaticHunterGrenades,
@@ -460,8 +427,8 @@ namespace D2ArmorCalc {
                         string name             : Subclass name (e.g. "Arc").
         Return Values : Subclass                : Matching subclass, or null if not found.
         */
-        public static Subclass GetSubclass(PlayerClass playerClass, string name) {
-            foreach (var subclass in All[playerClass]) {
+        public static Subclass GetSubclass(PlayerClass playerClass, string name){
+            foreach (Subclass subclass in All[playerClass]){
                 if (subclass.Name == name) return subclass;
             }
             return null;

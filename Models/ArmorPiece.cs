@@ -16,6 +16,11 @@ namespace D2ArmorCalc {
         //Identity.
         public string Name {get; set;}
         public ArmorSlot Slot {get; set;}
+        public bool IsCustomRoll {get; set;}
+        public StatBlock CustomStatBlock {get; set;}
+        public int StandardPrimary {get; set;}
+        public int StandardSecondary {get; set;}
+        public int StandardTertiary {get; set;}
         public ArmorRarity Rarity {get; set;}
         //Archetype determines primary (30) and secondary (25) stats.
         public Archetype Archetype {get; set;}
@@ -34,7 +39,7 @@ namespace D2ArmorCalc {
         public int StatModEnergy => StatMod != null ? StatMod.EnergyCost : 0;
         public int RemainingEnergy => TotalEnergy - FontEnergy - StatModEnergy;
 
-        public ArmorPiece(ArmorSlot slot, ArmorRarity rarity) {
+        public ArmorPiece(ArmorSlot slot, ArmorRarity rarity){
             Slot = slot;
             Rarity = rarity;
             TotalEnergy = rarity == ArmorRarity.Exotic ? 10 : 11;
@@ -47,7 +52,7 @@ namespace D2ArmorCalc {
         Parameters    : Stat stat : Stat to retrieve base value for.
         Return Values : int       : Base stat value before mods or fonts.
         */
-        public int GetBaseStat(Stat stat) {
+        public int GetBaseStat(Stat stat){
             int value = 0;
 
             if (stat == Archetype.Primary) value = 30;
@@ -66,14 +71,14 @@ namespace D2ArmorCalc {
         Parameters    : Stat stat : Stat to calculate total for.
         Return Values : int       : Total stat value after all bonuses.
         */
-        public int GetTotalStat(Stat stat) {
+        public int GetTotalStat(Stat stat){
             int total = GetBaseStat(stat);
 
             if (StatMod != null && StatMod.Stat == stat)
                 total += StatMod.Bonus;
 
             int fontCount = 0;
-            foreach (var font in Fonts) {
+            foreach (Font font in Fonts){
                 if (font.Stat == stat) fontCount++;
             }
             total += D2ArmorCalc.Fonts.GetTotalBonus(fontCount);
@@ -87,7 +92,7 @@ namespace D2ArmorCalc {
         Parameters    : None.
         Return Values : StatBlock : All 6 stat totals for this piece.
         */
-        public StatBlock GetAllStats() {
+        public StatBlock GetAllStats(){
             return new StatBlock(
                 GetTotalStat(Stat.Health), GetTotalStat(Stat.Melee), GetTotalStat(Stat.Grenade),
                 GetTotalStat(Stat.Super), GetTotalStat(Stat.Class), GetTotalStat(Stat.Weapons)

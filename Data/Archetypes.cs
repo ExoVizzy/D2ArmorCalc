@@ -27,7 +27,7 @@ namespace D2ArmorCalc {
         Parameters    : Archetype archetype : The archetype to check against.
         Return Values : Stat[]              : Array of 4 valid tertiary stats.
         */
-        public static Stat[] GetTertiaryStats(Archetype archetype) {
+        public static Stat[] GetTertiaryStats(Archetype archetype){
             Stat[] all = [Stat.Health, Stat.Melee, Stat.Grenade, Stat.Super, Stat.Class, Stat.Weapons];
             return Array.FindAll(all, s => s != archetype.Primary && s != archetype.Secondary);
         }

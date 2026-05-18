@@ -28,7 +28,7 @@ namespace D2ArmorCalc {
         Parameters    : ArmorRarity rarity : Rarity of armor piece.
         Return Values : int                : Total energy available.
         */
-        public static int GetTotalEnergy(ArmorRarity rarity) {
+        public static int GetTotalEnergy(ArmorRarity rarity){
             return rarity == ArmorRarity.Exotic ? ExoticEnergy : LegendaryEnergy;
         }
         /*
@@ -38,7 +38,7 @@ namespace D2ArmorCalc {
         Parameters    : int fontCount : Number of fonts equipped on piece.
         Return Values : int           : Total energy consumed by fonts.
         */
-        public static int GetFontEnergy(int fontCount) {
+        public static int GetFontEnergy(int fontCount){
             return fontCount * FontEnergyCost;
         }
 
@@ -50,7 +50,7 @@ namespace D2ArmorCalc {
                         int         fontCount : Number of fonts equipped.
         Return Values : int                   : Remaining general slot energy.
         */
-        public static int GetRemainingGeneralEnergy(ArmorRarity rarity, int fontCount) {
+        public static int GetRemainingGeneralEnergy(ArmorRarity rarity, int fontCount){
             return GetTotalEnergy(rarity) - GetFontEnergy(fontCount);
         }
         //=====================================================================
@@ -63,7 +63,7 @@ namespace D2ArmorCalc {
         Parameters    : int fontCount : Number of fonts to validate.
         Return Values : bool          : True if font count is within limits.
         */
-        public static bool IsFontCountValid(int fontCount) {
+        public static bool IsFontCountValid(int fontCount){
             return fontCount >= 0 && fontCount <= GeneralSlots;
         }
         /*
@@ -76,7 +76,7 @@ namespace D2ArmorCalc {
                         int         fontCount : Number of fonts equipped.
         Return Values : bool                  : True if the stat mod fits.
         */
-        public static bool IsStatModCompatible(StatMod mod, ArmorRarity rarity, int fontCount) {
+        public static bool IsStatModCompatible(StatMod mod, ArmorRarity rarity, int fontCount){
             int remaining = GetRemainingGeneralEnergy(rarity, fontCount);
             return mod.EnergyCost <= remaining;
         }
@@ -91,9 +91,9 @@ namespace D2ArmorCalc {
                         int         currentModCost : Total energy already used by other armor mods.
         Return Values : bool                       : True if mod fits.
         */
-        public static bool IsArmorModCompatible(ArmorMod mod, ArmorRarity rarity, int fontCount, int statModCost, int currentModCost) {
-            int total     = GetTotalEnergy(rarity);
-            int used      = GetFontEnergy(fontCount) + statModCost + currentModCost;
+        public static bool IsArmorModCompatible(ArmorMod mod, ArmorRarity rarity, int fontCount, int statModCost, int currentModCost){
+            int total = GetTotalEnergy(rarity);
+            int used = GetFontEnergy(fontCount) + statModCost + currentModCost;
             int remaining = total - used;
             return mod.EnergyCost <= remaining;
         }
@@ -107,11 +107,11 @@ namespace D2ArmorCalc {
                         int         statModCost : Energy cost of equipped stat mod (0 if none).
         Return Values : bool                    : True if full loadout fits.
         */
-        public static bool IsArmorModLoadoutValid(ArmorMod[] mods, ArmorRarity rarity, int fontCount, int statModCost) {
+        public static bool IsArmorModLoadoutValid(ArmorMod[] mods, ArmorRarity rarity, int fontCount, int statModCost){
             int total = GetTotalEnergy(rarity);
             int fontCost = GetFontEnergy(fontCount);
             int modCost = 0;
-            foreach (var mod in mods) modCost += mod.EnergyCost;
+            foreach (ArmorMod mod in mods) modCost += mod.EnergyCost;
             return fontCost + statModCost + modCost <= total;
         }
         /*
@@ -122,8 +122,8 @@ namespace D2ArmorCalc {
                         ArmorSlot  slot : Expected armor slot.
         Return Values : bool            : True if all mods belong to slot.
         */
-        public static bool IsSlotValid(ArmorMod[] mods, ArmorSlot slot) {
-            foreach (var mod in mods) {
+        public static bool IsSlotValid(ArmorMod[] mods, ArmorSlot slot){
+            foreach (ArmorMod mod in mods){
                 if (mod.Slot != slot) return false;
             }
             return true;
@@ -136,7 +136,7 @@ namespace D2ArmorCalc {
         Parameters    : ArmorPiece piece : Armor piece to validate.
         Return Values : bool             : True if piece configuration is valid.
         */
-        public static bool IsPieceConfigValid(ArmorPiece piece) {
+        public static bool IsPieceConfigValid(ArmorPiece piece){
             if (!IsFontCountValid(piece.Fonts.Length)) return false;
 
             if (!IsSlotValid(new ArmorMod[0], piece.Slot)) return false;
@@ -158,14 +158,14 @@ namespace D2ArmorCalc {
                         int         usedEnergy  : Energy already used by other equipped armor mods.
         Return Values : List<ArmorMod>          : All mods that fit within remaining budget.
         */
-        public static List<ArmorMod> GetAvailableArmorMods(ArmorSlot slot, ArmorRarity rarity, int fontCount, int statModCost, int usedEnergy) {
-            var available = new List<ArmorMod>();
-            var slotMods = ArmorMods.GetModsBySlot(slot);
+        public static List<ArmorMod> GetAvailableArmorMods(ArmorSlot slot, ArmorRarity rarity, int fontCount, int statModCost, int usedEnergy){
+            List<ArmorMod> available = new List<ArmorMod>();
+            ArmorMod[] slotMods = ArmorMods.GetModsBySlot(slot);
             int total = GetTotalEnergy(rarity);
             int used = GetFontEnergy(fontCount) + statModCost + usedEnergy;
             int remaining = total - used;
 
-            foreach (var mod in slotMods) {
+            foreach (ArmorMod mod in slotMods){
                 if (mod.EnergyCost <= remaining) available.Add(mod);
             }
             return available;

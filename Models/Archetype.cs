@@ -21,7 +21,7 @@ namespace D2ArmorCalc {
         public ArchetypeType Type {get;}
         public Stat Primary {get;}
         public Stat Secondary {get;}
-        public Archetype(ArchetypeType type, Stat primary, Stat secondary) {
+        public Archetype(ArchetypeType type, Stat primary, Stat secondary){
             Type = type;
             Primary = primary;
             Secondary = secondary;

@@ -1,25 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
-namespace D2ArmorCalc.Views
-{
-    /// <summary>
-    /// Interaction logic for StatSliderControl.xaml
-    /// </summary>
-    public partial class StatSliderControl : UserControl
-    {
-        public StatSliderControl()
-        {
+﻿/*
+*   FILE          : StatSliderControl.xaml.cs
+*   PROJECT       : D2ArmorCalc
+*   PROGRAMMER    : ExoVizzy
+*   FIRST VERSION : May 17, 2026
+*   DESCRIPTION   : Code-behind for StatSliderControl. Binding is handled
+*                   entirely through ViewModel so this file is minimal.
+*/
+namespace D2ArmorCalc {
+    public partial class StatSliderControl : System.Windows.Controls.UserControl {
+        public StatSliderControl() {
             InitializeComponent();
         }
     }

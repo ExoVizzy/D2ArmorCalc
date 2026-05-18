@@ -16,24 +16,24 @@ namespace D2ArmorCalc {
         public int Class {get; set;}
         public int Weapons {get; set;}
 
-        public StatBlock(int health, int melee, int grenade, int super, int classVal, int weapons) {
-            Health  = health;
-            Melee   = melee;
+        public StatBlock(int health, int melee, int grenade, int super, int classVal, int weapons){
+            Health = health;
+            Melee = melee;
             Grenade = grenade;
-            Super   = super;
-            Class   = classVal;
+            Super = super;
+            Class = classVal;
             Weapons = weapons;
         }
         //Empty StatBlock defaulting all stats to 0.
-        public StatBlock() { }
+        public StatBlock(){}
         /*
         Method        : Get
         Description   : Returns value of specific stat by Stat enum.
         Parameters    : Stat stat : Stat to retrieve.
         Return Values : int       : Value of requested stat.
         */
-        public int Get(Stat stat) {
-            switch (stat) {
+        public int Get(Stat stat){
+            switch (stat){
                 case Stat.Health: return Health;
                 case Stat.Melee: return Melee;
                 case Stat.Grenade: return Grenade;
@@ -50,8 +50,8 @@ namespace D2ArmorCalc {
                         int value : Value to assign.
         Return Values : void
         */
-        public void Set(Stat stat, int value) {
-            switch (stat) {
+        public void Set(Stat stat, int value){
+            switch (stat){
                 case Stat.Health: Health = value; break;
                 case Stat.Melee: Melee = value; break;
                 case Stat.Grenade: Grenade = value; break;
@@ -67,7 +67,7 @@ namespace D2ArmorCalc {
         Parameters    : StatBlock other : StatBlock to add.
         Return Values : StatBlock       : New StatBlock with summed values.
         */
-        public StatBlock Add(StatBlock other) {
+        public StatBlock Add(StatBlock other){
             return new StatBlock(
                 Health + other.Health, Melee + other.Melee, Grenade + other.Grenade,
                 Super + other.Super, Class + other.Class, Weapons + other.Weapons
@@ -80,7 +80,7 @@ namespace D2ArmorCalc {
         Parameters    : StatBlock mins : Minimum stat targets to check against.
         Return Values : bool           : True if all stats meet minimums, false otherwise.
         */
-        public bool MeetsMinimums(StatBlock mins) {
+        public bool MeetsMinimums(StatBlock mins){
             return Health >= mins.Health && Melee >= mins.Melee && Grenade >= mins.Grenade &&
                    Super >= mins.Super && Class >= mins.Class && Weapons >= mins.Weapons;
         }
@@ -93,7 +93,7 @@ namespace D2ArmorCalc {
         Parameters    : StatBlock maxs : The maximum stat targets to check against.
         Return Values : bool           : True if all set stats are within maximums.
         */
-        public bool MeetsMaximums(StatBlock maxs) {
+        public bool MeetsMaximums(StatBlock maxs){
             return (maxs.Health == 0 || Health <= maxs.Health) && (maxs.Melee == 0 || Melee <= maxs.Melee) &&
                    (maxs.Grenade == 0 || Grenade <= maxs.Grenade) && (maxs.Super == 0 || Super <= maxs.Super) &&
                    (maxs.Class == 0 || Class <= maxs.Class) && (maxs.Weapons == 0 || Weapons <= maxs.Weapons);
@@ -105,10 +105,10 @@ namespace D2ArmorCalc {
         Parameters    : Fragment[] fragments : Fragments to apply.
         Return Values : StatBlock            : New StatBlock with fragment bonuses applied.
         */
-        public StatBlock ApplyFragments(Fragment[] fragments) {
+        public StatBlock ApplyFragments(Fragment[] fragments){
             StatBlock result = new StatBlock(Health, Melee, Grenade, Super, Class, Weapons);
-            foreach (var fragment in fragments) {
-                foreach (var change in fragment.StatChanges) {
+            foreach (Fragment fragment in fragments){
+                foreach (StatChange change in fragment.StatChanges){
                     result.Set(change.Stat, result.Get(change.Stat) + change.Value);
                 }
             }
@@ -121,7 +121,7 @@ namespace D2ArmorCalc {
         Parameters    : None.
         Return Values : StatBlock : Overflow values per stat (0 if stat is <= 100).
         */
-        public StatBlock GetOverflow() {
+        public StatBlock GetOverflow(){
             return new StatBlock(
                 Health > 100 ? Health - 100 : 0, Melee > 100 ? Melee - 100 : 0,
                 Grenade > 100 ? Grenade - 100 : 0, Super > 100 ? Super - 100 : 0,

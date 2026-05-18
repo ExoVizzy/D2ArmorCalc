@@ -14,14 +14,14 @@ namespace D2ArmorCalc {
         //=====================================================================
         //Defaults.
         //=====================================================================
-        private const Stat   DefaultLeastWantedStat    = Stat.Health;
-        private const bool   DefaultShowDimQueries      = true;
-        private const bool   DefaultCustomExoticRolls   = false;
-        private const bool   DefaultFontsEnabled        = false;
-        private const bool   DefaultArmorModsEnabled    = true;
+        private const Stat   DefaultLeastWantedStat = Stat.Health;
+        private const bool   DefaultShowDimQueries = true;
+        private const bool   DefaultCustomExoticRolls = false;
+        private const bool   DefaultFontsEnabled = false;
+        private const bool   DefaultArmorModsEnabled = true;
         private const bool   DefaultSubclassCustomization = false;
-        private const bool   DefaultCustomTuning        = false;
-        private const bool   DefaultT5ExoticEnabled     = false;
+        private const bool   DefaultCustomTuning = false;
+        private const bool   DefaultT5ExoticEnabled = false;
         //=====================================================================
         //Properties (read from App.config, fall back to defaults if missing).
         //=====================================================================
@@ -67,7 +67,7 @@ namespace D2ArmorCalc {
         Parameters    : string key : App.config key to read.
         Return Values : string     : Stored value, or null if not found.
         */
-        private static string Read(string key) {
+        private static string Read(string key){
             return ConfigurationManager.AppSettings[key];
         }
         /*
@@ -78,7 +78,7 @@ namespace D2ArmorCalc {
                         string value : Value to store.
         Return Values : void
         */
-        private static void Write(string key, string value) {
+        private static void Write(string key, string value){
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             if (config.AppSettings.Settings[key] == null) config.AppSettings.Settings.Add(key, value);
             else config.AppSettings.Settings[key].Value = value;
@@ -93,7 +93,7 @@ namespace D2ArmorCalc {
                         bool defaultValue : Fallback value if parsing fails.
         Return Values : bool              : Parsed or default bool value.
         */
-        private static bool ParseBool(string value, bool defaultValue) {
+        private static bool ParseBool(string value, bool defaultValue){
             if (bool.TryParse(value, out bool result)) return result;
             return defaultValue;
         }
@@ -105,7 +105,7 @@ namespace D2ArmorCalc {
                         Stat defaultValue : Fallback Stat if parsing fails.
         Return Values : Stat              : Parsed or default Stat value.
         */
-        private static Stat ParseStat(string value, Stat defaultValue) {
+        private static Stat ParseStat(string value, Stat defaultValue){
             if (System.Enum.TryParse(value, out Stat result)) return result;
             return defaultValue;
         }
@@ -116,7 +116,7 @@ namespace D2ArmorCalc {
         Parameters    : None.
         Return Values : void
         */
-        public static void ResetToDefaults() {
+        public static void ResetToDefaults(){
             LeastWantedStat = DefaultLeastWantedStat;
             ShowDimQueries = DefaultShowDimQueries;
             CustomExoticRolls = DefaultCustomExoticRolls;

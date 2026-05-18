@@ -11,7 +11,7 @@ namespace D2ArmorCalc {
     public class StatChange {
         public Stat Stat {get;}
         public int Value {get;} //Positive = boost, Negative = reduction.
-        public StatChange(Stat stat, int value) {
+        public StatChange(Stat stat, int value){
             Stat = stat;
             Value = value;
         }
@@ -21,7 +21,7 @@ namespace D2ArmorCalc {
         public string Name {get;}
         public string Subclass {get;}
         public StatChange[] StatChanges {get;} //Empty if no stat changes.
-        public Fragment(string name, string subclass, params StatChange[] statChanges) {
+        public Fragment(string name, string subclass, params StatChange[] statChanges){
             Name = name;
             Subclass = subclass;
             StatChanges = statChanges;

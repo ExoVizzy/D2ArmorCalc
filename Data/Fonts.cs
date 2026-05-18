@@ -29,7 +29,7 @@ namespace D2ArmorCalc {
         Parameters    : int count : Number of fonts of same type (1-3).
         Return Values : int       : Total stat bonus granted by the fonts.
         */
-        public static int GetTotalBonus(int count) {
+        public static int GetTotalBonus(int count){
             if (count < 1 || count > 3) return 0;
             int total = 0;
             for (int i = 1; i <= count; i++) total += StackingBonus[i];
@@ -41,7 +41,7 @@ namespace D2ArmorCalc {
         Parameters    : ArmorSlot slot : Armor slot to filter by.
         Return Values : Font[]         : Array of fonts available in slot.
         */
-        public static Font[] GetFontsBySlot(ArmorSlot slot) {
+        public static Font[] GetFontsBySlot(ArmorSlot slot){
             return Array.FindAll(All, f => f.Slot == slot);
         }
         /*
@@ -51,7 +51,7 @@ namespace D2ArmorCalc {
         Parameters    : ArmorSlot slot : Armor slot to check.
         Return Values : int            : Maximum energy fonts can use in that slot.
         */
-        public static int GetMaxFontEnergy(ArmorSlot slot) {
+        public static int GetMaxFontEnergy(ArmorSlot slot){
             return GetFontsBySlot(slot).Length * 3;
         }
     }

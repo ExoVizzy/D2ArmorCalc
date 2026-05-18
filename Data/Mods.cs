@@ -14,7 +14,7 @@ namespace D2ArmorCalc {
                         Stat stat       : Stat mod applies to.
         Return Values : StatMod         : New StatMod for given type & stat.
         */
-        public static StatMod GetMod(ModType modType, Stat stat) {
+        public static StatMod GetMod(ModType modType, Stat stat){
             return new StatMod(modType, stat);
         }
         /*
@@ -25,7 +25,7 @@ namespace D2ArmorCalc {
                         int     energyBudget : Remaining energy available.
         Return Values : bool                 : True if mod fits, false otherwise.
         */
-        public static bool IsCompatible(StatMod mod, int energyBudget) {
+        public static bool IsCompatible(StatMod mod, int energyBudget){
             return mod.EnergyCost <= energyBudget;
         }
     }

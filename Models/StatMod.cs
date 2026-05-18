@@ -20,7 +20,7 @@ namespace D2ArmorCalc {
 
     public StatMod(ModType modType, Stat stat)
         : base(modType == ModType.Major ? "Major " + stat : "Minor " + stat,
-               modType == ModType.Major ? 3 : 1) {
+               modType == ModType.Major ? 3 : 1){
         ModType = modType;
         Stat = stat;
     }

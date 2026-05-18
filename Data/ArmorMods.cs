@@ -155,7 +155,7 @@ namespace D2ArmorCalc {
         Parameters    : ArmorSlot slot : Armor slot to filter by.
         Return Values : ArmorMod[]     : Array of all mods available in slot.
         */
-        public static ArmorMod[] GetModsBySlot(ArmorSlot slot) {
+        public static ArmorMod[] GetModsBySlot(ArmorSlot slot){
             return Array.FindAll(All, m => m.Slot == slot);
         }
         //All armor mods as a flat array for iteration.

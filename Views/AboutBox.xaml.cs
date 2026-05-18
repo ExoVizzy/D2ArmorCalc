@@ -1,25 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*
+*   FILE          : AboutBox.xaml.cs
+*   PROJECT       : D2ArmorCalc
+*   PROGRAMMER    : ExoVizzy
+*   FIRST VERSION : May 17, 2026
+*   DESCRIPTION   : Code-behind for AboutBox dialog window.
+*/
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
-namespace D2ArmorCalc.Views
-{
-    /// <summary>
-    /// Interaction logic for AboutBox.xaml
-    /// </summary>
-    public partial class AboutBox : Window
-    {
-        public AboutBox()
-        {
+namespace D2ArmorCalc {
+    public partial class AboutBox : Window {
+        public AboutBox() {
             InitializeComponent();
+        }
+        private void CloseButton_Click(object sender, RoutedEventArgs e) {
+            Close();
         }
     }
 }

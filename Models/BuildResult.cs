@@ -39,10 +39,10 @@ namespace D2ArmorCalc {
         public string DimQueryAll {get; set;} //All 5 pieces together.
         public string DimQueryExotic {get; set;} //Exotic piece only.
         public string DimQueryLegendary {get; set;} //4 legendary pieces only.
-        // Score used internally by algorithm to rank and compare results.
-        // Lower is better: represents how far total stats are from targets.
+        //Score used internally by algorithm to rank and compare results.
+        //Lower is better: represents how far total stats are from targets.
         public int Score {get; set;}
-        public BuildResult() {
+        public BuildResult(){
             Fragments = new Fragment[0];
             MaxsExceededStats = new StatBlock();
         }
@@ -52,8 +52,8 @@ namespace D2ArmorCalc {
         Parameters    : None.
         Return Values : ArmorPiece[] : Array of all 5 pieces in slot order.
         */
-        public ArmorPiece[] GetPieces() {
-            return new ArmorPiece[] { Helmet, Arms, Chestplate, Boots, ClassItem };
+        public ArmorPiece[] GetPieces(){
+            return new ArmorPiece[] {Helmet, Arms, Chestplate, Boots, ClassItem };
         }
         /*
         Method        : IsValid
@@ -62,7 +62,7 @@ namespace D2ArmorCalc {
         Parameters    : None.
         Return Values : bool : True if mins were met, false if build is impossible.
         */
-        public bool IsValid() {
+        public bool IsValid(){
             return Status != BuildStatus.MinsFailed;
         }
         /*
@@ -72,8 +72,8 @@ namespace D2ArmorCalc {
         Parameters    : None.
         Return Values : string : Message describing build outcome.
         */
-        public string GetStatusMessage() {
-            switch (Status) {
+        public string GetStatusMessage(){
+            switch (Status){
                 case BuildStatus.Success:
                     return "Build found. All stat targets met.";
                 case BuildStatus.MinsFailed:
