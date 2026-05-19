@@ -6,22 +6,24 @@
 *   DESCRIPTION   : Defines ArmorPiece model representing a single piece
 *                   of armor including its archetype, stats, slot, mods, & fonts.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Data;
+
+namespace D2ArmorCalc_Models {
     //Enum representing whether piece is exotic or legendary.
     public enum ArmorRarity {
         Legendary, Exotic
     }
     //Represents single piece of armor & all its relevant properties.
-    public class ArmorPiece {
+    public class ArmorPiece(ArmorSlot slot, ArmorRarity rarity) {
         //Identity.
         public string? Name {get; set;}
-        public ArmorSlot Slot {get; set;}
+        public ArmorSlot Slot { get; set; } = slot;
         public bool IsCustomRoll {get; set;}
         public StatBlock? CustomStatBlock {get; set;}
         public int StandardPrimary {get; set;}
         public int StandardSecondary {get; set;}
         public int StandardTertiary {get; set;}
-        public ArmorRarity Rarity {get; set;}
+        public ArmorRarity Rarity { get; set; } = rarity;
         //Archetype determines primary (30) and secondary (25) stats.
         public Archetype? Archetype {get; set;}
         //Tertiary stat is any of the 4 stats not in the archetype (value: 20).
@@ -32,19 +34,12 @@ namespace D2ArmorCalc {
         //Stat mod in the dedicated stat mod slot (can be null if none).
         public StatMod? StatMod {get; set;}
         //Up to 3 fonts in the general mod slots (slot-locked, validated externally).
-        public Font[] Fonts {get; set;}
+        public Font[] Fonts { get; set; } = [];
         //Energy.
-        public int TotalEnergy {get;}
+        public int TotalEnergy { get; } = rarity == ArmorRarity.Exotic ? 10 : 11;
         public int FontEnergy => Fonts  != null ? Fonts.Length  * 3 : 0;
         public int StatModEnergy => StatMod != null ? StatMod.EnergyCost : 0;
         public int RemainingEnergy => TotalEnergy - FontEnergy - StatModEnergy;
-
-        public ArmorPiece(ArmorSlot slot, ArmorRarity rarity){
-            Slot = slot;
-            Rarity = rarity;
-            TotalEnergy = rarity == ArmorRarity.Exotic ? 10 : 11;
-            Fonts = new Font[0];
-        }
         /*
         Method        : GetBaseStat
         Description   : Returns base stat value for given stat based on
@@ -81,7 +76,7 @@ namespace D2ArmorCalc {
             foreach (Font font in Fonts){
                 if (font.Stat == stat) fontCount++;
             }
-            total += D2ArmorCalc.Fonts.GetTotalBonus(fontCount);
+            total += D2ArmorCalc_Data.Fonts.GetTotalBonus(fontCount);
 
             return total;
         }

@@ -7,18 +7,21 @@
 *                   to UI including stat totals, overflow, buff strings,
 *                   build status, & DIM query outputs.
 */
+using D2ArmorCalc_Helpers;
+using D2ArmorCalc_Models;
+using D2ArmorCalc_ViewModels;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 
-namespace D2ArmorCalc {
+namespace D2ArmorCalc_ViewModels {
     //Represents single stat row in results display.
-    public class StatResultItem : INotifyPropertyChanged {
+    public class StatResultItem(Stat stat) : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        public Stat Stat {get;}
-        public string Label {get;}
+        public Stat Stat { get; } = stat;
+        public string Label { get; } = stat.ToString();
         private int _baseValue;
         public int BaseValue {
             get => _baseValue;
@@ -62,10 +65,6 @@ namespace D2ArmorCalc {
         public bool ExceedsMax => _targetMax > 0 && _finalValue > _targetMax;
         //Buff string from StatHelper.
         public string BuffString => StatHelper.GetBuff(Stat, _finalValue);
-        public StatResultItem(Stat stat){
-            Stat = stat;
-            Label = stat.ToString();
-        }
     }
     //Represents single armor piece row in results display.
     public class PieceResultItem {
@@ -86,11 +85,9 @@ namespace D2ArmorCalc {
         //Properties.
         //=====================================================================
         //Stat result rows (one per stat).
-        public ObservableCollection<StatResultItem> StatResults {get;} =
-            new ObservableCollection<StatResultItem>();
+        public ObservableCollection<StatResultItem> StatResults {get;} = [];
         //Piece result rows (one per armor slot).
-        public ObservableCollection<PieceResultItem> PieceResults {get;} =
-            new ObservableCollection<PieceResultItem>();
+        public ObservableCollection<PieceResultItem> PieceResults {get;} = [];
         //Build status.
         private BuildStatus _status;
         public BuildStatus Status {
@@ -145,7 +142,7 @@ namespace D2ArmorCalc {
         //=====================================================================
         public ResultViewModel(){
             //Initialize stat rows.
-            foreach (Stat stat in Enum.GetValues(typeof(Stat)))
+            foreach (Stat stat in Enum.GetValues<Stat>())
                 StatResults.Add(new StatResultItem(stat));
             //Clipboard commands.
             CopyAllQueryCommand = new RelayCommand(_ => {
@@ -239,7 +236,7 @@ namespace D2ArmorCalc {
 
                 string fonts = string.Empty;
                 if (piece.Fonts != null && piece.Fonts.Length > 0){
-                    List<string> fontNames = new List<string>();
+                    List<string> fontNames = [];
                     foreach (Font font in piece.Fonts) fontNames.Add(font.Stat.ToString());
                     fonts = string.Join(", ", fontNames);
                 }

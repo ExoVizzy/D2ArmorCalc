@@ -6,22 +6,22 @@
 *   DESCRIPTION   : Static definitions for all armor fonts, including slot
 *                   restrictions, energy costs, & stacking bonus helpers.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Models;
+
+namespace D2ArmorCalc_Data {
     public static class Fonts {
         //One font definition per stat (slot-locked per game rules).
-        public static readonly Font Super = new Font(Stat.Super, ArmorSlot.Helmet);
-        public static readonly Font Grenade = new Font(Stat.Grenade, ArmorSlot.Arms);
-        public static readonly Font Melee = new Font(Stat.Melee, ArmorSlot.Arms);
-        public static readonly Font Health = new Font(Stat.Health, ArmorSlot.Chestplate);
-        public static readonly Font Weapons = new Font(Stat.Weapons, ArmorSlot.Boots);
-        public static readonly Font Class = new Font(Stat.Class, ArmorSlot.ClassItem);
+        public static readonly Font Super = new(Stat.Super, ArmorSlot.Helmet);
+        public static readonly Font Grenade = new(Stat.Grenade, ArmorSlot.Arms);
+        public static readonly Font Melee = new(Stat.Melee, ArmorSlot.Arms);
+        public static readonly Font Health = new(Stat.Health, ArmorSlot.Chestplate);
+        public static readonly Font Weapons = new(Stat.Weapons, ArmorSlot.Boots);
+        public static readonly Font Class = new(Stat.Class, ArmorSlot.ClassItem);
         //All fonts as array for iteration.
-        public static readonly Font[] All = {
-            Super, Grenade, Melee, Health, Weapons, Class
-        };
+        public static readonly Font[] All = [Super, Grenade, Melee, Health, Weapons, Class];
         //Stacking bonus values per font count (index = number of that font, 1-based).
         //1st font: +20, 2nd font: +20, 3rd font: +10.
-        public static readonly int[] StackingBonus = {0, 20, 20, 10};
+        public static readonly int[] StackingBonus = [0, 20, 20, 10];
         /*
         Method        : GetTotalBonus
         Description   : Returns total stat bonus for given number of

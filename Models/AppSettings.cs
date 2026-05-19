@@ -6,9 +6,10 @@
 *   DESCRIPTION   : Defines AppSettings model representing user preferences
 *                   that persist between sessions, backed by App.config.
 */
+using D2ArmorCalc_Models;
 using System.Configuration;
 
-namespace D2ArmorCalc {
+namespace D2ArmorCalc_Models {
     //Handles reading & writing persistent user settings via App.config.
     public static class AppSettings {
         //=====================================================================
@@ -67,17 +68,18 @@ namespace D2ArmorCalc {
         Parameters    : string key : App.config key to read.
         Return Values : string     : Stored value, or null if not found.
         */
-        private static string Read(string key){
+        private static string Read(string key) {
             return ConfigurationManager.AppSettings[key];
         }
+
         /*
-        Method        : Write
-        Description   : Writes value to App.config by key, 
-                        creating entry if does not already exist.
-        Parameters    : string key   : App.config key to write.
-                        string value : Value to store.
-        Return Values : void
-        */
+Method        : Write
+Description   : Writes value to App.config by key, 
+               creating entry if does not already exist.
+Parameters    : string key   : App.config key to write.
+               string value : Value to store.
+Return Values : void
+*/
         private static void Write(string key, string value){
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             if (config.AppSettings.Settings[key] == null) config.AppSettings.Settings.Add(key, value);

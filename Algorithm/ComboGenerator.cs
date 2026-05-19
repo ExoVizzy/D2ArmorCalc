@@ -7,7 +7,10 @@
 *                   4 legendary slots based on pruned archetype, tertiary,
 *                   & focus options derived from user's stat targets.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Data;
+using D2ArmorCalc_Models;
+
+namespace D2ArmorCalc_Algorithm {
     //Represents lightweight candidate armor configuration for piece.
     public class ArmorCandidate {
         public ArchetypeType Archetype {get;}
@@ -31,7 +34,7 @@ namespace D2ArmorCalc {
         */
         private StatBlock CalculateBaseStats(){
             Archetype archetype = Archetypes.All[(int)Archetype];
-            StatBlock stats = new StatBlock();
+            StatBlock stats = new();
 
             stats.Set(archetype.Primary, 30);
             stats.Set(archetype.Secondary, 25);
@@ -52,7 +55,7 @@ namespace D2ArmorCalc {
         Return Values : List<Archetype> : Valid archetypes for consideration.
         */
         public static List<Archetype> GetValidArchetypes(StatBlock mins){
-            List<Archetype> valid = new List<Archetype>();
+            List<Archetype> valid = [];
             foreach (Archetype archetype in Archetypes.All){
                 if (mins.Get(archetype.Primary) > 0 || mins.Get(archetype.Secondary) > 0)
                     valid.Add(archetype);
@@ -72,7 +75,7 @@ namespace D2ArmorCalc {
         */
         public static List<Stat> GetValidTertiaryStats(Archetype archetype, StatBlock mins){
             Stat[] all = Archetypes.GetTertiaryStats(archetype);
-            List<Stat> valid = new List<Stat>();
+            List<Stat> valid = [];
 
             foreach (Stat stat in all){
                 if (mins.Get(stat) > 0) valid.Add(stat);
@@ -90,7 +93,7 @@ namespace D2ArmorCalc {
         Return Values : List<Stat>     : Valid focus stats for consideration.
         */
         public static List<Stat> GetValidFocusStats(StatBlock mins){
-            List<Stat> valid = new List<Stat>();
+            List<Stat> valid = [];
             Stat[] all = [Stat.Health, Stat.Melee, Stat.Grenade, Stat.Super, Stat.Class, Stat.Weapons];
 
             foreach (Stat stat in all){
@@ -108,7 +111,7 @@ namespace D2ArmorCalc {
         Return Values : List<ArmorCandidate> : All valid candidates for one piece.
         */
         public static List<ArmorCandidate> GenerateCandidates(StatBlock mins, Stat focusMinus){
-            List<ArmorCandidate> candidates = new List<ArmorCandidate>();
+            List<ArmorCandidate> candidates = [];
             List<Archetype> validArchetypes = GetValidArchetypes(mins);
             List<Stat> validFocusStats = GetValidFocusStats(mins);
 
@@ -131,7 +134,7 @@ namespace D2ArmorCalc {
         Return Values : List<ArmorCandidate[]>          : All 4-piece combinations.
         */
         public static List<ArmorCandidate[]> GenerateAllCombinations(List<ArmorCandidate> candidates){
-            List<ArmorCandidate[]> combinations = new List<ArmorCandidate[]>();
+            List<ArmorCandidate[]> combinations = [];
             int count = candidates.Count;
 
             for (int a = 0; a < count; a++)

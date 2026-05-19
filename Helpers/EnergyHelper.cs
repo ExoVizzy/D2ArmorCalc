@@ -7,7 +7,10 @@
 *                   armor pieces, including mod & font compatibility checks
 *                   against available energy budgets.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Data;
+using D2ArmorCalc_Models;
+
+namespace D2ArmorCalc_Helpers {
     public static class EnergyHelper {
         //=====================================================================
         //Constants.
@@ -139,7 +142,7 @@ namespace D2ArmorCalc {
         public static bool IsPieceConfigValid(ArmorPiece piece){
             if (!IsFontCountValid(piece.Fonts.Length)) return false;
 
-            if (!IsSlotValid(new ArmorMod[0], piece.Slot)) return false;
+            if (!IsSlotValid([], piece.Slot)) return false;
 
             int statModCost = piece.StatMod != null ? piece.StatMod.EnergyCost : 0;
             int fontCost = GetFontEnergy(piece.Fonts.Length);
@@ -159,7 +162,7 @@ namespace D2ArmorCalc {
         Return Values : List<ArmorMod>          : All mods that fit within remaining budget.
         */
         public static List<ArmorMod> GetAvailableArmorMods(ArmorSlot slot, ArmorRarity rarity, int fontCount, int statModCost, int usedEnergy){
-            List<ArmorMod> available = new List<ArmorMod>();
+            List<ArmorMod> available = [];
             ArmorMod[] slotMods = ArmorMods.GetModsBySlot(slot);
             int total = GetTotalEnergy(rarity);
             int used = GetFontEnergy(fontCount) + statModCost + usedEnergy;

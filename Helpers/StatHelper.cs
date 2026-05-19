@@ -7,7 +7,9 @@
 *                   stat deficit scoring, clamping, & 100+ buff calculations
 *                   for all 6 armor stats.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Models;
+
+namespace D2ArmorCalc_Helpers {
     public static class StatHelper {
         //=====================================================================
         //Constants.
@@ -191,15 +193,15 @@ namespace D2ArmorCalc {
         Return Values : string        : Formatted buff string, or empty if no buff.
         */
         public static string GetBuff(Stat stat, int statValue){
-            switch (stat){
-                case Stat.Health: return GetHealthBuff(statValue);
-                case Stat.Melee: return GetMeleeBuff(statValue);
-                case Stat.Grenade: return GetGrenadeBuff(statValue);
-                case Stat.Super: return GetSuperBuff(statValue);
-                case Stat.Class: return GetClassBuff(statValue);
-                case Stat.Weapons: return GetWeaponsBuff(statValue);
-                default: return string.Empty;
-            }
+            return stat switch {
+                Stat.Health => GetHealthBuff(statValue),
+                Stat.Melee => GetMeleeBuff(statValue),
+                Stat.Grenade => GetGrenadeBuff(statValue),
+                Stat.Super => GetSuperBuff(statValue),
+                Stat.Class => GetClassBuff(statValue),
+                Stat.Weapons => GetWeaponsBuff(statValue),
+                _ => string.Empty,
+            };
         }
     }
 }

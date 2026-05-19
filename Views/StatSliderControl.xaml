@@ -14,25 +14,21 @@
 
     <Grid Margin="0,4,0,4">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="80"   />
-            <!-- Stat label -->
-            <ColumnDefinition Width="60"   />
-            <!-- Min label + textbox -->
-            <ColumnDefinition Width="*"    />
-            <!-- Slider -->
-            <ColumnDefinition Width="60"   />
-            <!-- Max label + textbox -->
+            <ColumnDefinition Width="70"  /> <!-- Stat label -->
+            <ColumnDefinition Width="80"  /> <!-- Min label + textbox -->
+            <ColumnDefinition Width="*"   /> <!-- Slider -->
+            <ColumnDefinition Width="80"  /> <!-- Max label + textbox -->
         </Grid.ColumnDefinitions>
 
         <!-- Stat Label -->
-        <TextBlock Grid.Column="1"
+        <TextBlock Grid.Column="0"
                    Style="{StaticResource BodyText}"
                    Text="{Binding Label}"
                    VerticalAlignment="Center"
                    Margin="6,0,0,0" />
 
         <!-- Min Input -->
-        <StackPanel Grid.Column="2"
+        <StackPanel Grid.Column="1"
                     Orientation="Horizontal"
                     VerticalAlignment="Center"
                     Margin="0,0,8,0">
@@ -40,22 +36,23 @@
                        Style="{StaticResource SecondaryText}"
                        VerticalAlignment="Center"
                        Margin="0,0,4,0" />
-            <TextBox Width="38"
+            <TextBox Width="46"
                      Style="{StaticResource InputTextBox}"
+                     FontSize="11"
                      Text="{Binding MinValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      VerticalAlignment="Center" />
         </StackPanel>
 
         <!-- Range Slider -->
-        <local:RangeSlider Grid.Column="3"
-                           MinValue="{Binding MinSlider, Mode=TwoWay}"
-                           MaxValue="{Binding MaxSlider, Mode=TwoWay}"
+        <local:RangeSlider Grid.Column="2"
+                           MinValue="{Binding MinValue, Mode=TwoWay}"
+                           MaxValue="{Binding MaxValue, Mode=TwoWay}"
                            Stat="{Binding Stat}"
                            VerticalAlignment="Center"
                            Margin="4,0,4,0" />
 
         <!-- Max Input -->
-        <StackPanel Grid.Column="4"
+        <StackPanel Grid.Column="3"
                     Orientation="Horizontal"
                     VerticalAlignment="Center"
                     Margin="8,0,0,0">
@@ -63,8 +60,9 @@
                        Style="{StaticResource SecondaryText}"
                        VerticalAlignment="Center"
                        Margin="0,0,4,0" />
-            <TextBox Width="38"
+            <TextBox Width="46"
                      Style="{StaticResource InputTextBox}"
+                     FontSize="11"
                      Text="{Binding MaxValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      VerticalAlignment="Center" />
         </StackPanel>

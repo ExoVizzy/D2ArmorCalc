@@ -6,10 +6,12 @@
 *   DESCRIPTION   : ViewModel for single stat row, managing min & max
 *                   slider & text box values with two-way live sync.
 */
+using D2ArmorCalc_Helpers;
+using D2ArmorCalc_Models;
 using System.ComponentModel;
 
-namespace D2ArmorCalc {
-    public class StatSliderViewModel : INotifyPropertyChanged {
+namespace D2ArmorCalc_ViewModels {
+    public class StatSliderViewModel(Stat stat) : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name){
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -17,40 +19,34 @@ namespace D2ArmorCalc {
         //=====================================================================
         //Properties.
         //=====================================================================
-        public Stat   Stat {get;}
-        public string Label {get;}
-        private bool _isEnabled;
+        public Stat Stat { get; } = stat;
+        public string Label { get; } = stat.ToString();
+        private bool _isEnabled = false;
         public bool IsEnabled {
             get => _isEnabled;
             set {
                 _isEnabled = value;
                 OnPropertyChanged(nameof(IsEnabled));
-                if (!value){
-                    MinValue = 0;
-                    MaxValue = 0;
-                }
             }
         }
-        private int _minValue;
+        private int _minValue = 0;
         public int MinValue {
             get => _minValue;
             set {
-                //Clamp between 0 & current max (or StatMax if max is 0).
                 _minValue = Math.Max(0, Math.Min(value, _maxValue > 0 ? _maxValue : StatHelper.StatMax));
-                IsEnabled = _minValue > 0 || _maxValue < StatHelper.StatMax;
+                _isEnabled = _minValue > 0 || _maxValue < StatHelper.StatMax;
                 OnPropertyChanged(nameof(MinValue));
-                OnPropertyChanged(nameof(MinSlider));
+                OnPropertyChanged(nameof(IsEnabled));
             }
         }
-        private int _maxValue;
+        private int _maxValue = 200;
         public int MaxValue {
             get => _maxValue;
             set {
-                //Max must be >= min & <= 200, 0 means not set.
                 _maxValue = value == 0 ? 200 : Math.Max(_minValue, Math.Min(value, StatHelper.StatMax));
-                IsEnabled = _minValue > 0 || _maxValue < StatHelper.StatMax;
+                _isEnabled = _minValue > 0 || _maxValue < StatHelper.StatMax;
                 OnPropertyChanged(nameof(MaxValue));
-                OnPropertyChanged(nameof(MaxSlider));
+                OnPropertyChanged(nameof(IsEnabled));
             }
         }
         //Slider proxies: keep sliders & text boxes in sync.
@@ -61,16 +57,6 @@ namespace D2ArmorCalc {
         public int MaxSlider {
             get => _maxValue;
             set {MaxValue = value;}
-        }
-        //=====================================================================
-        //Constructor.
-        //=====================================================================
-        public StatSliderViewModel(Stat stat){
-            Stat = stat;
-            Label = stat.ToString();
-            _isEnabled = false;
-            _minValue = 0;
-            _maxValue = 200;
         }
         //=====================================================================
         //Helpers.
@@ -103,13 +89,12 @@ namespace D2ArmorCalc {
         Return Values : void
         */
         public void Reset(){
-            IsEnabled = false;
-            _minValue = 0;
-            _maxValue = 0;
+            _minValue  = 0;
+            _maxValue  = 200;
+            _isEnabled = false;
             OnPropertyChanged(nameof(MinValue));
             OnPropertyChanged(nameof(MaxValue));
-            OnPropertyChanged(nameof(MinSlider));
-            OnPropertyChanged(nameof(MaxSlider));
+            OnPropertyChanged(nameof(IsEnabled));
         }
     }
 }

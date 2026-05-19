@@ -7,49 +7,51 @@
 *                   classes, including fragments, aspects, supers, melees,
 *                   grenades, class abilities, & jumps.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Models;
+
+namespace D2ArmorCalc_Data {
     //Static definitions for all subclass data.
     public static class Subclasses {
         //=====================================================================
         //Shared Data.
         //=====================================================================
-        private static readonly string[] WarlockJumps = {"Strafe Glide", "Burst Glide", "Balanced Glide"};
-        private static readonly string[] TitanJumps = {"High Lift", "Strafe Lift", "Catapult Lift"};
-        private static readonly string[] HunterJumps = {"High Jump", "Strafe Jump", "Triple Jump"};
-        private static readonly string[] BlinkJump = {"High Jump", "Strafe Jump", "Triple Jump", "Blink"};
-        private static readonly string[] WarlockBlink = {"Strafe Glide", "Burst Glide", "Balanced Glide", "Blink"};
+        private static readonly string[] WarlockJumps = ["Strafe Glide", "Burst Glide", "Balanced Glide"];
+        private static readonly string[] TitanJumps = ["High Lift", "Strafe Lift", "Catapult Lift"];
+        private static readonly string[] HunterJumps = ["High Jump", "Strafe Jump", "Triple Jump"];
+        private static readonly string[] BlinkJump = ["High Jump", "Strafe Jump", "Triple Jump", "Blink"];
+        private static readonly string[] WarlockBlink = ["Strafe Glide", "Burst Glide", "Balanced Glide", "Blink"];
 
-        private static readonly string[] WarlockClassAbilities = {"Healing Rift", "Empowering Rift"};
-        private static readonly string[] WarlockSolarClassAbilities = {"Healing Rift", "Empowering Rift", "Phoenix Dive"};
-        private static readonly string[] TitanClassAbilities = {"Rally Barricade", "Towering Barricade"};
-        private static readonly string[] TitanArcClassAbilities = {"Rally Barricade", "Towering Barricade", "Thruster"};
-        private static readonly string[] HunterClassAbilities = {"Marksmans Dodge", "Gamblers Dodge"};
-        private static readonly string[] HunterSolarClassAbilities = {"Marksmans Dodge", "Gamblers Dodge", "Acrobats Dodge"};
+        private static readonly string[] WarlockClassAbilities = ["Healing Rift", "Empowering Rift"];
+        private static readonly string[] WarlockSolarClassAbilities = ["Healing Rift", "Empowering Rift", "Phoenix Dive"];
+        private static readonly string[] TitanClassAbilities = ["Rally Barricade", "Towering Barricade"];
+        private static readonly string[] TitanArcClassAbilities = ["Rally Barricade", "Towering Barricade", "Thruster"];
+        private static readonly string[] HunterClassAbilities = ["Marksmans Dodge", "Gamblers Dodge"];
+        private static readonly string[] HunterSolarClassAbilities = ["Marksmans Dodge", "Gamblers Dodge", "Acrobats Dodge"];
         //=====================================================================
         //Arc Fragments.
         //=====================================================================
-        private static readonly Fragment[] ArcFragments = {
-            new Fragment("Haste", "Arc"),
+        private static readonly Fragment[] ArcFragments = [
+            new Fragment("Haste", "Arc"), 
             new Fragment("Instinct", "Arc"),
-            new Fragment("Beacons", "Arc"),
+            new Fragment("Beacons", "Arc"), 
             new Fragment("Protection", "Arc", new StatChange(Stat.Melee, +10)),
-            new Fragment("Momentum", "Arc"),
+            new Fragment("Momentum", "Arc"), 
             new Fragment("Shock", "Arc", new StatChange(Stat.Grenade, -10)),
-            new Fragment("Ions", "Arc"),
+            new Fragment("Ions", "Arc"), 
             new Fragment("Discharge", "Arc", new StatChange(Stat.Melee, -10)),
-            new Fragment("Frequency", "Arc"),
+            new Fragment("Frequency", "Arc"), 
             new Fragment("Focus", "Arc", new StatChange(Stat.Class, -10)),
-            new Fragment("Recharge", "Arc"),
+            new Fragment("Recharge", "Arc"), 
             new Fragment("Magnitude", "Arc"),
-            new Fragment("Amplitude", "Arc"),
+            new Fragment("Amplitude", "Arc"), 
             new Fragment("Feedback", "Arc", new StatChange(Stat.Health, +10)),
             new Fragment("Volts", "Arc", new StatChange(Stat.Class, +10)),
             new Fragment("Brilliance", "Arc", new StatChange(Stat.Super, +10))
-        };
+        ];
         //=====================================================================
         //Solar Fragments.
         //=====================================================================
-        private static readonly Fragment[] SolarFragments = {
+        private static readonly Fragment[] SolarFragments = [
             new Fragment("Mercy", "Solar", new StatChange(Stat.Health, +10)),
             new Fragment("Resolve", "Solar"),
             new Fragment("Singing", "Solar"),
@@ -66,11 +68,11 @@ namespace D2ArmorCalc {
             new Fragment("Ashes", "Solar"),
             new Fragment("Wonder", "Solar", new StatChange(Stat.Health, +10)),
             new Fragment("Searing", "Solar", new StatChange(Stat.Class, +10))
-        };
+        ];
         //=====================================================================
         //Void Fragments.
         //=====================================================================
-        private static readonly Fragment[] VoidFragments = {
+        private static readonly Fragment[] VoidFragments = [
             new Fragment("Vigilance", "Void"),
             new Fragment("Cessation", "Void"),
             new Fragment("Expulsion", "Void", new StatChange(Stat.Super, +10)),
@@ -87,11 +89,11 @@ namespace D2ArmorCalc {
             new Fragment("Harvest", "Void"),
             new Fragment("Obscurity", "Void", new StatChange(Stat.Class, +10)),
             new Fragment("Starvation", "Void", new StatChange(Stat.Class, -10))
-        };
+        ];
         //=====================================================================
         //Stasis Fragments.
         //=====================================================================
-        private static readonly Fragment[] StasisFragments = {
+        private static readonly Fragment[] StasisFragments = [
             new Fragment("Hedrons", "Stasis"),
             new Fragment("Fissures", "Stasis"),
             new Fragment("Refraction", "Stasis"),
@@ -108,11 +110,11 @@ namespace D2ArmorCalc {
             new Fragment("Rime", "Stasis"),
             new Fragment("Reversal", "Stasis"),
             new Fragment("Chill", "Stasis")
-        };
+        ];
         //=====================================================================
         //Strand Fragments.
         //=====================================================================
-        private static readonly Fragment[] StrandFragments = {
+        private static readonly Fragment[] StrandFragments = [
             new Fragment("Mind", "Strand"),
             new Fragment("Fury", "Strand", new StatChange(Stat.Melee, -10)),
             new Fragment("Ascent", "Strand", new StatChange(Stat.Weapons, +10)),
@@ -127,11 +129,11 @@ namespace D2ArmorCalc {
             new Fragment("Binding", "Strand", new StatChange(Stat.Health, +10)),
             new Fragment("Generation", "Strand", new StatChange(Stat.Grenade, -10)),
             new Fragment("Continuity", "Strand")
-        };
+        ];
         //=====================================================================
         //Prismatic Fragments.
         //=====================================================================
-        private static readonly Fragment[] PrismaticFragments = {
+        private static readonly Fragment[] PrismaticFragments = [
             new Fragment("Grace", "Prismatic", new StatChange(Stat.Health, -10)),
             new Fragment("Sacrifice", "Prismatic", new StatChange(Stat.Grenade, +10)),
             new Fragment("Devotion", "Prismatic", new StatChange(Stat.Melee, +10)),
@@ -152,23 +154,23 @@ namespace D2ArmorCalc {
             new Fragment("Defiance", "Prismatic", new StatChange(Stat.Class, +10)),
             new Fragment("Solitude", "Prismatic"),
             new Fragment("Ruin", "Prismatic", new StatChange(Stat.Weapons, +10))
-        };
+        ];
         //=====================================================================
         //Grenades.
         //=====================================================================
-        private static readonly string[] ArcGrenades = {"Lightning", "Storm", "Flashbang", "Pulse", "Skip", "Flux", "Arcbolt"};
-        private static readonly string[] SolarGrenades = {"Tripmine", "Thermite", "Incendiary", "Solar", "Swarm", "Fusion", "Firebolt", "Healing"};
-        private static readonly string[] VoidGrenades = {"Void Spike", "Void Wall", "Suppressor", "Vortex", "Scatter", "Magnetic", "Axion Bolt"};
-        private static readonly string[] StasisGrenades = {"Glacier", "Duskfield", "Coldsnap"};
-        private static readonly string[] StrandGrenades = {"Shackle", "Threadling", "Grapple"};
+        private static readonly string[] ArcGrenades = ["Lightning", "Storm", "Flashbang", "Pulse", "Skip", "Flux", "Arcbolt"];
+        private static readonly string[] SolarGrenades = ["Tripmine", "Thermite", "Incendiary", "Solar", "Swarm", "Fusion", "Firebolt", "Healing"];
+        private static readonly string[] VoidGrenades = ["Void Spike", "Void Wall", "Suppressor", "Vortex", "Scatter", "Magnetic", "Axion Bolt"];
+        private static readonly string[] StasisGrenades = ["Glacier", "Duskfield", "Coldsnap"];
+        private static readonly string[] StrandGrenades = ["Shackle", "Threadling", "Grapple"];
 
-        private static readonly string[] PrismaticWarlockGrenades = {"Vortex", "Healing", "Storm", "Coldsnap", "Threadling"};
-        private static readonly string[] PrismaticTitanGrenades = {"Shackle", "Glacier", "Pulse", "Thermite", "Suppressor"};
-        private static readonly string[] PrismaticHunterGrenades = {"Grapple", "Swarm", "Magnetic", "Arcbolt", "Duskfield"};
+        private static readonly string[] PrismaticWarlockGrenades = ["Vortex", "Healing", "Storm", "Coldsnap", "Threadling"];
+        private static readonly string[] PrismaticTitanGrenades = ["Shackle", "Glacier", "Pulse", "Thermite", "Suppressor"];
+        private static readonly string[] PrismaticHunterGrenades = ["Grapple", "Swarm", "Magnetic", "Arcbolt", "Duskfield"];
         //=====================================================================
         //Warlock Subclasses.
         //=====================================================================
-        public static readonly Subclass WarlockArc = new Subclass(
+        public static readonly Subclass WarlockArc = new(
             name: "Arc",
             playerClass: PlayerClass.Warlock,
             fragments: ArcFragments,
@@ -181,7 +183,7 @@ namespace D2ArmorCalc {
             classAbilities: WarlockClassAbilities,
             jumps: WarlockJumps
         );
-        public static readonly Subclass WarlockSolar = new Subclass(
+        public static readonly Subclass WarlockSolar = new(
             name: "Solar",
             playerClass: PlayerClass.Warlock,
             fragments: SolarFragments,
@@ -194,7 +196,7 @@ namespace D2ArmorCalc {
             classAbilities: WarlockSolarClassAbilities,
             jumps: WarlockJumps
         );
-        public static readonly Subclass WarlockVoid = new Subclass(
+        public static readonly Subclass WarlockVoid = new(
             name: "Void",
             playerClass: PlayerClass.Warlock,
             fragments: VoidFragments,
@@ -207,7 +209,7 @@ namespace D2ArmorCalc {
             classAbilities: WarlockClassAbilities,
             jumps: WarlockBlink
         );
-        public static readonly Subclass WarlockStasis = new Subclass(
+        public static readonly Subclass WarlockStasis = new(
             name: "Stasis",
             playerClass: PlayerClass.Warlock,
             fragments: StasisFragments,
@@ -220,7 +222,7 @@ namespace D2ArmorCalc {
             classAbilities: WarlockClassAbilities,
             jumps: WarlockJumps
         );
-        public static readonly Subclass WarlockStrand = new Subclass(
+        public static readonly Subclass WarlockStrand = new(
             name: "Strand",
             playerClass: PlayerClass.Warlock,
             fragments: StrandFragments,
@@ -233,7 +235,7 @@ namespace D2ArmorCalc {
             classAbilities: WarlockClassAbilities,
             jumps: WarlockJumps
         );
-        public static readonly Subclass WarlockPrismatic = new Subclass(
+        public static readonly Subclass WarlockPrismatic = new(
             name: "Prismatic",
             playerClass: PlayerClass.Warlock,
             fragments: PrismaticFragments,
@@ -250,7 +252,7 @@ namespace D2ArmorCalc {
         //=====================================================================
         //Titan Subclasses.
         //=====================================================================
-        public static readonly Subclass TitanArc = new Subclass(
+        public static readonly Subclass TitanArc = new(
             name: "Arc",
             playerClass: PlayerClass.Titan,
             fragments: ArcFragments,
@@ -263,7 +265,7 @@ namespace D2ArmorCalc {
             classAbilities: TitanArcClassAbilities,
             jumps: TitanJumps
         );
-        public static readonly Subclass TitanSolar = new Subclass(
+        public static readonly Subclass TitanSolar = new(
             name: "Solar",
             playerClass: PlayerClass.Titan,
             fragments: SolarFragments,
@@ -276,7 +278,7 @@ namespace D2ArmorCalc {
             classAbilities: TitanClassAbilities,
             jumps: TitanJumps
         );
-        public static readonly Subclass TitanVoid = new Subclass(
+        public static readonly Subclass TitanVoid = new(
             name: "Void",
             playerClass: PlayerClass.Titan,
             fragments: VoidFragments,
@@ -289,7 +291,7 @@ namespace D2ArmorCalc {
             classAbilities: TitanClassAbilities,
             jumps: TitanJumps
         );
-        public static readonly Subclass TitanStasis = new Subclass(
+        public static readonly Subclass TitanStasis = new(
             name: "Stasis",
             playerClass: PlayerClass.Titan,
             fragments: StasisFragments,
@@ -303,7 +305,7 @@ namespace D2ArmorCalc {
             classAbilities: TitanClassAbilities,
             jumps: TitanJumps
         );
-        public static readonly Subclass TitanStrand = new Subclass(
+        public static readonly Subclass TitanStrand = new(
             name: "Strand",
             playerClass: PlayerClass.Titan,
             fragments: StrandFragments,
@@ -316,7 +318,7 @@ namespace D2ArmorCalc {
             classAbilities: TitanClassAbilities,
             jumps: TitanJumps
         );
-        public static readonly Subclass TitanPrismatic = new Subclass(
+        public static readonly Subclass TitanPrismatic = new(
             name: "Prismatic",
             playerClass: PlayerClass.Titan,
             fragments: PrismaticFragments,
@@ -333,7 +335,7 @@ namespace D2ArmorCalc {
         //=====================================================================
         //Hunter Subclasses.
         //=====================================================================
-        public static readonly Subclass HunterArc = new Subclass(
+        public static readonly Subclass HunterArc = new(
             name: "Arc",
             playerClass: PlayerClass.Hunter,
             fragments: ArcFragments,
@@ -346,7 +348,7 @@ namespace D2ArmorCalc {
             classAbilities: HunterClassAbilities,
             jumps: BlinkJump
         );
-        public static readonly Subclass HunterSolar = new Subclass(
+        public static readonly Subclass HunterSolar = new(
             name: "Solar",
             playerClass: PlayerClass.Hunter,
             fragments: SolarFragments,
@@ -359,7 +361,7 @@ namespace D2ArmorCalc {
             classAbilities: HunterSolarClassAbilities,
             jumps: HunterJumps
         );
-        public static readonly Subclass HunterVoid = new Subclass(
+        public static readonly Subclass HunterVoid = new(
             name: "Void",
             playerClass: PlayerClass.Hunter,
             fragments: VoidFragments,
@@ -372,7 +374,7 @@ namespace D2ArmorCalc {
             classAbilities: HunterClassAbilities,
             jumps: HunterJumps
         );
-        public static readonly Subclass HunterStasis = new Subclass(
+        public static readonly Subclass HunterStasis = new(
             name: "Stasis",
             playerClass: PlayerClass.Hunter,
             fragments: StasisFragments,
@@ -385,7 +387,7 @@ namespace D2ArmorCalc {
             classAbilities: HunterClassAbilities,
             jumps: HunterJumps
         );
-        public static readonly Subclass HunterStrand = new Subclass(
+        public static readonly Subclass HunterStrand = new(
             name: "Strand",
             playerClass: PlayerClass.Hunter,
             fragments: StrandFragments,
@@ -398,7 +400,7 @@ namespace D2ArmorCalc {
             classAbilities: HunterClassAbilities,
             jumps: HunterJumps
         );
-        public static readonly Subclass HunterPrismatic = new Subclass(
+        public static readonly Subclass HunterPrismatic = new(
             name: "Prismatic",
             playerClass: PlayerClass.Hunter,
             fragments: PrismaticFragments,
@@ -415,7 +417,7 @@ namespace D2ArmorCalc {
         //=====================================================================
         //All Subclasses lookup.
         //=====================================================================
-        public static readonly Dictionary<PlayerClass, Subclass[]> All = new Dictionary<PlayerClass, Subclass[]> {
+        public static readonly Dictionary<PlayerClass, Subclass[]> All = new() {
             {PlayerClass.Warlock, new[] {WarlockArc, WarlockSolar, WarlockVoid, WarlockStasis, WarlockStrand, WarlockPrismatic}},
             {PlayerClass.Titan, new[] {TitanArc, TitanSolar, TitanVoid, TitanStasis, TitanStrand, TitanPrismatic}},
             {PlayerClass.Hunter, new[] {HunterArc, HunterSolar, HunterVoid, HunterStasis, HunterStrand, HunterPrismatic}}

@@ -7,7 +7,11 @@
 *                   of armor candidates & resolves final stat totals,
 *                   checking them against user's min & max targets.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Data;
+using D2ArmorCalc_Helpers;
+using D2ArmorCalc_Models;
+
+namespace D2ArmorCalc_Algorithm {
     public static class StatResolver {
         /*
         Method        : ResolveBaseStats
@@ -37,7 +41,7 @@ namespace D2ArmorCalc {
         */
         public static StatBlock ApplyStatMods(StatBlock current, StatBlock mins, Stat leastWanted, 
                                               ArmorRarity rarity, int fontCount, bool majorMods){
-            StatBlock result = new StatBlock(current.Health, current.Melee, current.Grenade,
+            StatBlock result = new(current.Health, current.Melee, current.Grenade,
                                          current.Super, current.Class, current.Weapons);
             ModType modType = majorMods ? ModType.Major : ModType.Minor;
             Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade, Stat.Super, Stat.Class, Stat.Weapons];
@@ -73,7 +77,7 @@ namespace D2ArmorCalc {
         Return Values : StatBlock                          : Stats after fonts applied.
         */
         public static StatBlock ApplyFonts(StatBlock current, Dictionary<ArmorSlot, int> fonts){
-            StatBlock result = new StatBlock(current.Health, current.Melee, current.Grenade,
+            StatBlock result = new(current.Health, current.Melee, current.Grenade,
                                        current.Super, current.Class, current.Weapons);
 
             foreach (var kvp in fonts){

@@ -12,14 +12,15 @@ using System.Windows;
 using Microsoft.Win32;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using D2ArmorCalc_Models;
 
-namespace D2ArmorCalc {
+namespace D2ArmorCalc_Helpers {
     public static class ImportExportHelper {
         private const string FileExtension = ".d2build";
         private const string FileFilter = "D2 Build Files (*.d2build)|*.d2build|All Files (*.*)|*.*";
         private const string CurrentVersion = "1.0";
 
-        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions {
+        private static readonly JsonSerializerOptions JsonOptions = new() {
             WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
         //=====================================================================
@@ -34,7 +35,7 @@ namespace D2ArmorCalc {
                                              cancelled or error occurred.
         */
         public static bool Export(BuildExport export){
-            SaveFileDialog dialog = new SaveFileDialog {
+            SaveFileDialog dialog = new() {
                 Title = "Export Build", Filter = FileFilter,
                 DefaultExt = FileExtension, FileName = "MyBuild"
             };
@@ -62,7 +63,7 @@ namespace D2ArmorCalc {
                                       if cancelled or error occurred.
         */
         public static BuildExport Import(){
-            OpenFileDialog dialog = new OpenFileDialog {
+            OpenFileDialog dialog = new() {
                 Title = "Import Build", Filter = FileFilter
             };
             if (dialog.ShowDialog() != true) return null;
@@ -124,7 +125,7 @@ namespace D2ArmorCalc {
             bool customTuning, bool t5ExoticEnabled, bool customExoticRoll,
             string leastWantedStat, int minorModCount){
 
-            BuildExport export = new BuildExport {
+            BuildExport export = new() {
                 ExportVersion = CurrentVersion, StatTargets = targets,
                 Subclass = subclassCustomization ? subclass : null,
                 FontsEnabled = fontsEnabled, ArmorModsEnabled = armorModsEnabled,
@@ -137,7 +138,7 @@ namespace D2ArmorCalc {
             foreach (ArmorPiece piece in result.GetPieces()){
                 if (piece == null) continue;
 
-                ArmorPieceExport pieceExport = new ArmorPieceExport {
+                ArmorPieceExport pieceExport = new() {
                     Slot = piece.Slot.ToString(), Rarity = piece.Rarity.ToString(),
                     Archetype = piece.Archetype?.Type.ToString(), Tertiary = piece.TertiaryStat.ToString(),
                     FocusStat = piece.FocusStat.ToString(), FocusMinus = piece.FocusMinus.ToString()

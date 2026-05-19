@@ -6,7 +6,7 @@
 *   DESCRIPTION   : Defines BuildExport model representing serializable
 *                   snapshot of full UI state for import & export.
 */
-namespace D2ArmorCalc {
+namespace D2ArmorCalc_Models {
     //Serializable snapshot of single armor piece configuration.
     public class ArmorPieceExport {
         public string? Slot {get; set;}
@@ -17,8 +17,8 @@ namespace D2ArmorCalc {
         public string? FocusMinus {get; set;}
         public string? StatModType {get; set;} //"Major", "Minor", or null.
         public string? StatModStat {get; set;} //Stat name or null.
-        public List<string> Fonts {get; set;} = new List<string>();
-        public List<string> ArmorMods {get; set;} = new List<string>();
+        public List<string> Fonts {get; set;} = [];
+        public List<string> ArmorMods {get; set;} = [];
     }
     //Serializable snapshot of a subclass configuration.
     public class SubclassExport {
@@ -29,8 +29,8 @@ namespace D2ArmorCalc {
         public string? Grenade {get; set;}
         public string? ClassAbility {get; set;}
         public string? Jump {get; set;}
-        public List<string> Aspects {get; set;} = new List<string>();
-        public List<string> Fragments {get; set;} = new List<string>();
+        public List<string> Aspects {get; set;} = [];
+        public List<string> Fragments {get; set;} = [];
     }
 
     //Serializable snapshot of stat min/max targets.
@@ -53,7 +53,7 @@ namespace D2ArmorCalc {
         public string ExportVersion {get; set;} = "1.0";
         public StatTargetsExport? StatTargets {get; set;}
         public SubclassExport? Subclass {get; set;} //null if not configured.
-        public List<ArmorPieceExport> ArmorPieces {get; set;} = new List<ArmorPieceExport>();
+        public List<ArmorPieceExport> ArmorPieces {get; set;} = [];
         //Exotic.
         public bool CustomExoticRoll {get; set;}
         public string? ExoticSlot {get; set;} //null if not selected.

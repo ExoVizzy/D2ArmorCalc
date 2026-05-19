@@ -7,33 +7,34 @@
 *                   generating separate legendary, exotic, & combined
 *                   queries based on archetype, tertiary, & focus stats.
 */
+using D2ArmorCalc_Models;
 using System.Text;
 
-namespace D2ArmorCalc {
+namespace D2ArmorCalc_Algorithm {
     public static class DimQueryBuilder {
         //=====================================================================
         //DIM Keyword Maps.
         //=====================================================================
         private static readonly Dictionary<ArchetypeType, string> ArchetypeKeywords =
-            new Dictionary<ArchetypeType, string> {
+            new(){
                 {ArchetypeType.Brawler, "brawler"}, {ArchetypeType.Gunner, "gunner"},
                 {ArchetypeType.Specialist, "specialist"}, {ArchetypeType.Grenadier, "grenadier"},
                 {ArchetypeType.Paragon, "paragon"}, {ArchetypeType.Bulwark, "bulwark"}
             };
         private static readonly Dictionary<Stat, string> StatKeywords =
-            new Dictionary<Stat, string> {
+            new(){
                 {Stat.Health, "health"}, {Stat.Melee, "melee"},
                 {Stat.Grenade, "grenade"}, {Stat.Super, "super"},
                 {Stat.Class, "class"}, {Stat.Weapons, "weapons"}
             };
         private static readonly Dictionary<ArmorSlot, string> SlotKeywords =
-            new Dictionary<ArmorSlot, string> {
+            new() {
                 {ArmorSlot.Helmet, "helmet"}, {ArmorSlot.Arms, "gauntlets"},
                 {ArmorSlot.Chestplate, "chest"}, {ArmorSlot.Boots, "leg"},
                 {ArmorSlot.ClassItem, "classitem"}
             };
         private static readonly Dictionary<PlayerClass, string> ClassKeywords =
-            new Dictionary<PlayerClass, string> {
+            new(){
                 {PlayerClass.Warlock, "warlock"}, {PlayerClass.Titan, "titan"},
                 {PlayerClass.Hunter, "hunter"}
             };
@@ -66,7 +67,7 @@ namespace D2ArmorCalc {
         Return Values : string                  : Legendary DIM query string.
         */
         public static string BuildLegendaryQuery(BuildResult result, PlayerClass playerClass){
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             //Prefix.
             string classKeyword = ClassKeywords[playerClass];
             string exoticSlot = SlotKeywords[result.Helmet?.Rarity == ArmorRarity.Exotic ? ArmorSlot.Helmet :
@@ -77,14 +78,14 @@ namespace D2ArmorCalc {
             sb.Append($"is:legendary is:{classKeyword} (not is:{exoticSlot})");
 
             //Build per-piece query segments.
-            List<string> pieceSegments = new List<string>();
+            List<string> pieceSegments = [];
             foreach (ArmorPiece piece in result.GetPieces()){
                 if (piece == null || piece.Rarity == ArmorRarity.Exotic) continue;
                 pieceSegments.Add(BuildPieceSegment(piece));
             }
             //Join with OR if pieces differ, otherwise just append.
             if (pieceSegments.Count > 0){
-                sb.Append(" ");
+                sb.Append(' ');
                 sb.Append(JoinSegments(pieceSegments));
             }
             return sb.ToString();
@@ -160,13 +161,13 @@ namespace D2ArmorCalc {
             if (allSame) return segments[0];
 
             //Deduplicate segments before joining.
-            List<string> unique = new List<string>();
+            List<string> unique = [];
             foreach (string seg in segments){
                 if (!unique.Contains(seg)) unique.Add(seg);
             }
             if (unique.Count == 1) return unique[0];
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             for (int i = 0; i < unique.Count; i++){
                 if (i > 0) sb.Append(" or ");
                 sb.Append($"({unique[i]})");

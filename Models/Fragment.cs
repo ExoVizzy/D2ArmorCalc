@@ -6,25 +6,18 @@
 *   DESCRIPTION   : Defines Fragment model, including name, subclass,
 *                   & any stat changes the fragment applies.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Models;
+
+namespace D2ArmorCalc_Models {
     //Represents single stat change fragment applies (stat + value).
-    public class StatChange {
-        public Stat Stat {get;}
-        public int Value {get;} //Positive = boost, Negative = reduction.
-        public StatChange(Stat stat, int value){
-            Stat = stat;
-            Value = value;
-        }
+    public class StatChange(Stat stat, int value) {
+        public Stat Stat { get; } = stat;
+        public int Value { get; } = value;
     }
     //Represents single fragment.
-    public class Fragment {
-        public string Name {get;}
-        public string Subclass {get;}
-        public StatChange[] StatChanges {get;} //Empty if no stat changes.
-        public Fragment(string name, string subclass, params StatChange[] statChanges){
-            Name = name;
-            Subclass = subclass;
-            StatChanges = statChanges;
-        }
+    public class Fragment(string name, string subclass, params StatChange[] statChanges) {
+        public string Name { get; } = name;
+        public string Subclass { get; } = subclass;
+        public StatChange[] StatChanges { get; } = statChanges;
     }
 }

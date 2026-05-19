@@ -7,77 +7,17 @@
 *                   minor mod count mode & full per-slot mod customization
 *                   with live energy tracking.
 */
-using System.Collections.ObjectModel;
+using D2ArmorCalc_Models;
 using System.ComponentModel;
 
-namespace D2ArmorCalc {
+namespace D2ArmorCalc_ViewModels {
     //Wraps ArmorMod with selection state for slot's mod list.
-    public class ModSelectionItem {
-        public ArmorMod Mod {get;}
+    public class ModSelectionItem(ArmorMod mod) {
+        public ArmorMod Mod { get; } = mod;
         public string Name => Mod.Name;
         public string EnergyCost => $"{Mod.EnergyCost} energy";
-        public ModSelectionItem(ArmorMod mod){
-            Mod = mod;
-        }
-    }
-    //Holds mod selection state for single armor slot.
-    public class SlotModViewModel : INotifyPropertyChanged {
-        public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string name) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        public ArmorSlot Slot {get;}
-        public string SlotLabel {get;}
-        public ObservableCollection<ModSelectionItem> AvailableMods {get;}
-        //Up to 3 general mod slots.
-        private ModSelectionItem _modSlot1;
-        private ModSelectionItem _modSlot2;
-        private ModSelectionItem _modSlot3;
-        public ModSelectionItem ModSlot1 {
-            get => _modSlot1;
-            set {_modSlot1 = value; OnPropertyChanged(nameof(ModSlot1)); OnPropertyChanged(nameof(UsedEnergy)); OnPropertyChanged(nameof(RemainingEnergy));}
-        }
-        public ModSelectionItem ModSlot2 {
-            get => _modSlot2;
-            set {_modSlot2 = value; OnPropertyChanged(nameof(ModSlot2)); OnPropertyChanged(nameof(UsedEnergy)); OnPropertyChanged(nameof(RemainingEnergy));}
-        }
-        public ModSelectionItem ModSlot3 {
-            get => _modSlot3;
-            set {_modSlot3 = value; OnPropertyChanged(nameof(ModSlot3)); OnPropertyChanged(nameof(UsedEnergy)); OnPropertyChanged(nameof(RemainingEnergy));}
-        }
-        //Energy tracking (assumes legendary 11 energy, no fonts or stat mods for display).
-        public int TotalEnergy => EnergyHelper.LegendaryEnergy;
-        public int UsedEnergy => (_modSlot1?.Mod.EnergyCost ?? 0) +
-                                      (_modSlot2?.Mod.EnergyCost ?? 0) +
-                                      (_modSlot3?.Mod.EnergyCost ?? 0);
-        public int RemainingEnergy => TotalEnergy - UsedEnergy;
-        public SlotModViewModel(ArmorSlot slot){
-            Slot = slot;
-            SlotLabel = slot.ToString();
 
-            //Populate available mods for this slot plus a blank "None" option.
-            AvailableMods = new ObservableCollection<ModSelectionItem>();
-            AvailableMods.Add(new ModSelectionItem(new ArmorMod("None", 0, slot)));
-            foreach (ArmorMod mod in ArmorMods.GetModsBySlot(slot))
-                AvailableMods.Add(new ModSelectionItem(mod));
-
-            _modSlot1 = AvailableMods[0];
-            _modSlot2 = AvailableMods[0];
-            _modSlot3 = AvailableMods[0];
-        }
-        /*
-        Method        : GetSelectedMods
-        Description   : Returns all non-null, non-None mods selected for
-                        this slot as array.
-        Parameters    : None.
-        Return Values : ArmorMod[] : Selected mods for slot.
-        */
-        public ArmorMod[] GetSelectedMods(){
-            List<ArmorMod> mods = new List<ArmorMod>();
-            if (_modSlot1?.Mod.EnergyCost > 0) mods.Add(_modSlot1.Mod);
-            if (_modSlot2?.Mod.EnergyCost > 0) mods.Add(_modSlot2.Mod);
-            if (_modSlot3?.Mod.EnergyCost > 0) mods.Add(_modSlot3.Mod);
-            return mods.ToArray();
-        }
+        public override string ToString() => Mod.Name;
     }
     public class ModViewModel : INotifyPropertyChanged {
         public int MajorModCount => 5 - MinorModCount;
@@ -106,6 +46,7 @@ namespace D2ArmorCalc {
             set {
                 _minorModCount = Math.Max(0, Math.Min(5, value));
                 OnPropertyChanged(nameof(MinorModCount));
+                OnPropertyChanged(nameof(MajorModCount));
             }
         }
         //Per-slot mod ViewModels (full customization mode).

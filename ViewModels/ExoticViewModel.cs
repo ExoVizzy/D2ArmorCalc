@@ -7,10 +7,12 @@
 *                   class selection, standard stat assumptions, & custom
 *                   roll input for all 6 stats.
 */
+using D2ArmorCalc_Helpers;
+using D2ArmorCalc_Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-namespace D2ArmorCalc {
+namespace D2ArmorCalc_ViewModels {
     public class ExoticViewModel : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name){
@@ -20,17 +22,14 @@ namespace D2ArmorCalc {
         //Properties.
         //=====================================================================
         //Class selector.
-        public ObservableCollection<string> Classes {get;} =
-            new ObservableCollection<string> {"Warlock", "Titan", "Hunter" };
-
+        public ObservableCollection<string> Classes {get;} = ["Warlock", "Titan", "Hunter"];
         private string _selectedClass = "Warlock";
         public string SelectedClass {
             get => _selectedClass;
             set {_selectedClass = value; OnPropertyChanged(nameof(SelectedClass));}
         }
         //Exotic slot selector.
-        public ObservableCollection<string> Slots {get;} =
-            new ObservableCollection<string> {"Helmet", "Arms", "Chestplate", "Boots", "Class Item" };
+        public ObservableCollection<string> Slots {get;} = ["Helmet", "Arms", "Chestplate", "Boots", "Class Item"];
 
         private string _selectedSlot = "Helmet";
         public string SelectedSlot {
@@ -49,7 +48,7 @@ namespace D2ArmorCalc {
         }
         public bool IsStandardRoll => !_customRollEnabled;
         //Standard roll display (read-only, shown when custom roll is off).
-        public string StandardRollDisplay => "Primary: 30  Secondary: 20  Tertiary: 12";
+        public static string StandardRollDisplay => "Primary: 30  Secondary: 20  Tertiary: 12";
         //Custom roll stat inputs (all 6 stats, for pre-rework exotics).
         private int _customHealth;
         public int CustomHealth {
@@ -98,11 +97,11 @@ namespace D2ArmorCalc {
         Return Values : PlayerClass : Selected player class.
         */
         public PlayerClass GetPlayerClass(){
-            switch (_selectedClass){
-                case "Titan": return PlayerClass.Titan;
-                case "Hunter": return PlayerClass.Hunter;
-                default: return PlayerClass.Warlock;
-            }
+            return _selectedClass switch {
+                "Titan" => PlayerClass.Titan,
+                "Hunter" => PlayerClass.Hunter,
+                _ => PlayerClass.Warlock,
+            };
         }
         /*
         Method        : GetArmorSlot
@@ -112,13 +111,13 @@ namespace D2ArmorCalc {
         Return Values : ArmorSlot : Selected exotic armor slot.
         */
         public ArmorSlot GetArmorSlot(){
-            switch (_selectedSlot){
-                case "Arms":       return ArmorSlot.Arms;
-                case "Chestplate": return ArmorSlot.Chestplate;
-                case "Boots":      return ArmorSlot.Boots;
-                case "Class Item": return ArmorSlot.ClassItem;
-                default:           return ArmorSlot.Helmet;
-            }
+            return _selectedSlot switch {
+                "Arms" => ArmorSlot.Arms,
+                "Chestplate" => ArmorSlot.Chestplate,
+                "Boots" => ArmorSlot.Boots,
+                "Class Item" => ArmorSlot.ClassItem,
+                _ => ArmorSlot.Helmet,
+            };
         }
         /*
         Method        : BuildExoticPiece
@@ -130,7 +129,7 @@ namespace D2ArmorCalc {
         */
         public ArmorPiece BuildExoticPiece(){
             ArmorSlot slot = GetArmorSlot();
-            ArmorPiece piece = new ArmorPiece(slot, ArmorRarity.Exotic);
+            ArmorPiece piece = new(slot, ArmorRarity.Exotic);
 
             if (_customRollEnabled){
                 //Custom roll — user defines all 6 stats directly

@@ -6,20 +6,17 @@
 *   DESCRIPTION   : Defines Font model & ArmorSlot enum
 *                   representing armor fonts & their slot restrictions.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Models;
+
+namespace D2ArmorCalc_Models {
     //Enum representing which armor slot fonts are restricted to.
     public enum ArmorSlot {
         Helmet, Arms, Chestplate, Boots, ClassItem
     }
     //Holds data for single font type.
-    public class Font {
-        public Stat Stat {get;}
-        public ArmorSlot Slot {get;}
-        public int EnergyCost {get;}
-        public Font(Stat stat, ArmorSlot slot){
-            Stat = stat;
-            Slot = slot;
-            EnergyCost = 3;
-        }
+    public class Font(Stat stat, ArmorSlot slot) {
+        public Stat Stat { get; } = stat;
+        public ArmorSlot Slot { get; } = slot;
+        public int EnergyCost { get; } = 3;
     }
 }

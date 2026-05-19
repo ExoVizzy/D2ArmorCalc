@@ -5,7 +5,9 @@
 *   FIRST VERSION : May 17, 2026
 *   DESCRIPTION   : Static helpers for creating and validating stat mods.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Models;
+
+namespace D2ArmorCalc_Data {
     public static class Mods {
         /*
         Method        : GetMod

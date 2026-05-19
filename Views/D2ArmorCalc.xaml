@@ -10,13 +10,15 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:D2ArmorCalc"
+        xmlns:helpers="clr-namespace:D2ArmorCalc_Helpers"
+        xmlns:vm="clr-namespace:D2ArmorCalc_ViewModels"
         Style="{StaticResource WindowStyle}"
         Title="D2 Armor Calc"
         Width="1200" Height="800"
         WindowStartupLocation="CenterScreen">
 
     <Window.DataContext>
-        <local:D2ArmorCalcViewModel />
+        <vm:D2ArmorCalcViewModel />
     </Window.DataContext>
 
     <Grid>
@@ -75,7 +77,7 @@
         <!-- =================================================================-->
         <Grid Grid.Row="1" Margin="16,12,16,12">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="500" />
+                <ColumnDefinition Width="650" />
                 <ColumnDefinition Width="12"  />
                 <ColumnDefinition Width="*"   />
             </Grid.ColumnDefinitions>
@@ -93,8 +95,7 @@
                     <!-- =====================================================-->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
-                            <TextBlock Text="Stat Targets"
-                                       Style="{StaticResource SectionHeaderText}" />
+                            <TextBlock Text="Stat Targets" Style="{StaticResource SectionHeaderText}" />
 
                             <local:StatSliderControl DataContext="{Binding HealthSlider}" />
                             <local:StatSliderControl DataContext="{Binding MeleeSlider}" />
@@ -164,7 +165,7 @@
 
                             <!-- Custom Focus per slot (expanded when CustomTuning is on) -->
                             <StackPanel Visibility="{Binding CustomTuning,
-                                            Converter={StaticResource BoolToVisibility}}">
+                                        Converter={StaticResource BoolToVisibility}}">
                                 <TextBlock Text="Focus per Slot (+5 / -5)"
                                            Style="{StaticResource SecondaryText}"
                                            Margin="0,4,0,8" />
@@ -217,34 +218,27 @@
                                     <ColumnDefinition Width="*"    />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-
+                                <CheckBox Grid.Column="0"
+                                          Style="{StaticResource ToggleCheckBox}"
+                                          IsChecked="{Binding FontsEnabled}"
+                                          Content="Enabled"
+                                          VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1"
                                            Text="Fonts"
                                            Style="{StaticResource SectionHeaderText}"
                                            HorizontalAlignment="Center"
                                            Margin="0" />
-
                                 <CheckBox Grid.Column="2"
                                           Style="{StaticResource ToggleCheckBox}"
-                                          IsChecked="{Binding FontsEnabled}"
-                                          Content="Include"
+                                          IsChecked="{Binding FontsInStats}"
+                                          IsEnabled="{Binding FontsEnabled}"
+                                          Content="In Stats"
                                           VerticalAlignment="Center" />
                             </Grid>
 
-                            <!-- Info text when fonts off -->
-                            <TextBlock Style="{StaticResource SecondaryText}"
-                                       TextWrapping="Wrap"
-                                       Visibility="{Binding FontsEnabled,
-                                           Converter={StaticResource InverseBoolToVisibility}}">
-                                Fonts are not included in the calculation. Font bonuses will be shown
-                                in <Run Foreground="{StaticResource SuccessBrush}">green</Run>
-                                in the results.
-                            </TextBlock>
-
-                            <!-- Font counts per slot (when fonts enabled) -->
-                            <StackPanel Visibility="{Binding FontsEnabled,
-                                            Converter={StaticResource BoolToVisibility}}">
-                                <TextBlock Text="Fonts per slot:"
+                            <!-- Collapsible content — only shown when fonts enabled -->
+                            <StackPanel Visibility="{Binding FontsEnabled, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="Fonts per stat:"
                                            Style="{StaticResource SecondaryText}"
                                            Margin="0,0,0,8" />
                                 <ItemsControl ItemsSource="{Binding FontStats}">
@@ -258,29 +252,29 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0"
-                                                        Text="{Binding StatLabel}"
-                                                        Style="{StaticResource SecondaryText}"
-                                                        VerticalAlignment="Center" />
-                                                <TextBlock Grid.Column="1"
-                                                        Text="{Binding SlotLabel, Mode=OneWay}"
-                                                        Style="{StaticResource SecondaryText}"
-                                                        VerticalAlignment="Center"
-                                                        Opacity="0.5" />
+                                                           Text="{Binding StatLabel}"
+                                                           Style="{StaticResource SecondaryText}"
+                                                           VerticalAlignment="Center" />
+                                                                            <TextBlock Grid.Column="1"
+                                                           Text="{Binding SlotLabel, Mode=OneWay}"
+                                                           Style="{StaticResource SecondaryText}"
+                                                           VerticalAlignment="Center"
+                                                           Opacity="0.5" />
                                                 <Slider Grid.Column="2"
-                                                    Minimum="0" Maximum="3"
-                                                    Value="{Binding FontCount}"
-                                                    IsSnapToTickEnabled="True"
-                                                    TickFrequency="1"
-                                                    VerticalAlignment="Center" />
+                                                        Minimum="0" Maximum="3"
+                                                        Value="{Binding FontCount}"
+                                                        IsSnapToTickEnabled="True"
+                                                        TickFrequency="1"
+                                                        VerticalAlignment="Center" />
                                                 <TextBlock Grid.Column="3"
-                                                        Style="{StaticResource BodyText}"
-                                                        VerticalAlignment="Center"
-                                                        Margin="8,0,0,0">
+                                                           Style="{StaticResource BodyText}"
+                                                           VerticalAlignment="Center"
+                                                           Margin="8,0,0,0">
                                                     <Run Text="×" />
                                                     <Run Text="{Binding FontCount, Mode=OneWay}" />
                                                     <Run Text=" (" />
                                                     <Run Text="{Binding BonusLabel, Mode=OneWay}"
-                                                            Foreground="{StaticResource SuccessBrush}" />
+                                                         Foreground="{StaticResource SuccessBrush}" />
                                                     <Run Text=")" />
                                                 </TextBlock>
                                             </Grid>
@@ -288,6 +282,14 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </StackPanel>
+
+                            <!-- Info text shown when fonts off -->
+                            <TextBlock Style="{StaticResource SecondaryText}"
+                                       TextWrapping="Wrap"
+                                       Visibility="{Binding FontsEnabled, Converter={StaticResource InverseBoolToVisibility}}">
+                                Fonts excluded from calculation. Font bonuses will be shown in
+                                <Run Foreground="{StaticResource SuccessBrush}">green</Run> in results.
+                            </TextBlock>
                         </StackPanel>
                     </Border>
 
@@ -349,19 +351,12 @@
                             </StackPanel>
 
                             <!-- Advanced mode: per-slot mod selectors -->
-                            <StackPanel Visibility="{Binding ArmorModsEnabled,
-                                            Converter={StaticResource BoolToVisibility}}">
-
-                                <!-- Helmet -->
-                                <local:SlotModPanel DataContext="{Binding ModVM.HelmetMods}" />
-                                <!-- Arms -->
-                                <local:SlotModPanel DataContext="{Binding ModVM.ArmsMods}" />
-                                <!-- Chestplate -->
-                                <local:SlotModPanel DataContext="{Binding ModVM.ChestplateMods}" />
-                                <!-- Boots -->
-                                <local:SlotModPanel DataContext="{Binding ModVM.BootsMods}" />
-                                <!-- Class Item -->
-                                <local:SlotModPanel DataContext="{Binding ModVM.ClassItemMods}" />
+                            <StackPanel Visibility="{Binding ArmorModsEnabled, Converter={StaticResource BoolToVisibility}}">
+                                <local:SlotModPanel DataContext="{Binding ModVM.HelmetMods}" /> <!-- Helmet -->
+                                <local:SlotModPanel DataContext="{Binding ModVM.ArmsMods}" /> <!-- Arms -->
+                                <local:SlotModPanel DataContext="{Binding ModVM.ChestplateMods}" /> <!-- Chestplate -->
+                                <local:SlotModPanel DataContext="{Binding ModVM.BootsMods}" /> <!-- Boots -->
+                                <local:SlotModPanel DataContext="{Binding ModVM.ClassItemMods}" /> <!-- Class Item -->
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -371,109 +366,68 @@
                     <!-- =====================================================-->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
-                            <!-- Section header row -->
+                            <!-- Section header row — always enabled -->
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*"    />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-
+                                <CheckBox Grid.Column="0"
+                                          Style="{StaticResource ToggleCheckBox}"
+                                          IsChecked="{Binding FragmentsEnabled}"
+                                          Content="Enabled"
+                                          VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1"
                                            Text="Fragments"
                                            Style="{StaticResource SectionHeaderText}"
                                            HorizontalAlignment="Center"
                                            Margin="0" />
-
                                 <CheckBox Grid.Column="2"
                                           Style="{StaticResource ToggleCheckBox}"
                                           IsChecked="{Binding FragmentVM.ShowFullSubclass}"
+                                          IsEnabled="{Binding FragmentsEnabled}"
                                           Content="Full Subclass"
                                           VerticalAlignment="Center" />
                             </Grid>
 
-                            <!-- Subclass dropdown -->
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="0,0,0,10">
-                                <TextBlock Text="Subclass:"
-                                           Style="{StaticResource BodyText}"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,10,0" />
-                                <ComboBox Style="{StaticResource DarkComboBox}"
-                                          ItemsSource="{Binding FragmentVM.SubclassOptions}"
-                                          SelectedItem="{Binding FragmentVM.SelectedSubclass}"
-                                          Width="140" />
-                                <!-- Fragment slot count -->
-                                <TextBlock Style="{StaticResource SecondaryText}"
-                                           VerticalAlignment="Center"
-                                           Margin="12,0,0,0">
-                                    <Run Text="{Binding FragmentVM.SelectedFragmentCount, Mode=OneWay}" />
-                                    <Run Text="/" />
-                                    <Run Text="{Binding FragmentVM.MaxFragmentSlots, Mode=OneWay}" />
-                                    <Run Text="fragments" />
-                                </TextBlock>
-                            </StackPanel>
+                            <!-- Fragment content — greyed out when disabled -->
+                            <StackPanel IsEnabled="{Binding FragmentsEnabled}"
+                                        Opacity="{Binding FragmentsEnabled, Converter={StaticResource BoolToOpacityConverter}}">
 
-                            <!-- Stat-only fragments (default mode) -->
-                            <ItemsControl ItemsSource="{Binding FragmentVM.Fragments}"
-                                          Visibility="{Binding FragmentVM.ShowFullSubclass,
-                                              Converter={StaticResource InverseBoolToVisibility}}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <CheckBox Style="{StaticResource ToggleCheckBox}"
-                                                  IsChecked="{Binding IsSelected}"
-                                                  Margin="0,3,0,3">
-                                            <CheckBox.Content>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding Name}"
-                                                               Style="{StaticResource BodyText}"
-                                                               Margin="0,0,8,0" />
-                                                    <TextBlock Text="{Binding StatInfo}"
-                                                               Style="{StaticResource SecondaryText}"
-                                                               VerticalAlignment="Center" />
-                                                </StackPanel>
-                                            </CheckBox.Content>
-                                        </CheckBox>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                                <!-- Subclass dropdown -->
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <TextBlock Text="Subclass:" Style="{StaticResource BodyText}"
+                                               VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <ComboBox Style="{StaticResource DarkComboBox}" ItemsSource="{Binding FragmentVM.SubclassOptions}"
+                                              SelectedItem="{Binding FragmentVM.SelectedSubclass}" Width="140" />
+                                    <TextBlock Style="{StaticResource SecondaryText}" VerticalAlignment="Center" Margin="12,0,0,0">
+                                        <Run Text="{Binding FragmentVM.SelectedFragmentCount, Mode=OneWay}" />
+                                        <Run Text="/" />
+                                        <Run Text="{Binding FragmentVM.MaxFragmentSlots, Mode=OneWay}" />
+                                        <Run Text="fragments" />
+                                    </TextBlock>
+                                </StackPanel>
 
-                            <!-- Full subclass mode -->
-                            <StackPanel Visibility="{Binding FragmentVM.ShowFullSubclass,
+                                <!-- Class selector (full subclass mode only) -->
+                                <StackPanel Orientation="Horizontal"
+                                            Margin="0,0,0,10"
+                                            Visibility="{Binding FragmentVM.ShowFullSubclass,
                                             Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="Class:"
+                                               Style="{StaticResource BodyText}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0" />
+                                    <ComboBox Style="{StaticResource DarkComboBox}"
+                                              ItemsSource="{Binding FragmentVM.ClassOptions}"
+                                              SelectedItem="{Binding FragmentVM.SelectedClass}"
+                                              Width="120" />
+                                </StackPanel>
 
-                                <!-- Aspects -->
-                                <TextBlock Text="Aspects (select 2):"
-                                           Style="{StaticResource SecondaryText}"
-                                           Margin="0,0,0,6" />
-                                <ItemsControl ItemsSource="{Binding FragmentVM.Aspects}"
-                                              Margin="0,0,0,10">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <CheckBox Style="{StaticResource ToggleCheckBox}"
-                                                      IsChecked="{Binding IsSelected}"
-                                                      Margin="0,3,0,3">
-                                                <CheckBox.Content>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding Name}"
-                                                                   Style="{StaticResource BodyText}"
-                                                                   Margin="0,0,8,0" />
-                                                        <TextBlock Text="{Binding FragmentSlots}"
-                                                                   Style="{StaticResource SecondaryText}"
-                                                                   VerticalAlignment="Center" />
-                                                    </StackPanel>
-                                                </CheckBox.Content>
-                                            </CheckBox>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
-                                <!-- All fragments -->
-                                <TextBlock Text="Fragments:"
-                                           Style="{StaticResource SecondaryText}"
-                                           Margin="0,0,0,6" />
+                                <!-- Stat-only fragments (default mode) -->
                                 <ItemsControl ItemsSource="{Binding FragmentVM.Fragments}"
-                                              Margin="0,0,0,10">
+                                              Visibility="{Binding FragmentVM.ShowFullSubclass,
+                                              Converter={StaticResource InverseBoolToVisibility}}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <CheckBox Style="{StaticResource ToggleCheckBox}"
@@ -494,84 +448,139 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
 
-                                <!-- Super -->
-                                <Grid Margin="0,4,0,4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="*"   />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Super:"
-                                               Style="{StaticResource SecondaryText}"
-                                               VerticalAlignment="Center" />
-                                    <ComboBox Grid.Column="1"
-                                              Style="{StaticResource DarkComboBox}"
-                                              ItemsSource="{Binding FragmentVM.Supers}"
-                                              SelectedItem="{Binding FragmentVM.SelectedSuper}" />
-                                </Grid>
+                                <!-- Full subclass mode -->
+                                <StackPanel Visibility="{Binding FragmentVM.ShowFullSubclass,
+                                            Converter={StaticResource BoolToVisibility}}">
 
-                                <!-- Melee -->
-                                <Grid Margin="0,4,0,4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="*"   />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Melee:"
+                                    <!-- Aspects -->
+                                    <TextBlock Text="Aspects (select 2):"
                                                Style="{StaticResource SecondaryText}"
-                                               VerticalAlignment="Center" />
-                                    <ComboBox Grid.Column="1"
-                                              Style="{StaticResource DarkComboBox}"
-                                              ItemsSource="{Binding FragmentVM.Melees}"
-                                              SelectedItem="{Binding FragmentVM.SelectedMelee}" />
-                                </Grid>
+                                               Margin="0,0,0,6" />
+                                    <ItemsControl ItemsSource="{Binding FragmentVM.Aspects}" Margin="0,0,0,10">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Style="{StaticResource ToggleCheckBox}"
+                                                          IsChecked="{Binding IsSelected}"
+                                                          Margin="0,3,0,3">
+                                                    <CheckBox.Content>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding Name}"
+                                                                       Style="{StaticResource BodyText}"
+                                                                       Margin="0,0,8,0" />
+                                                            <TextBlock Text="{Binding FragmentSlots}"
+                                                                       Style="{StaticResource SecondaryText}"
+                                                                       VerticalAlignment="Center" />
+                                                        </StackPanel>
+                                                    </CheckBox.Content>
+                                                </CheckBox>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
 
-                                <!-- Grenade -->
-                                <Grid Margin="0,4,0,4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="*"   />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Grenade:"
+                                    <!-- All fragments -->
+                                    <TextBlock Text="Fragments:"
                                                Style="{StaticResource SecondaryText}"
-                                               VerticalAlignment="Center" />
-                                    <ComboBox Grid.Column="1"
-                                              Style="{StaticResource DarkComboBox}"
-                                              ItemsSource="{Binding FragmentVM.Grenades}"
-                                              SelectedItem="{Binding FragmentVM.SelectedGrenade}" />
-                                </Grid>
+                                               Margin="0,0,0,6" />
+                                    <ItemsControl ItemsSource="{Binding FragmentVM.Fragments}"
+                                                  Margin="0,0,0,10">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Style="{StaticResource ToggleCheckBox}"
+                                                          IsChecked="{Binding IsSelected}"
+                                                          Margin="0,3,0,3">
+                                                    <CheckBox.Content>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding Name}"
+                                                                       Style="{StaticResource BodyText}"
+                                                                       Margin="0,0,8,0" />
+                                                            <TextBlock Text="{Binding StatInfo}"
+                                                                       Style="{StaticResource SecondaryText}"
+                                                                       VerticalAlignment="Center" />
+                                                        </StackPanel>
+                                                    </CheckBox.Content>
+                                                </CheckBox>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
 
-                                <!-- Class Ability -->
-                                <Grid Margin="0,4,0,4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="*"   />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Class Ability:"
-                                               Style="{StaticResource SecondaryText}"
-                                               VerticalAlignment="Center" />
-                                    <ComboBox Grid.Column="1"
-                                              Style="{StaticResource DarkComboBox}"
-                                              ItemsSource="{Binding FragmentVM.ClassAbilities}"
-                                              SelectedItem="{Binding FragmentVM.SelectedClassAbility}" />
-                                </Grid>
+                                    <!-- Super -->
+                                    <Grid Margin="0,4,0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="*"   />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Super:"
+                                                   Style="{StaticResource SecondaryText}"
+                                                   VerticalAlignment="Center" />
+                                        <ComboBox Grid.Column="1"
+                                                  Style="{StaticResource DarkComboBox}"
+                                                  ItemsSource="{Binding FragmentVM.Supers}"
+                                                  SelectedItem="{Binding FragmentVM.SelectedSuper}" />
+                                    </Grid>
 
-                                <!-- Jump -->
-                                <Grid Margin="0,4,0,4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="*"   />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Jump:"
-                                               Style="{StaticResource SecondaryText}"
-                                               VerticalAlignment="Center" />
-                                    <ComboBox Grid.Column="1"
-                                              Style="{StaticResource DarkComboBox}"
-                                              ItemsSource="{Binding FragmentVM.Jumps}"
-                                              SelectedItem="{Binding FragmentVM.SelectedJump}" />
-                                </Grid>
+                                    <!-- Melee -->
+                                    <Grid Margin="0,4,0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="*"   />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Melee:"
+                                                   Style="{StaticResource SecondaryText}"
+                                                   VerticalAlignment="Center" />
+                                        <ComboBox Grid.Column="1"
+                                                  Style="{StaticResource DarkComboBox}"
+                                                  ItemsSource="{Binding FragmentVM.Melees}"
+                                                  SelectedItem="{Binding FragmentVM.SelectedMelee}" />
+                                    </Grid>
+
+                                    <!-- Grenade -->
+                                    <Grid Margin="0,4,0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="*"   />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Grenade:"
+                                                   Style="{StaticResource SecondaryText}"
+                                                   VerticalAlignment="Center" />
+                                        <ComboBox Grid.Column="1"
+                                                  Style="{StaticResource DarkComboBox}"
+                                                  ItemsSource="{Binding FragmentVM.Grenades}"
+                                                  SelectedItem="{Binding FragmentVM.SelectedGrenade}" />
+                                    </Grid>
+
+                                    <!-- Class Ability -->
+                                    <Grid Margin="0,4,0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="*"   />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Class Ability:"
+                                                   Style="{StaticResource SecondaryText}"
+                                                   VerticalAlignment="Center" />
+                                        <ComboBox Grid.Column="1"
+                                                  Style="{StaticResource DarkComboBox}"
+                                                  ItemsSource="{Binding FragmentVM.ClassAbilities}"
+                                                  SelectedItem="{Binding FragmentVM.SelectedClassAbility}" />
+                                    </Grid>
+
+                                    <!-- Jump -->
+                                    <Grid Margin="0,4,0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="*"   />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Jump:"
+                                                   Style="{StaticResource SecondaryText}"
+                                                   VerticalAlignment="Center" />
+                                        <ComboBox Grid.Column="1"
+                                                  Style="{StaticResource DarkComboBox}"
+                                                  ItemsSource="{Binding FragmentVM.Jumps}"
+                                                  SelectedItem="{Binding FragmentVM.SelectedJump}" />
+                                    </Grid>
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
                     </Border>
-
                     <!-- =====================================================-->
                     <!-- Exotic Section                                       -->
                     <!-- =====================================================-->

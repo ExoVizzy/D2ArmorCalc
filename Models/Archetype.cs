@@ -6,7 +6,7 @@
 *   DESCRIPTION   : Defines Archetype model, ArchetypeType enum, &
 *                   Stat enum used throughout the application.
 */
-namespace D2ArmorCalc {
+namespace D2ArmorCalc_Models {
     //Enum representing all 6 armor stats.
     public enum Stat {
         Health, Melee, Grenade, Super, Class, Weapons
@@ -17,14 +17,9 @@ namespace D2ArmorCalc {
         Brawler, Gunner, Specialist, Grenadier, Paragon, Bulwark
     }
     //Holds stat layout for given archetype.
-    public class Archetype {
-        public ArchetypeType Type {get;}
-        public Stat Primary {get;}
-        public Stat Secondary {get;}
-        public Archetype(ArchetypeType type, Stat primary, Stat secondary){
-            Type = type;
-            Primary = primary;
-            Secondary = secondary;
-        }
+    public class Archetype(ArchetypeType type, Stat primary, Stat secondary) {
+        public ArchetypeType Type {get;} = type;
+        public Stat Primary {get;} = primary;
+        public Stat Secondary {get;} = secondary;
     }
 }

@@ -6,7 +6,9 @@
 *   DESCRIPTION   : Defines StatBlock model representing a complete set
 *                   of all 6 armor stats, with arithmetic & helper methods.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Models;
+
+namespace D2ArmorCalc_Models {
     //Represents a complete set of all 6 armor stats.
     public class StatBlock {
         public int Health {get; set;}
@@ -33,15 +35,15 @@ namespace D2ArmorCalc {
         Return Values : int       : Value of requested stat.
         */
         public int Get(Stat stat){
-            switch (stat){
-                case Stat.Health: return Health;
-                case Stat.Melee: return Melee;
-                case Stat.Grenade: return Grenade;
-                case Stat.Super: return Super;
-                case Stat.Class: return Class;
-                case Stat.Weapons: return Weapons;
-                default: return 0;
-            }
+            return stat switch {
+                Stat.Health => Health,
+                Stat.Melee => Melee,
+                Stat.Grenade => Grenade,
+                Stat.Super => Super,
+                Stat.Class => Class,
+                Stat.Weapons => Weapons,
+                _ => 0,
+            };
         }
         /*
         Method        : Set
@@ -106,7 +108,7 @@ namespace D2ArmorCalc {
         Return Values : StatBlock            : New StatBlock with fragment bonuses applied.
         */
         public StatBlock ApplyFragments(Fragment[] fragments){
-            StatBlock result = new StatBlock(Health, Melee, Grenade, Super, Class, Weapons);
+            StatBlock result = new(Health, Melee, Grenade, Super, Class, Weapons);
             foreach (Fragment fragment in fragments){
                 foreach (StatChange change in fragment.StatChanges){
                     result.Set(change.Stat, result.Get(change.Stat) + change.Value);

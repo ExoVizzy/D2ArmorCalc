@@ -7,50 +7,44 @@
 *                   subclass dropdown, fragment filtering, aspect selection,
 *                   & full subclass customization when toggled.
 */
+using D2ArmorCalc_Data;
+using D2ArmorCalc_Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-namespace D2ArmorCalc {
+namespace D2ArmorCalc_ViewModels {
     //Wraps Fragment with selection state for UI.
-    public class FragmentSelectionItem : INotifyPropertyChanged {
+    public class FragmentSelectionItem(Fragment fragment) : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string name) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        public Fragment Fragment {get;}
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        public Fragment Fragment { get; } = fragment;
         public string Name => Fragment.Name;
-        public string StatInfo {get;}
+        public string StatInfo { get; } = BuildStatInfo(fragment);
         private bool _isSelected;
         public bool IsSelected {
             get => _isSelected;
             set {_isSelected = value; OnPropertyChanged(nameof(IsSelected));}
         }
-        public FragmentSelectionItem(Fragment fragment){
-            Fragment = fragment;
-            StatInfo = BuildStatInfo(fragment);
-        }
+
         private static string BuildStatInfo(Fragment fragment){
             if (fragment.StatChanges.Length == 0) return string.Empty;
-            List<string> parts = new List<string>();
-            foreach (StatChange change in fragment.StatChanges)
-                parts.Add($"{(change.Value > 0 ? "+" : "")}{change.Value}{change.Stat}");
+            List<string> parts = [];
+            foreach (StatChange change in fragment.StatChanges) parts.Add($"{(change.Value > 0 ? "+" : "")}{change.Value}{change.Stat}");
             return string.Join(", ", parts);
         }
     }
     //Wraps Aspect with selection state for UI.
-    public class AspectSelectionItem : INotifyPropertyChanged {
+    public class AspectSelectionItem(Aspect aspect) : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        public Aspect Aspect {get;}
+        public Aspect Aspect { get; } = aspect;
         public string Name => Aspect.Name;
         public string FragmentSlots => $"({Aspect.FragmentSlots} fragment slots)";
         private bool _isSelected;
         public bool IsSelected {
             get => _isSelected;
             set {_isSelected = value; OnPropertyChanged(nameof(IsSelected));}
-        }
-        public AspectSelectionItem(Aspect aspect){
-            Aspect = aspect;
         }
     }
     public class FragmentViewModel : INotifyPropertyChanged {
@@ -61,10 +55,7 @@ namespace D2ArmorCalc {
         //Properties.
         //=====================================================================
         //Subclass dropdown.
-        public ObservableCollection<string> SubclassOptions {get;} =
-            new ObservableCollection<string> {
-                "None", "Arc", "Solar", "Void", "Stasis", "Strand", "Prismatic"
-            };
+        public ObservableCollection<string> SubclassOptions {get;} = ["None", "Arc", "Solar", "Void", "Stasis", "Strand", "Prismatic"];
         private string _selectedSubclass = "None";
         public string SelectedSubclass {
             get => _selectedSubclass;
@@ -76,6 +67,42 @@ namespace D2ArmorCalc {
                 RefreshSubclassOptions();
             }
         }
+        
+        private bool _fragmentsEnabled;
+        public bool FragmentsEnabled {
+            get => _fragmentsEnabled;
+            set {
+                _fragmentsEnabled = value;
+                OnPropertyChanged(nameof(FragmentsEnabled));
+            }
+        }
+        //Add class options for full subclass mode.
+        public ObservableCollection<string> ClassOptions {get;} = ["Warlock", "Titan", "Hunter"];
+        private string _selectedClass = "Warlock";
+        public string SelectedClass {
+            get => _selectedClass;
+            set {
+                if (_selectedClass == value) return;
+                _selectedClass = value;
+                OnPropertyChanged(nameof(SelectedClass));
+                //Update CurrentClass enum.
+                if (Enum.TryParse(value, out PlayerClass pc)) CurrentClass = pc;
+                //Keep subclass name but reload for new class.
+                string current = _selectedSubclass;
+                _selectedSubclass = "None";
+                RefreshFragments();
+                RefreshAspects();
+                RefreshSubclassOptions();
+                _selectedSubclass = current;
+                RefreshFragments();
+                RefreshAspects();
+                RefreshSubclassOptions();
+                //Notify class changed for two-way sync with ExoticVM.
+                ClassChanged?.Invoke(this, value);
+            }
+        }
+        //Event for two-way class sync.
+        public event EventHandler<string>? ClassChanged;
         //Show full subclass toggle.
         private bool _showFullSubclass;
         public bool ShowFullSubclass {
@@ -83,21 +110,21 @@ namespace D2ArmorCalc {
             set {
                 _showFullSubclass = value;
                 OnPropertyChanged(nameof(ShowFullSubclass));
+                OnPropertyChanged(nameof(MaxFragmentSlots));
                 RefreshFragments();
+                EnforceFragmentLimit();
             }
         }
         //Fragment list (filtered based on ShowFullSubclass).
-        public ObservableCollection<FragmentSelectionItem> Fragments {get;} =
-            new ObservableCollection<FragmentSelectionItem>();
+        public ObservableCollection<FragmentSelectionItem> Fragments {get;} = [];
         //Aspect list (only shown in full subclass mode).
-        public ObservableCollection<AspectSelectionItem> Aspects {get;} =
-            new ObservableCollection<AspectSelectionItem>();
+        public ObservableCollection<AspectSelectionItem> Aspects {get;} = [];
         //Full subclass options (only shown in full subclass mode).
-        public ObservableCollection<string> Supers {get;} = new ObservableCollection<string>();
-        public ObservableCollection<string> Melees {get;} = new ObservableCollection<string>();
-        public ObservableCollection<string> Grenades {get;} = new ObservableCollection<string>();
-        public ObservableCollection<string> ClassAbilities {get;} = new ObservableCollection<string>();
-        public ObservableCollection<string> Jumps {get;} = new ObservableCollection<string>();
+        public ObservableCollection<string> Supers {get;} = [];
+        public ObservableCollection<string> Melees {get;} = [];
+        public ObservableCollection<string> Grenades {get;} = [];
+        public ObservableCollection<string> ClassAbilities {get;} = [];
+        public ObservableCollection<string> Jumps {get;} = [];
         private string? _selectedSuper;
         public string SelectedSuper {
             get => _selectedSuper;
@@ -141,7 +168,7 @@ namespace D2ArmorCalc {
         Return Values : void
         */
         private void RefreshFragments(){
-            HashSet<string> previousSelections = new HashSet<string>();
+            HashSet<string> previousSelections = [];
             foreach (FragmentSelectionItem item in Fragments){
                 if (item.IsSelected) previousSelections.Add(item.Name);
             }
@@ -154,8 +181,9 @@ namespace D2ArmorCalc {
 
             foreach (Fragment fragment in subclass.Fragments){
                 if (!_showFullSubclass && fragment.StatChanges.Length == 0) continue;
-                FragmentSelectionItem item = new FragmentSelectionItem(fragment);
-                item.IsSelected = previousSelections.Contains(fragment.Name);
+                FragmentSelectionItem item = new(fragment) {
+                    IsSelected = previousSelections.Contains(fragment.Name)
+                };
                 item.PropertyChanged += (s, e) => {
                     if (e.PropertyName == nameof(FragmentSelectionItem.IsSelected))
                         OnFragmentSelectionChanged();
@@ -179,7 +207,7 @@ namespace D2ArmorCalc {
             if (subclass == null) return;
 
             foreach (Aspect aspect in subclass.Aspects){
-                AspectSelectionItem item = new AspectSelectionItem(aspect);
+                AspectSelectionItem item = new(aspect);
                 item.PropertyChanged += (s, e) => {
                     if (e.PropertyName == nameof(AspectSelectionItem.IsSelected)){
                         OnPropertyChanged(nameof(MaxFragmentSlots));
@@ -231,12 +259,15 @@ namespace D2ArmorCalc {
         Parameters    : None.
         Return Values : int : Total available fragment slots.
         */
-        private int GetMaxFragmentSlots(){
+        private int GetMaxFragmentSlots() {
+            //When full subclass is off, always return 6.
+            if (!_showFullSubclass) return 6;
             if (_selectedSubclass == "None") return 6;
+
             int total = 0;
             int selected = 0;
-            foreach (AspectSelectionItem item in Aspects){
-                if (item.IsSelected){
+            foreach (AspectSelectionItem item in Aspects) {
+                if (item.IsSelected) {
                     total += item.Aspect.FragmentSlots;
                     selected++;
                     if (selected >= 2) break;
@@ -299,11 +330,12 @@ namespace D2ArmorCalc {
         Return Values : Fragment[] : All selected fragments.
         */
         public Fragment[] GetSelectedFragments(){
-            List<Fragment> selected = new List<Fragment>();
-            foreach (FragmentSelectionItem item in Fragments){
+            if (!_fragmentsEnabled) return [];
+            List<Fragment> selected = [];
+            foreach (FragmentSelectionItem item in Fragments) {
                 if (item.IsSelected) selected.Add(item.Fragment);
             }
-            return selected.ToArray();
+            return [.. selected];
         }
         /*
         Method        : GetSelectedAspects
@@ -313,14 +345,14 @@ namespace D2ArmorCalc {
         Return Values : Aspect[] : Selected aspects.
         */
         public Aspect[] GetSelectedAspects(){
-            List<Aspect> selected = new List<Aspect>();
+            List<Aspect> selected = [];
             foreach (AspectSelectionItem item in Aspects){
                 if (item.IsSelected){
                     selected.Add(item.Aspect);
                     if (selected.Count >= 2) break;
                 }
             }
-            return selected.ToArray();
+            return [.. selected];
         }
     }
 }

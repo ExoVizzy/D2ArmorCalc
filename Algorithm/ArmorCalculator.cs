@@ -7,9 +7,11 @@
 *                   Orchestrates combo generation, stat resolution, &
 *                   result selection with optional multicore support.
 */
+using D2ArmorCalc_Data;
+using D2ArmorCalc_Models;
 using System.Collections.Concurrent;
 
-namespace D2ArmorCalc {
+namespace D2ArmorCalc_Algorithm {
     //Input parameters for a calculation run.
     public class CalcInput {
         public StatBlock? Mins {get; set;}
@@ -18,7 +20,8 @@ namespace D2ArmorCalc {
         public Fragment[] Fragments {get; set;} = [];
         public Stat LeastWantedStat {get; set;}
         public bool FontsEnabled {get; set;}
-        public Dictionary<ArmorSlot, int> FontCounts {get; set;} = new Dictionary<ArmorSlot, int>();
+        public Dictionary<ArmorSlot, int> FontCounts {get; set;} = [];
+        public bool FontsInStats {get; set;}
         public bool ArmorModsEnabled {get; set;}
         public bool MajorMods {get; set;} = true;
         public int MinorModCount {get; set;} //Used when ArmorModsEnabled is false.
@@ -38,6 +41,11 @@ namespace D2ArmorCalc {
             StatBlock fragmentStats = new StatBlock().ApplyFragments(input.Fragments);
             StatBlock adjustedMins = SubtractStats(input.Mins, fragmentStats);
             StatBlock adjustedMaxs = SubtractStats(input.Maxs, fragmentStats);
+            if (input.FontsInStats) {
+                var fontBonus = BuildFontStatBlock(input.FontCounts);
+                adjustedMins = SubtractStats(adjustedMins, fontBonus);
+                adjustedMaxs = SubtractStats(adjustedMaxs, fontBonus);
+            }
             //Step 2: Generate candidates for legendary pieces.
             List<ArmorCandidate> candidates = ComboGenerator.GenerateCandidates(adjustedMins, input.LeastWantedStat);
             List<ArmorCandidate[]> combinations = ComboGenerator.GenerateAllCombinations(candidates);
@@ -57,7 +65,6 @@ namespace D2ArmorCalc {
             //Step 4: Pick best result.
             return BuildBestResult(validResults, input, adjustedMins, adjustedMaxs);
         }
-
         /*
         Method        : BuildBestResult
         Description   : Selects highest scoring valid result & constructs
@@ -93,10 +100,9 @@ namespace D2ArmorCalc {
             ArmorSlot[] slots = [ArmorSlot.Helmet, ArmorSlot.Arms, ArmorSlot.Chestplate, ArmorSlot.Boots];
 
             //Determine which slot the exotic is NOT occupying.
-            List<ArmorSlot> legendarySlots = new List<ArmorSlot>();
+            List<ArmorSlot> legendarySlots = [];
             foreach (ArmorSlot slot in slots){
-                if (slot != input.Exotic.Slot)
-                    legendarySlots.Add(slot);
+                if (slot != input.Exotic.Slot) legendarySlots.Add(slot);
             }
             //Class item is always legendary.
             legendarySlots.Add(ArmorSlot.ClassItem);
@@ -111,12 +117,11 @@ namespace D2ArmorCalc {
                     FocusStat = candidate.FocusStat, FocusMinus = candidate.FocusMinus
                 };
             }
-
             //Place exotic in its slot.
             ArmorPiece exotic = input.Exotic;
 
             //Build final result.
-            BuildResult buildResult = new BuildResult {
+            BuildResult buildResult = new() {
                 Status = bestResult.MeetsMaximums ? BuildStatus.Success : BuildStatus.MaxsExceeded,
                 Fragments = input.Fragments,
                 BaseStats = bestResult.BaseStats,
@@ -125,7 +130,6 @@ namespace D2ArmorCalc {
                 OverflowStats = bestResult.FinalStats.GetOverflow(),
                 Score = bestResult.Score
             };
-
             //Assign pieces by slot.
             foreach (ArmorPiece piece in pieces){
                 switch (piece.Slot){
@@ -148,6 +152,27 @@ namespace D2ArmorCalc {
             buildResult.MaxsExceededStats = GetExceededStats(bestResult.FinalStats, input.Maxs);
 
             return buildResult;
+        }
+        /*
+        Method        : BuildFontStatBlock
+        Description   : Builds StatBlock representing total font bonuses
+                        across all slots based on font counts.
+        Parameters    : Dictionary<ArmorSlot, int> fontCounts : Font counts per slot.
+        Return Values : StatBlock                             : Total font bonuses.
+        */
+        private static StatBlock BuildFontStatBlock(Dictionary<ArmorSlot, int> fontCounts) {
+            var stats = new StatBlock();
+            var allFonts = new[]{
+                (Stat.Super, ArmorSlot.Helmet), (Stat.Grenade, ArmorSlot.Arms),
+                (Stat.Melee, ArmorSlot.Arms), (Stat.Health, ArmorSlot.Chestplate),
+                (Stat.Weapons, ArmorSlot.Boots), (Stat.Class, ArmorSlot.ClassItem)
+            };
+
+            foreach (var (stat, slot) in allFonts) {
+                if (fontCounts.TryGetValue(slot, out int count))
+                    stats.Set(stat, stats.Get(stat) + Fonts.GetTotalBonus(count));
+            }
+            return stats;
         }
         /*
         Method        : SubtractStats

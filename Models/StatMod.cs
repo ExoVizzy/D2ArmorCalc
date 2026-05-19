@@ -7,22 +7,18 @@
 *                   armor mod, either major (+10) or minor (+5), extending
 *                   base Mod class.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Models;
+
+namespace D2ArmorCalc_Models {
     //Enum representing two types of stat mods (Major: +10 Stat & Cost 3 Energy, Minor: +5 Stat & Cost 1 Energy).
     public enum ModType {
         Major, Minor
     }
     //Holds data for single stat mod instance (type + boosted stat).
-    public class StatMod : Mod {
-    public ModType ModType {get;}
-    public Stat Stat {get;}
-    public int Bonus => ModType == ModType.Major ? 10 : 5;
-
-    public StatMod(ModType modType, Stat stat)
-        : base(modType == ModType.Major ? "Major " + stat : "Minor " + stat,
-               modType == ModType.Major ? 3 : 1){
-        ModType = modType;
-        Stat = stat;
+    public class StatMod(ModType modType, Stat stat) : Mod(modType == ModType.Major ? "Major " + stat : "Minor " + stat,
+               modType == ModType.Major ? 3 : 1) {
+        public ModType ModType { get; } = modType;
+        public Stat Stat { get; } = stat;
+        public int Bonus => ModType == ModType.Major ? 10 : 5;
     }
-}
 }

@@ -7,7 +7,7 @@
 *                   of completed armor calculation, including chosen pieces,
 *                   stat totals, DIM queries, & outcome status.
 */
-namespace D2ArmorCalc {
+namespace D2ArmorCalc_Models {
     //Represents outcome status of a build calculation.
     //Success: mins & maxs met, MinsFailed: target minimums not achievable, MaxsExceeded: mins met but one or more stats exceed max.
     public enum BuildStatus {
@@ -43,7 +43,7 @@ namespace D2ArmorCalc {
         //Lower is better: represents how far total stats are from targets.
         public int Score {get; set;}
         public BuildResult(){
-            Fragments = new Fragment[0];
+            Fragments = [];
             MaxsExceededStats = new StatBlock();
         }
         /*
@@ -53,7 +53,7 @@ namespace D2ArmorCalc {
         Return Values : ArmorPiece[] : Array of all 5 pieces in slot order.
         */
         public ArmorPiece[] GetPieces(){
-            return new ArmorPiece[] {Helmet, Arms, Chestplate, Boots, ClassItem };
+            return [Helmet, Arms, Chestplate, Boots, ClassItem];
         }
         /*
         Method        : IsValid
@@ -73,16 +73,12 @@ namespace D2ArmorCalc {
         Return Values : string : Message describing build outcome.
         */
         public string GetStatusMessage(){
-            switch (Status){
-                case BuildStatus.Success:
-                    return "Build found. All stat targets met.";
-                case BuildStatus.MinsFailed:
-                    return "No valid build found. Target minimums are not achievable with the current configuration.";
-                case BuildStatus.MaxsExceeded:
-                    return "Build found. Minimum targets met, but one or more stats could not stay within the set maximums.";
-                default:
-                    return string.Empty;
-            }
+            return Status switch {
+                BuildStatus.Success => "Build found. All stat targets met.",
+                BuildStatus.MinsFailed => "No valid build found. Target minimums are not achievable with the current configuration.",
+                BuildStatus.MaxsExceeded => "Build found. Minimum targets met, but one or more stats could not stay within the set maximums.",
+                _ => string.Empty,
+            };
         }
     }
 }

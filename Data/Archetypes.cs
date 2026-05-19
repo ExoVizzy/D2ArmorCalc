@@ -6,20 +6,20 @@
 *   DESCRIPTION   : Static definitions for all 6 armor archetypes &
 *                   helpers for resolving tertiary stat options.
 */
-namespace D2ArmorCalc {
+using D2ArmorCalc_Models;
+
+namespace D2ArmorCalc_Data {
     //Static lookup for all archetypes.
     public static class Archetypes {
-        public static readonly Archetype Brawler = new Archetype(ArchetypeType.Brawler, Stat.Melee, Stat.Health);
-        public static readonly Archetype Gunner = new Archetype(ArchetypeType.Gunner, Stat.Weapons, Stat.Grenade);
-        public static readonly Archetype Specialist = new Archetype(ArchetypeType.Specialist, Stat.Class, Stat.Weapons);
-        public static readonly Archetype Grenadier = new Archetype(ArchetypeType.Grenadier, Stat.Grenade, Stat.Super);
-        public static readonly Archetype Paragon = new Archetype(ArchetypeType.Paragon, Stat.Super, Stat.Melee);
-        public static readonly Archetype Bulwark = new Archetype(ArchetypeType.Bulwark, Stat.Health, Stat.Class);
+        public static readonly Archetype Brawler = new(ArchetypeType.Brawler, Stat.Melee, Stat.Health);
+        public static readonly Archetype Gunner = new(ArchetypeType.Gunner, Stat.Weapons, Stat.Grenade);
+        public static readonly Archetype Specialist = new(ArchetypeType.Specialist, Stat.Class, Stat.Weapons);
+        public static readonly Archetype Grenadier = new(ArchetypeType.Grenadier, Stat.Grenade, Stat.Super);
+        public static readonly Archetype Paragon = new(ArchetypeType.Paragon, Stat.Super, Stat.Melee);
+        public static readonly Archetype Bulwark = new(ArchetypeType.Bulwark, Stat.Health, Stat.Class);
 
         //All archetypes as array for iteration.
-        public static readonly Archetype[] All = {
-            Brawler, Gunner, Specialist, Grenadier, Paragon, Bulwark
-        };
+        public static readonly Archetype[] All = [Brawler, Gunner, Specialist, Grenadier, Paragon, Bulwark];
         /*
         Method        : GetTertiaryStats
         Description   : Returns the 4 stats that are not primary or secondary

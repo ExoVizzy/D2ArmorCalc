@@ -7,6 +7,8 @@
 *                   thumb drag logic, range bar updates, value clamping,
 *                   & buff tooltip visibility above 100.
 */
+using D2ArmorCalc_Helpers;
+using D2ArmorCalc_Models;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -23,11 +25,10 @@ namespace D2ArmorCalc {
             DependencyProperty.Register(nameof(MaxValue), typeof(int), typeof(RangeSlider),
                 new FrameworkPropertyMetadata(200, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValueChanged));
         public static readonly DependencyProperty StatProperty =
-            DependencyProperty.Register(nameof(Stat), typeof(Stat), typeof(RangeSlider),
-                new PropertyMetadata(Stat.Health));
-        public int MinValue { get => (int)GetValue(MinValueProperty); set => SetValue(MinValueProperty, value); }
-        public int MaxValue { get => (int)GetValue(MaxValueProperty); set => SetValue(MaxValueProperty, value); }
-        public Stat Stat { get => (Stat)GetValue(StatProperty); set => SetValue(StatProperty, value); }
+            DependencyProperty.Register(nameof(Stat), typeof(Stat), typeof(RangeSlider), new PropertyMetadata(Stat.Health));
+        public int MinValue {get => (int)GetValue(MinValueProperty); set => SetValue(MinValueProperty, value);}
+        public int MaxValue {get => (int)GetValue(MaxValueProperty); set => SetValue(MaxValueProperty, value);}
+        public Stat Stat {get => (Stat)GetValue(StatProperty); set => SetValue(StatProperty, value);}
         //=====================================================================
         //Private State.
         //=====================================================================
@@ -54,13 +55,12 @@ namespace D2ArmorCalc {
             };
             MinThumb.MouseMove += (s, e) => {
                 if (!_isDraggingMin) return;
-                int value = PositionToValue(e.GetPosition(ThumbCanvas).X - 10);
-                SetCurrentValue(MinValueProperty, System.Math.Min(value, MaxValue));
+                double pos = Math.Max(0, Math.Min(TrackWidth, e.GetPosition(ThumbCanvas).X - 10));
+                int value = PositionToValue(pos);
+                SetCurrentValue(MinValueProperty, Math.Min(value, MaxValue));
             };
-            MinThumb.MouseEnter += (s, e) =>
-                MinThumb.Fill = (SolidColorBrush)FindResource("ThumbHoverBrush");
-            MinThumb.MouseLeave += (s, e) =>
-                MinThumb.Fill = (SolidColorBrush)FindResource("ThumbBrush");
+            MinThumb.MouseEnter += (s, e) => MinThumb.Fill = (SolidColorBrush)FindResource("ThumbHoverBrush");
+            MinThumb.MouseLeave += (s, e) => MinThumb.Fill = (SolidColorBrush)FindResource("ThumbBrush");
             MaxThumb.MouseLeftButtonDown += (s, e) => {
                 _isDraggingMax = true;
                 MaxThumb.CaptureMouse();
@@ -72,8 +72,9 @@ namespace D2ArmorCalc {
             };
             MaxThumb.MouseMove += (s, e) => {
                 if (!_isDraggingMax) return;
-                int value = PositionToValue(e.GetPosition(ThumbCanvas).X - 10);
-                SetCurrentValue(MaxValueProperty, System.Math.Max(value, MinValue));
+                double pos = Math.Max(0, Math.Min(TrackWidth, e.GetPosition(ThumbCanvas).X - 10));
+                int value = PositionToValue(pos);
+                SetCurrentValue(MaxValueProperty, Math.Max(value, MinValue));
             };
             MaxThumb.MouseEnter += (s, e) => MaxThumb.Fill = (SolidColorBrush)FindResource("ThumbHoverBrush");
             MaxThumb.MouseLeave += (s, e) => MaxThumb.Fill = (SolidColorBrush)FindResource("ThumbBrush");
@@ -101,7 +102,7 @@ namespace D2ArmorCalc {
             Canvas.SetLeft(MaxThumb, maxPos);
 
             double barLeft  = minPos + 10;
-            double barWidth = System.Math.Max(0, maxPos - minPos);
+            double barWidth = Math.Max(0, maxPos - minPos);
 
             RangeBar.Margin = new Thickness(barLeft, 0, 0, 0);
             RangeBar.Width  = barWidth;
@@ -131,7 +132,7 @@ namespace D2ArmorCalc {
         Method        : ValueToPosition
         Description   : Converts stat value (0-200) to canvas X position.
         Parameters    : int value : Stat value to convert.
-        Return Values : double    : X position on the canvas.
+        Return Values : double    : X position on canvas.
         */
         private double ValueToPosition(int value) {
             return (value / 200.0) * TrackWidth;

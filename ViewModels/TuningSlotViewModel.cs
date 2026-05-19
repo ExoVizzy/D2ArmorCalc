@@ -6,23 +6,21 @@
 *   DESCRIPTION   : ViewModel for single tuning slot row, holding
 *                   selected +5 focus stat & -5 focus stat per armor piece.
 */
+using D2ArmorCalc_Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-namespace D2ArmorCalc {
-    public class TuningSlotViewModel : INotifyPropertyChanged {
+namespace D2ArmorCalc_ViewModels {
+    public class TuningSlotViewModel(string slotLabel, string defaultFocusStat, string defaultFocusMinus) : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================
         //Properties.
         //=====================================================================
-        public string SlotLabel { get; }
-        public ObservableCollection<string> StatOptions { get; } =
-            new ObservableCollection<string> {
-                "Health", "Melee", "Grenade", "Super", "Class", "Weapons"
-            };
-        private string _focusStat;
+        public string SlotLabel { get; } = slotLabel;
+        public ObservableCollection<string> StatOptions { get; } = ["Health", "Melee", "Grenade", "Super", "Class", "Weapons"];
+        private string _focusStat = defaultFocusStat;
         public string FocusStat {
             get => _focusStat;
             set {
@@ -30,7 +28,7 @@ namespace D2ArmorCalc {
                 OnPropertyChanged(nameof(FocusStat));
             }
         }
-        private string _focusMinus;
+        private string _focusMinus = defaultFocusMinus;
         public string FocusMinus {
             get => _focusMinus;
             set {
@@ -38,14 +36,7 @@ namespace D2ArmorCalc {
                 OnPropertyChanged(nameof(FocusMinus));
             }
         }
-        //=====================================================================
-        //Constructor.
-        //=====================================================================
-        public TuningSlotViewModel(string slotLabel, string defaultFocusStat, string defaultFocusMinus) {
-            SlotLabel = slotLabel;
-            _focusStat = defaultFocusStat;
-            _focusMinus = defaultFocusMinus;
-        }
+
         //=====================================================================
         //Helpers.
         //=====================================================================
@@ -56,7 +47,7 @@ namespace D2ArmorCalc {
         Return Values : Stat : Selected +5 focus stat.
         */
         public Stat GetFocusStat() {
-            Enum.TryParse(_focusStat, out Stat stat);
+            _ = Enum.TryParse(_focusStat, out Stat stat);
             return stat;
         }
         /*
@@ -66,7 +57,7 @@ namespace D2ArmorCalc {
         Return Values : Stat : Selected -5 focus stat.
         */
         public Stat GetFocusMinus() {
-            Enum.TryParse(_focusMinus, out Stat stat);
+            _ = Enum.TryParse(_focusMinus, out Stat stat);
             return stat;
         }
     }

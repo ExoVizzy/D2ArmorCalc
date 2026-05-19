@@ -7,11 +7,15 @@
 *                   all sub-ViewModels, commands, toggle states, and the
 *                   calculation pipeline from input to result.
 */
+using D2ArmorCalc;
+using D2ArmorCalc_Algorithm;
+using D2ArmorCalc_Helpers;
+using D2ArmorCalc_Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 
-namespace D2ArmorCalc {
+namespace D2ArmorCalc_ViewModels {
     public class D2ArmorCalcViewModel : INotifyPropertyChanged {
         public ObservableCollection<TuningSlotViewModel> TuningSlots {get;}
         public ObservableCollection<FontStatViewModel> FontStats {get;}
@@ -94,6 +98,20 @@ namespace D2ArmorCalc {
                 AppSettings.T5ExoticEnabled = value;
             }
         }
+        private bool _fontsInStats;
+        public bool FontsInStats {
+            get => _fontsInStats;
+            set {_fontsInStats = value; OnPropertyChanged(nameof(FontsInStats));}
+        }
+        private bool _fragmentsEnabled;
+        public bool FragmentsEnabled {
+            get => _fragmentsEnabled;
+            set {
+                _fragmentsEnabled = value;
+                FragmentVM.FragmentsEnabled = value;
+                OnPropertyChanged(nameof(FragmentsEnabled));
+            }
+        }
         //=====================================================================
         //Least Wanted Stat.
         //=====================================================================
@@ -151,21 +169,36 @@ namespace D2ArmorCalc {
 
             LoadSettings();
 
-            TuningSlots = new ObservableCollection<TuningSlotViewModel> {
-                new("Slot 1", "Weapons", "Health"),
-                new("Slot 2", "Weapons", "Health"),
-                new("Slot 3", "Weapons", "Health"),
-                new("Slot 4", "Weapons", "Health")
+            FragmentVM.ClassChanged += (s, className) => {
+                if (ExoticVM.SelectedClass != className)
+                    ExoticVM.SelectedClass = className;
+            };
+            ExoticVM.PropertyChanged += (s, e) => {
+                if (e.PropertyName == nameof(ExoticViewModel.SelectedClass)) {
+                    if (FragmentVM.SelectedClass != ExoticVM.SelectedClass) FragmentVM.SelectedClass = ExoticVM.SelectedClass;
+                }
+                if (e.PropertyName == nameof(ExoticViewModel.SelectedSlot)) SyncExoticSlotToMods();
             };
 
-            FontStats = new ObservableCollection<FontStatViewModel> {
-                new(Stat.Super,   ArmorSlot.Helmet),
-                new(Stat.Grenade, ArmorSlot.Arms),
-                new(Stat.Melee,   ArmorSlot.Arms),
-                new(Stat.Health,  ArmorSlot.Chestplate),
-                new(Stat.Weapons, ArmorSlot.Boots),
-                new(Stat.Class,   ArmorSlot.ClassItem)
-            };
+            TuningSlots = [
+                new("Slot 1", "Weapons", "Health"), new("Slot 2", "Weapons", "Health"),
+                new("Slot 3", "Weapons", "Health"), new("Slot 4", "Weapons", "Health")
+            ];
+
+            FontStats = [
+                new(Stat.Super, ArmorSlot.Helmet), new(Stat.Grenade, ArmorSlot.Arms),
+                new(Stat.Melee, ArmorSlot.Arms), new(Stat.Health, ArmorSlot.Chestplate),
+                new(Stat.Weapons, ArmorSlot.Boots), new(Stat.Class, ArmorSlot.ClassItem)
+            ];
+            FontStats[1].PropertyChanged += OnArmsFontChanged; // Grenade
+            FontStats[2].PropertyChanged += OnArmsFontChanged; // Melee
+
+            foreach (FontStatViewModel fontStat in FontStats)
+                fontStat.PropertyChanged += (s, e) => {
+                    if (e.PropertyName == nameof(FontStatViewModel.FontCount)) SyncFontCountsToMods();
+                };
+
+            SyncExoticSlotToMods();
         }
         //=====================================================================
         //Settings.
@@ -226,11 +259,10 @@ namespace D2ArmorCalc {
                 //Store last result for potential export.
                 _lastResult = result;
 
-                //Load into result ViewModel
+                //Load into result ViewModel.
                 StatBlock mins = BuildMinStatBlock();
                 StatBlock maxs = BuildMaxStatBlock();
                 ResultVM.LoadResult(result, mins, maxs, _showDimQueries);
-
             } catch (Exception ex){
                 MessageBox.Show($"Calculation error: {ex.Message}", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
@@ -249,11 +281,8 @@ namespace D2ArmorCalc {
             //Validate at least one stat has minimum set.
             StatBlock mins = BuildMinStatBlock();
             bool anyMin = false;
-            foreach (Stat stat in Enum.GetValues(typeof(Stat))){
-                if (mins.Get(stat) > 0){
-                    anyMin = true; 
-                    break;
-                }
+            foreach (Stat stat in Enum.GetValues<Stat>()) {
+                if (mins.Get(stat) > 0){anyMin = true; break;}
             }
 
             if (!anyMin){
@@ -266,17 +295,13 @@ namespace D2ArmorCalc {
             //Sync fragment VM class with exotic VM class.
             FragmentVM.CurrentClass = ExoticVM.GetPlayerClass();
             //Parse least wanted stat.
-            Enum.TryParse(_leastWantedStat, out Stat leastWanted);
+            _ = Enum.TryParse(_leastWantedStat, out Stat leastWanted);
 
             return new CalcInput {
-                Mins = mins,
-                Maxs = BuildMaxStatBlock(),
-                Exotic = exotic,
-                Fragments = FragmentVM.GetSelectedFragments(),
-                LeastWantedStat = leastWanted,
-                FontsEnabled = _fontsEnabled,
-                FontCounts = BuildFontCounts(),
-                ArmorModsEnabled = _armorModsEnabled,
+                Mins = mins, Maxs = BuildMaxStatBlock(),
+                Exotic = exotic, Fragments = _fragmentsEnabled ? FragmentVM.GetSelectedFragments() : [],
+                LeastWantedStat = leastWanted, FontsEnabled = _fontsEnabled, FontsInStats = _fontsInStats,
+                FontCounts = BuildFontCounts(), ArmorModsEnabled = _armorModsEnabled,
                 MajorMods = !_armorModsEnabled || ModVM.MinorModCount == 0,
                 MinorModCount = ModVM.MinorModCount
             };
@@ -324,19 +349,73 @@ namespace D2ArmorCalc {
         Return Values : Dictionary<ArmorSlot, int> : Font counts per slot.
         */
         private Dictionary<ArmorSlot, int> BuildFontCounts(){
-            //Default to 0 fonts per slot when fonts are disabled
             Dictionary<ArmorSlot, int> counts = new(){
                 {ArmorSlot.Helmet, 0}, {ArmorSlot.Arms, 0},
                 {ArmorSlot.Chestplate, 0}, {ArmorSlot.Boots, 0},
                 {ArmorSlot.ClassItem, 0}
             };
-            //When fonts enabled, default to 1 font per slot as baseline.
-            //Full font customization can be added as future enhancement.
-            if (_fontsEnabled){
-                foreach (ArmorSlot slot in counts.Keys) counts[slot] = 1;
-            }
+
+            if (!_fontsEnabled) return counts;
+
+            //FontStats: Super(Helmet), Grenade(Arms), Melee(Arms), Health(Chest), Weapons(Boots), Class(ClassItem).
+            counts[ArmorSlot.Helmet] = FontStats[0].FontCount;
+            counts[ArmorSlot.Arms] = FontStats[1].FontCount + FontStats[2].FontCount;
+            counts[ArmorSlot.Chestplate] = FontStats[3].FontCount;
+            counts[ArmorSlot.Boots] = FontStats[4].FontCount;
+            counts[ArmorSlot.ClassItem] = FontStats[5].FontCount;
 
             return counts;
+        }
+        /*
+        Method        : OnArmsFontChanged
+        Description   : Enforces 3-font cap shared between Grenade & Melee
+                        fonts on Arms. If combined count exceeds 3, clamps
+                        slot that just changed.
+        Parameters    : object sender              : FontStatViewModel that changed.
+                        PropertyChangedEventArgs e : Property change event.
+        Return Values : void
+        */
+        private void OnArmsFontChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
+            if (e.PropertyName != nameof(FontStatViewModel.FontCount)) return;
+
+            FontStatViewModel grenade = FontStats[1];
+            FontStatViewModel melee   = FontStats[2];
+
+            if (grenade.FontCount + melee.FontCount > 3) {
+                //Clamp whichever one just changed.
+                if (sender == grenade) grenade.FontCount = 3 - melee.FontCount;
+                else melee.FontCount = 3 - grenade.FontCount;
+            }
+        }
+        /*
+        Method        : SyncFontCountsToMods
+        Description   : Updates SlotModViewModel font counts so mod slot
+                        availability stays synced with font selections.
+        Parameters    : None.
+        Return Values : void
+        */
+        private void SyncFontCountsToMods() {
+            //FontStats order: Super(Helmet), Grenade(Arms), Melee(Arms), Health(Chest), Weapons(Boots), Class(ClassItem).
+            ModVM.HelmetMods.FontCount = FontStats[0].FontCount;
+            ModVM.ArmsMods.FontCount = FontStats[1].FontCount + FontStats[2].FontCount;
+            ModVM.ChestplateMods.FontCount = FontStats[3].FontCount;
+            ModVM.BootsMods.FontCount = FontStats[4].FontCount;
+            ModVM.ClassItemMods.FontCount  = FontStats[5].FontCount;
+        }
+        /*
+        Method        : SyncExoticSlotToMods
+        Description   : Updates SlotModViewModel for exotic slot to use
+                        10 energy & marks all others as legendary (11 energy).
+        Parameters    : None.
+        Return Values : void
+        */
+        private void SyncExoticSlotToMods() {
+            ArmorSlot exoticSlot = ExoticVM.GetArmorSlot();
+            ModVM.HelmetMods.IsExotic = exoticSlot == ArmorSlot.Helmet;
+            ModVM.ArmsMods.IsExotic = exoticSlot == ArmorSlot.Arms;
+            ModVM.ChestplateMods.IsExotic = exoticSlot == ArmorSlot.Chestplate;
+            ModVM.BootsMods.IsExotic = exoticSlot == ArmorSlot.Boots;
+            ModVM.ClassItemMods.IsExotic = exoticSlot == ArmorSlot.ClassItem;
         }
         //=====================================================================
         //Import / Export.
@@ -415,7 +494,7 @@ namespace D2ArmorCalc {
                         int                 max    : Maximum value to apply.
         Return Values : void
         */
-        private void ApplyStatTarget(StatSliderViewModel slider, int min, int max){
+        private static void ApplyStatTarget(StatSliderViewModel slider, int min, int max){
             slider.IsEnabled = min > 0 || max > 0;
             slider.MinValue = min;
             slider.MaxValue = max;
@@ -445,8 +524,8 @@ namespace D2ArmorCalc {
                 Aspect[] aspects = FragmentVM.GetSelectedAspects();
                 Fragment[] fragments = FragmentVM.GetSelectedFragments();
 
-                List<string> aspectNames = new();
-                List<string> fragmentNames = new();
+                List<string> aspectNames = [];
+                List<string> fragmentNames = [];
 
                 foreach (Aspect a in aspects) aspectNames.Add(a.Name);
                 foreach (Fragment f in fragments) fragmentNames.Add(f.Name);
