@@ -47,15 +47,21 @@ namespace D2ArmorCalc_Models {
         Parameters    : Stat stat : Stat to retrieve base value for.
         Return Values : int       : Base stat value before mods or fonts.
         */
-        public int GetBaseStat(Stat stat){
-            int value = 0;
+        public int GetBaseStat(Stat stat) {
+            if (IsCustomRoll && CustomStatBlock != null) return CustomStatBlock.Get(stat);
+            if (Archetype == null) return 0;
 
-            if (stat == Archetype.Primary) value = 30;
-            else if (stat == Archetype.Secondary) value = 25;
-            else if (stat == TertiaryStat) value = 20;
+            int value;
+            if (stat == Archetype.Primary) value = Rarity == ArmorRarity.Exotic ? 30 : 30;
+            else if (stat == Archetype.Secondary) value = Rarity == ArmorRarity.Exotic ? 20 : 25;
+            else if (stat == TertiaryStat) value = Rarity == ArmorRarity.Exotic ? 12 : 20;
+            else value = 5; //masterwork on remaining stats.
 
-            if (stat == FocusStat) value += 5;
-            if (stat == FocusMinus) value -= 5;
+            //Focus only on legendary.
+            if (Rarity != ArmorRarity.Exotic) {
+                if (stat == FocusStat) value += 5;
+                if (stat == FocusMinus) value -= 5;
+            }
 
             return value;
         }

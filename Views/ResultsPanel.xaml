@@ -16,14 +16,6 @@
                   HorizontalScrollBarVisibility="Disabled">
         <StackPanel Margin="0,0,8,0">
 
-            <!-- Status Message -->
-            <Border Style="{StaticResource CardStyle}"
-                    Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibility}}">
-                <TextBlock Text="{Binding StatusMessage}"
-                           Style="{StaticResource BodyText}"
-                           TextWrapping="Wrap" />
-            </Border>
-
             <!-- Mins Failed Error -->
             <Border Style="{StaticResource CardStyle}"
                     BorderBrush="{StaticResource ErrorBrush}"
@@ -75,14 +67,6 @@
                                                     <TextBlock Text="{Binding Tertiary}"
                                                                Style="{StaticResource TagText}" />
                                                 </Border>
-                                                <TextBlock Text="Focus: "
-                                                           Style="{StaticResource SecondaryText}"
-                                                           VerticalAlignment="Center"
-                                                           Margin="8,0,0,0" />
-                                                <Border Style="{StaticResource TagBorder}">
-                                                    <TextBlock Text="{Binding Focus}"
-                                                               Style="{StaticResource TagText}" />
-                                                </Border>
                                             </StackPanel>
                                         </StackPanel>
                                     </Border>
@@ -91,69 +75,101 @@
                         </ItemsControl>
                     </StackPanel>
                 </Border>
-
                 <!-- =========================================================-->
-                <!-- Mods + Tuning                                             -->
+                <!-- Mods + Tuning                                            -->
                 <!-- =========================================================-->
                 <Border Style="{StaticResource CardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Mods Applied"
-                                   Style="{StaticResource SectionHeaderText}" />
+                        <TextBlock Text="Mods Applied" Style="{StaticResource SectionHeaderText}" />
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*"  />
+                                <ColumnDefinition Width="1"  />
+                                <ColumnDefinition Width="*"  />
                             </Grid.ColumnDefinitions>
 
                             <!-- Stat Mods -->
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="Stat Mods"
                                            Style="{StaticResource SecondaryText}"
-                                           Margin="0,0,0,8"
-                                           HorizontalAlignment="Center" />
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,10" />
                                 <ItemsControl ItemsSource="{Binding PieceResults}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel Orientation="Horizontal" Margin="0,3,0,3">
-                                                <TextBlock Style="{StaticResource SecondaryText}"
-                                                           VerticalAlignment="Center"
-                                                           Margin="0,0,8,0">
+                                            <Grid Margin="0,3,0,3">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="8"   />
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Style="{StaticResource SecondaryText}"
+                                                           VerticalAlignment="Center">
                                                     <Run Text="Slot " />
-                                                    <Run Text="{Binding SlotLabel, Mode=OneWay}" />
-                                                    <Run Text=":" />
+                                                    <Run Text="{Binding SlotNumber, Mode=OneWay}" />
                                                 </TextBlock>
-                                                <Border Style="{StaticResource TagBorder}">
+                                                <TextBlock Grid.Column="1"
+                                                           Style="{StaticResource SecondaryText}"
+                                                           Text=":"
+                                                           VerticalAlignment="Center"
+                                                           Margin="2,0,0,0" />
+                                                <Border Grid.Column="3"
+                                                        Style="{StaticResource TagBorder}"
+                                                        MinWidth="120">
                                                     <TextBlock Text="{Binding StatMod}"
-                                                               Style="{StaticResource TagText}" />
+                                                               Style="{StaticResource TagText}"
+                                                               HorizontalAlignment="Center" />
                                                 </Border>
-                                            </StackPanel>
+                                            </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </StackPanel>
 
+                            <!-- Vertical spacer -->
+                            <Border Grid.Column="1"
+                                    Background="{StaticResource BorderBrush}"
+                                    Width="1"
+                                    Margin="8,0,8,0" />
+
                             <!-- Tuning Mods -->
-                            <StackPanel Grid.Column="1">
+                            <StackPanel Grid.Column="2">
                                 <TextBlock Text="Tuning Mods"
                                            Style="{StaticResource SecondaryText}"
-                                           Margin="0,0,0,8"
-                                           HorizontalAlignment="Center" />
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,10" />
                                 <ItemsControl ItemsSource="{Binding PieceResults}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel Orientation="Horizontal" Margin="0,3,0,3">
-                                                <TextBlock Style="{StaticResource SecondaryText}"
-                                                           VerticalAlignment="Center"
-                                                           Margin="0,0,8,0">
+                                            <Grid Margin="0,3,0,3">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"   />
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="8"   />
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Style="{StaticResource SecondaryText}"
+                                                           HorizontalAlignment="Right"
+                                                           VerticalAlignment="Center">
                                                     <Run Text="Slot " />
-                                                    <Run Text="{Binding SlotLabel, Mode=OneWay}" />
-                                                    <Run Text=":" />
+                                                    <Run Text="{Binding SlotNumber, Mode=OneWay}" />
                                                 </TextBlock>
-                                                <Border Style="{StaticResource TagBorder}">
+                                                <TextBlock Grid.Column="1"
+                                                           Style="{StaticResource SecondaryText}"
+                                                           Text=":"
+                                                           VerticalAlignment="Center"
+                                                           Margin="2,0,0,0" />
+                                                <Border Grid.Column="3"
+                                                        Style="{StaticResource TagBorder}"
+                                                        MinWidth="120">
                                                     <TextBlock Text="{Binding Focus}"
-                                                               Style="{StaticResource TagText}" />
+                                                               Style="{StaticResource TagText}"
+                                                               HorizontalAlignment="Center" />
                                                 </Border>
-                                            </StackPanel>
+                                            </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>

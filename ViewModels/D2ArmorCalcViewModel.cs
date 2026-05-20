@@ -21,8 +21,6 @@ namespace D2ArmorCalc_ViewModels {
         public ObservableCollection<FontStatViewModel> FontStats {get;}
         public RelayCommand GenerateQueriesCommand {get;}
         private BuildResult? _lastResult;
-
-
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

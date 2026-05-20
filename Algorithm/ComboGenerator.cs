@@ -8,6 +8,7 @@
 *                   & focus options derived from user's stat targets.
 */
 using D2ArmorCalc_Data;
+using D2ArmorCalc_Helpers;
 using D2ArmorCalc_Models;
 
 namespace D2ArmorCalc_Algorithm {
@@ -32,13 +33,20 @@ namespace D2ArmorCalc_Algorithm {
         Parameters    : None.
         Return Values : StatBlock : Base stats for this candidate piece.
         */
-        private StatBlock CalculateBaseStats(){
+        private StatBlock CalculateBaseStats() {
             Archetype archetype = Archetypes.All[(int)Archetype];
             StatBlock stats = new();
+            Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade,
+                               Stat.Super, Stat.Class, Stat.Weapons];
 
-            stats.Set(archetype.Primary, 30);
-            stats.Set(archetype.Secondary, 25);
-            stats.Set(Tertiary, 20);
+            foreach (Stat stat in allStats) {
+                if (stat == archetype.Primary) stats.Set(stat, 30);
+                else if (stat == archetype.Secondary) stats.Set(stat, 25);
+                else if (stat == Tertiary) stats.Set(stat, 20);
+                else stats.Set(stat, 5); //masterwork.
+            }
+
+            //Focus (legendary only. no focus on exotics).
             stats.Set(FocusStat, stats.Get(FocusStat) + 5);
             stats.Set(FocusMinus, stats.Get(FocusMinus) - 5);
 
@@ -110,17 +118,34 @@ namespace D2ArmorCalc_Algorithm {
                         Stat      focusMinus : Least wanted stat (always used for -5).
         Return Values : List<ArmorCandidate> : All valid candidates for one piece.
         */
-        public static List<ArmorCandidate> GenerateCandidates(StatBlock mins, Stat focusMinus){
+        public static List<ArmorCandidate> GenerateCandidates(StatBlock mins, Stat focusMinus) {
             List<ArmorCandidate> candidates = [];
             List<Archetype> validArchetypes = GetValidArchetypes(mins);
             List<Stat> validFocusStats = GetValidFocusStats(mins);
 
-            foreach (Archetype archetype in validArchetypes){
+            //Max stat boost from 4 major mods = +40 total.
+            const int MaxModBoost = 40;
+
+            foreach (Archetype archetype in validArchetypes) {
                 List<Stat> validTertiaries = GetValidTertiaryStats(archetype, mins);
-                foreach (Stat tertiary in validTertiaries){
-                    foreach (Stat focusStat in validFocusStats){
-                        candidates.Add(new ArmorCandidate(
-                            archetype.Type, tertiary, focusStat, focusMinus));
+                foreach (Stat tertiary in validTertiaries) {
+                    //Check if mods alone can cover all deficits for this archetype+tertiary.
+                    StatBlock baseForCheck = new();
+                    baseForCheck.Set(archetype.Primary, 30);
+                    baseForCheck.Set(archetype.Secondary, 25);
+                    baseForCheck.Set(tertiary, 20);
+
+                    bool modsCanCover = StatHelper.GetTotalDeficit(baseForCheck, mins) <= MaxModBoost;
+
+                    //Always add no-focus candidate.
+                    candidates.Add(new ArmorCandidate(archetype.Type, tertiary, focusMinus, focusMinus));
+
+                    //Only add focus candidates if mods alone can't cover deficit.
+                    if (!modsCanCover) {
+                        foreach (Stat focusStat in validFocusStats) {
+                            if (focusStat == focusMinus) continue;
+                            candidates.Add(new ArmorCandidate(archetype.Type, tertiary, focusStat, focusMinus));
+                        }
                     }
                 }
             }

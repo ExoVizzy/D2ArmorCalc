@@ -14,7 +14,7 @@
         xmlns:vm="clr-namespace:D2ArmorCalc_ViewModels"
         Style="{StaticResource WindowStyle}"
         Title="D2 Armor Calc"
-        Width="1200" Height="800"
+        Width="1200" Height="1000"
         WindowStartupLocation="CenterScreen">
 
     <Window.DataContext>
@@ -632,6 +632,16 @@
                                 </StackPanel>
                             </Grid>
 
+                            <!-- Archetype selector -->
+                            <StackPanel Margin="0,0,0,8">
+                                <TextBlock Text="Archetype"
+                                           Style="{StaticResource SecondaryText}"
+                                           Margin="0,0,0,4" />
+                                <ComboBox Style="{StaticResource DarkComboBox}"
+                                          ItemsSource="{Binding ExoticVM.ArchetypeOptions}"
+                                          SelectedItem="{Binding ExoticVM.SelectedArchetype}" />
+                            </StackPanel>
+                            
                             <!-- Standard roll display -->
                             <Border Style="{StaticResource CardAltStyle}"
                                     Margin="0,0,0,0"

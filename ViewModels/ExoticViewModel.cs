@@ -7,6 +7,7 @@
 *                   class selection, standard stat assumptions, & custom
 *                   roll input for all 6 stats.
 */
+using D2ArmorCalc_Data;
 using D2ArmorCalc_Helpers;
 using D2ArmorCalc_Models;
 using System.Collections.ObjectModel;
@@ -35,6 +36,15 @@ namespace D2ArmorCalc_ViewModels {
         public string SelectedSlot {
             get => _selectedSlot;
             set {_selectedSlot = value; OnPropertyChanged(nameof(SelectedSlot));}
+        }
+        public ObservableCollection<string> ArchetypeOptions { get; } = new(
+            new[]{"Brawler", "Gunner", "Specialist", "Grenadier", "Paragon", "Bulwark"}
+        );
+
+        private string _selectedArchetype = "Gunner";
+        public string SelectedArchetype {
+            get => _selectedArchetype;
+            set { _selectedArchetype = value; OnPropertyChanged(nameof(SelectedArchetype)); }
         }
         //Custom roll toggle.
         private bool _customRollEnabled;
@@ -127,26 +137,28 @@ namespace D2ArmorCalc_ViewModels {
         Parameters    : None.
         Return Values : ArmorPiece : Configured exotic armor piece.
         */
-        public ArmorPiece BuildExoticPiece(){
+        public ArmorPiece BuildExoticPiece() {
             ArmorSlot slot = GetArmorSlot();
             ArmorPiece piece = new(slot, ArmorRarity.Exotic);
+            Archetype archetype = Archetypes.All.FirstOrDefault(a => a.Type.ToString() == _selectedArchetype) ?? Archetypes.Gunner;
 
-            if (_customRollEnabled){
-                //Custom roll — user defines all 6 stats directly
-                //Store as special archetype-less piece using flat StatBlock
+            piece.Archetype = archetype;
+
+            if (_customRollEnabled) {
                 piece.CustomStatBlock = new StatBlock(
                     _customHealth, _customMelee, _customGrenade,
                     _customSuper, _customClass, _customWeapons
                 );
                 piece.IsCustomRoll = true;
             } else {
-                //Standard assumption: primary 30, secondary 20, tertiary 12
-                //Use archetype matching exotic slot's most common archetype
-                //Left to ArmorCalculator to handle since slot doesn't fix archetype
                 piece.IsCustomRoll = false;
                 piece.StandardPrimary = 30;
                 piece.StandardSecondary = 20;
                 piece.StandardTertiary = 12;
+                // Set tertiary to first valid tertiary for this archetype
+                piece.TertiaryStat = Archetypes.GetTertiaryStats(archetype)[0];
+                piece.FocusStat = archetype.Primary;
+                piece.FocusMinus = AppSettings.LeastWantedStat;
             }
             return piece;
         }

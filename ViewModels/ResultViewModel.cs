@@ -18,8 +18,7 @@ namespace D2ArmorCalc_ViewModels {
     //Represents single stat row in results display.
     public class StatResultItem(Stat stat) : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string name) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         public Stat Stat { get; } = stat;
         public string Label { get; } = stat.ToString();
         private int _baseValue;
@@ -76,6 +75,9 @@ namespace D2ArmorCalc_ViewModels {
         public string? StatMod {get; set;}
         public string? Fonts {get; set;}
         public string? EnergyUsed {get; set;}
+        public int TotalAnyPoints { get; set; }
+        public int SlotNumber { get; set; }
+        public bool IsExotic { get; set; }
     }
     public class ResultViewModel : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -163,9 +165,9 @@ namespace D2ArmorCalc_ViewModels {
         Description   : Populates all result display data from BuildResult,
                         updating stat rows, piece rows, status, & DIM queries.
         Parameters    : BuildResult result  : Build result to display.
-                        StatBlock   mins    : Minimum stat targets for display.
-                        StatBlock   maxs    : Maximum stat targets for display.
-                        bool        showDim : Whether to show DIM query section.
+                        StatBlock mins    : Minimum stat targets for display.
+                        StatBlock maxs    : Maximum stat targets for display.
+                        bool      showDim : Whether to show DIM query section.
         Return Values : void
         */
         public void LoadResult(BuildResult result, StatBlock mins, StatBlock maxs, bool showDim){
@@ -174,7 +176,7 @@ namespace D2ArmorCalc_ViewModels {
             Status = result.Status;
 
             UpdateStatRows(result, mins, maxs);
-            UpdatePieceRows(result);
+            UpdatePieceRows(result, mins);
             UpdateDimQueries(result);
         }
         /*
@@ -212,8 +214,8 @@ namespace D2ArmorCalc_ViewModels {
                         StatBlock   maxs   : Maximum targets for exceeded display.
         Return Values : void
         */
-        private void UpdateStatRows(BuildResult result, StatBlock mins, StatBlock maxs){
-            foreach (StatResultItem row in StatResults){
+        private void UpdateStatRows(BuildResult result, StatBlock mins, StatBlock maxs) {
+            foreach (StatResultItem row in StatResults) {
                 row.BaseValue = result.BaseStats != null ? result.BaseStats.Get(row.Stat) : 0;
                 row.ModdedValue = result.ModdedStats != null ? result.ModdedStats.Get(row.Stat) : 0;
                 row.FinalValue = result.FinalStats != null ? result.FinalStats.Get(row.Stat) : 0;
@@ -227,29 +229,36 @@ namespace D2ArmorCalc_ViewModels {
                         armor pieces, formatting archetype, tertiary, focus,
                         stat mod, fonts, & energy usage per piece.
         Parameters    : BuildResult result : Build result to read pieces from.
+                      : StatBlock   mins   : Minimum targets for determining "Any" display on focus/tertiary.
         Return Values : void
         */
-        private void UpdatePieceRows(BuildResult result){
+        private void UpdatePieceRows(BuildResult result, StatBlock mins) {
             PieceResults.Clear();
-            foreach (ArmorPiece piece in result.GetPieces()){
+            int slotNumber = 1;
+            foreach (ArmorPiece piece in result.GetPieces()) {
                 if (piece == null) continue;
 
                 string fonts = string.Empty;
-                if (piece.Fonts != null && piece.Fonts.Length > 0){
+                if (piece.Fonts != null && piece.Fonts.Length > 0) {
                     List<string> fontNames = [];
                     foreach (Font font in piece.Fonts) fontNames.Add(font.Stat.ToString());
                     fonts = string.Join(", ", fontNames);
                 }
+
                 string statMod = piece.StatMod != null ? $"{piece.StatMod.ModType} {piece.StatMod.Stat} (+{piece.StatMod.Bonus})" : "None";
 
+                bool tertiaryIsAny = mins.Get(piece.TertiaryStat) == 0;
+                bool focusIsAny = piece.Rarity == ArmorRarity.Exotic || piece.FocusStat == piece.FocusMinus || mins.Get(piece.FocusStat) == 0;
+
                 PieceResults.Add(new PieceResultItem {
-                    SlotLabel = piece.Slot.ToString(), Rarity = piece.Rarity.ToString(),
-                    Archetype = piece.Archetype?.Type.ToString() ?? "Custom",
-                    Tertiary = piece.TertiaryStat.ToString(),
-                    Focus = $"+{piece.FocusStat} / -{piece.FocusMinus}", StatMod = statMod,
-                    Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,
+                    SlotLabel = piece.Slot.ToString(), SlotNumber = slotNumber, IsExotic = piece.Rarity == ArmorRarity.Exotic,
+                    Rarity = piece.Rarity.ToString(), Archetype = piece.Archetype?.Type.ToString() ?? "Custom",
+                    Tertiary = tertiaryIsAny ? $"Any ({piece.TertiaryStat})" : piece.TertiaryStat.ToString(),
+                    Focus = focusIsAny ? (piece.Rarity == ArmorRarity.Exotic ? "N/A" : "Any") : $"+{piece.FocusStat} / -{piece.FocusMinus}",
+                    StatMod = statMod, Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,
                     EnergyUsed = $"{piece.FontEnergy + piece.StatModEnergy} / {piece.TotalEnergy}"
                 });
+                slotNumber++;
             }
         }
         /*

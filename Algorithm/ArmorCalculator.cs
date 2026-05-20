@@ -8,6 +8,7 @@
 *                   result selection with optional multicore support.
 */
 using D2ArmorCalc_Data;
+using D2ArmorCalc_Helpers;
 using D2ArmorCalc_Models;
 using System.Collections.Concurrent;
 
@@ -36,34 +37,64 @@ namespace D2ArmorCalc_Algorithm {
         Return Values : BuildResult     : Best result found, or failed result
                                           if no valid combination exists.
         */
-        public static BuildResult Calculate(CalcInput input){
-            //Step 1: Adjust mins/maxs by subtracting fragment bonuses.
+        public static BuildResult Calculate(CalcInput input) {
             StatBlock fragmentStats = new StatBlock().ApplyFragments(input.Fragments);
             StatBlock adjustedMins = SubtractStats(input.Mins, fragmentStats);
             StatBlock adjustedMaxs = SubtractStats(input.Maxs, fragmentStats);
-            if (input.FontsInStats) {
-                var fontBonus = BuildFontStatBlock(input.FontCounts);
-                adjustedMins = SubtractStats(adjustedMins, fontBonus);
-                adjustedMaxs = SubtractStats(adjustedMaxs, fontBonus);
-            }
-            //Step 2: Generate candidates for legendary pieces.
+
+            //Generate legendary candidates as before.
             List<ArmorCandidate> candidates = ComboGenerator.GenerateCandidates(adjustedMins, input.LeastWantedStat);
+
+            //Generate exotic candidates separately.
+            List<ArmorCandidate> exoticCandidates;
+            if (input.Exotic.IsCustomRoll && input.Exotic.CustomStatBlock != null) {
+                //Custom roll — exotic stats are fixed, no need to iterate.
+                exoticCandidates = null;
+            } else {
+                //Try all valid archetypes for the exotic slot.
+                exoticCandidates = ComboGenerator.GenerateCandidates(adjustedMins, input.LeastWantedStat);
+            }
+
             List<ArmorCandidate[]> combinations = ComboGenerator.GenerateAllCombinations(candidates);
-            //Step 3: Resolve all combinations in parallel, collect valid results.
-            ConcurrentBag<(ArmorCandidate[] combo, ResolvedResult result)> validResults = [];
+            ConcurrentBag<(ArmorCandidate[] combo, ArmorCandidate? exoticCandidate, ResolvedResult result)> validResults = [];
 
-            Parallel.ForEach(combinations, combo => {
-                ResolvedResult resolved = StatResolver.Resolve(
-                    combo, input.Exotic, input.Mins, input.Maxs,
-                    adjustedMins, adjustedMaxs, input.Fragments,
-                    input.LeastWantedStat, input.FontsEnabled,
-                    input.FontCounts, input.MajorMods
-                );
-
-                if (resolved.MeetsMinimums) validResults.Add((combo, resolved));
-            });
-            //Step 4: Pick best result.
+            foreach (ArmorCandidate[] combo in combinations) {
+                if (exoticCandidates == null) {
+                    //Custom exotic — use as-is.
+                    ResolvedResult resolved = StatResolver.Resolve(combo, input.Exotic, input.Mins, input.Maxs,
+                        adjustedMins, adjustedMaxs, input.Fragments, input.LeastWantedStat,
+                        input.FontsEnabled, input.FontCounts, input.MajorMods);
+                    if (resolved.MeetsMinimums) validResults.Add((combo, null, resolved));
+                } else {
+                    //Try each exotic candidate.
+                    foreach (ArmorCandidate exoticCandidate in exoticCandidates) {
+                        //Build temporary exotic piece from candidate.
+                        ArmorPiece exoticPiece = BuildExoticFromCandidate(exoticCandidate, input.Exotic.Slot);
+                        ResolvedResult resolved = StatResolver.Resolve(combo, exoticPiece, input.Mins, input.Maxs,
+                            adjustedMins, adjustedMaxs, input.Fragments, input.LeastWantedStat,
+                            input.FontsEnabled, input.FontCounts, input.MajorMods);
+                        if (resolved.MeetsMinimums)
+                            validResults.Add((combo, exoticCandidate, resolved));
+                    }
+                }
+            }
             return BuildBestResult(validResults, input, adjustedMins, adjustedMaxs);
+        }
+        /*
+        Method        : BuildExoticFromCandidate
+        Description   : Builds a temporary ArmorPiece for the exotic from an
+                        ArmorCandidate, using exotic stat values (30/20/12).
+        Parameters    : ArmorCandidate candidate : The candidate to build from.
+                        ArmorSlot      slot      : The exotic armor slot.
+        Return Values : ArmorPiece               : The exotic piece.
+        */
+        private static ArmorPiece BuildExoticFromCandidate(ArmorCandidate candidate, ArmorSlot slot) {
+            Archetype archetype = Archetypes.All[(int)candidate.Archetype];
+            ArmorPiece piece = new(slot, ArmorRarity.Exotic){
+                Archetype = archetype, TertiaryStat = candidate.Tertiary
+                // No FocusStat or FocusMinus for exotics
+            };
+            return piece;
         }
         /*
         Method        : BuildBestResult
@@ -71,16 +102,15 @@ namespace D2ArmorCalc_Algorithm {
                         full BuildResult from it. Returns MinsFailed result
                         if no valid combinations were found.
         Parameters    : ConcurrentBag results : All valid resolved combinations.
-                        CalcInput    input   : Original calculation input.
-                        StatBlock    adjMins : Fragment-adjusted minimums.
-                        StatBlock    adjMaxs : Fragment-adjusted maximums.
-        Return Values : BuildResult           : Best build result.
+                        CalcInput   input   : Original calculation input.
+                        StatBlock   adjMins : Fragment-adjusted minimums.
+                        StatBlock   adjMaxs : Fragment-adjusted maximums.
+        Return Values : BuildResult         : Best build result.
         */
-        private static BuildResult BuildBestResult(
-            ConcurrentBag<(ArmorCandidate[] combo, ResolvedResult result)> results,
-            CalcInput input, StatBlock adjMins, StatBlock adjMaxs){
+        private static BuildResult BuildBestResult(ConcurrentBag<(ArmorCandidate[] combo, ArmorCandidate? exoticCandidate, 
+            ResolvedResult result)> results, CalcInput input, StatBlock adjMins, StatBlock adjMaxs) {
 
-            if (results.IsEmpty){
+            if (results.IsEmpty) {
                 return new BuildResult {
                     Status = BuildStatus.MinsFailed,
                     Fragments = input.Fragments
@@ -88,49 +118,49 @@ namespace D2ArmorCalc_Algorithm {
             }
             //Find highest scoring result.
             ArmorCandidate[] bestCombo = null;
+            ArmorCandidate? bestExoticCandidate = null;
             ResolvedResult bestResult = null;
 
-            foreach (var (combo, result) in results){
-                if (bestResult == null || result.Score > bestResult.Score){
+            foreach (var (combo, exoticCandidate, result) in results) {
+                if (bestResult == null || result.Score > bestResult.Score) {
                     bestCombo = combo;
+                    bestExoticCandidate = exoticCandidate;
                     bestResult = result;
                 }
             }
-            //Assign slots to the 4 legendary candidates.
+            //Assign slots to 4 legendary candidates.
             ArmorSlot[] slots = [ArmorSlot.Helmet, ArmorSlot.Arms, ArmorSlot.Chestplate, ArmorSlot.Boots];
 
-            //Determine which slot the exotic is NOT occupying.
+            //Determine which slot exotic is NOT occupying.
             List<ArmorSlot> legendarySlots = [];
-            foreach (ArmorSlot slot in slots){
+            foreach (ArmorSlot slot in slots) {
                 if (slot != input.Exotic.Slot) legendarySlots.Add(slot);
             }
-            //Class item is always legendary.
             legendarySlots.Add(ArmorSlot.ClassItem);
 
-            //Build ArmorPiece objects from candidates.
-            ArmorPiece[] pieces = new ArmorPiece[5];
-            for (int i = 0; i < 4; i++){
+            //Build ArmorPiece objects from legendary candidates.
+            ArmorPiece[] pieces = new ArmorPiece[4];
+            for (int i = 0; i < 4; i++) {
                 ArmorCandidate candidate = bestCombo[i];
                 Archetype archetype = Archetypes.All[(int)candidate.Archetype];
-                pieces[i] = new ArmorPiece(legendarySlots[i], ArmorRarity.Legendary){
+                pieces[i] = new ArmorPiece(legendarySlots[i], ArmorRarity.Legendary) {
                     Archetype = archetype, TertiaryStat = candidate.Tertiary,
                     FocusStat = candidate.FocusStat, FocusMinus = candidate.FocusMinus
                 };
             }
-            //Place exotic in its slot.
-            ArmorPiece exotic = input.Exotic;
+            //Resolve exotic piece — either from best candidate or custom roll.
+            ArmorPiece exotic = bestExoticCandidate != null ? BuildExoticFromCandidate(bestExoticCandidate, input.Exotic.Slot) : input.Exotic;
+            //Assign stat mods to pieces based on algorithm decisions.
+            AssignStatMods(pieces, exotic, input.Mins, input.LeastWantedStat, input.MajorMods);
 
             //Build final result.
-            BuildResult buildResult = new() {
+            BuildResult buildResult = new(){
                 Status = bestResult.MeetsMaximums ? BuildStatus.Success : BuildStatus.MaxsExceeded,
-                Fragments = input.Fragments,
-                BaseStats = bestResult.BaseStats,
-                ModdedStats = bestResult.ModdedStats,
-                FinalStats = bestResult.FinalStats,
-                OverflowStats = bestResult.FinalStats.GetOverflow(),
-                Score = bestResult.Score
+                Fragments = input.Fragments, BaseStats = bestResult.BaseStats,
+                ModdedStats = bestResult.ModdedStats, FinalStats = bestResult.FinalStats,
+                OverflowStats = bestResult.FinalStats.GetOverflow(), Score = bestResult.Score
             };
-            //Assign pieces by slot.
+            //Assign legendary pieces by slot.
             foreach (ArmorPiece piece in pieces){
                 switch (piece.Slot){
                     case ArmorSlot.Helmet: buildResult.Helmet = piece; break;
@@ -140,15 +170,14 @@ namespace D2ArmorCalc_Algorithm {
                     case ArmorSlot.ClassItem: buildResult.ClassItem = piece; break;
                 }
             }
-            //Place exotic.
-            switch (exotic.Slot){
+            //Place exotic in its slot.
+            switch (exotic.Slot) {
                 case ArmorSlot.Helmet: buildResult.Helmet = exotic; break;
                 case ArmorSlot.Arms: buildResult.Arms = exotic; break;
                 case ArmorSlot.Chestplate: buildResult.Chestplate = exotic; break;
                 case ArmorSlot.Boots: buildResult.Boots = exotic; break;
                 case ArmorSlot.ClassItem: buildResult.ClassItem = exotic; break;
             }
-            //Flag which stats exceeded maximums.
             buildResult.MaxsExceededStats = GetExceededStats(bestResult.FinalStats, input.Maxs);
 
             return buildResult;
@@ -210,6 +239,55 @@ namespace D2ArmorCalc_Algorithm {
                 maxs.Class > 0 ? Math.Max(0, final.Class - maxs.Class) : 0,
                 maxs.Weapons > 0 ? Math.Max(0, final.Weapons - maxs.Weapons) : 0
             );
+        }
+        /*
+        Method        : AssignStatMods
+        Description   : Re-runs mod assignment logic and stores the chosen StatMod
+                        on each ArmorPiece for display in the results panel.
+        Parameters    : ArmorPiece[] pieces      : The 4 legendary pieces.
+                        ArmorPiece   exotic      : The exotic piece.
+                        StatBlock    mins        : Minimum stat targets.
+                        Stat         leastWanted : Stat to avoid modding.
+                        bool         majorMods   : True = major, false = minor.
+        Return Values : void
+        */
+        private static void AssignStatMods(ArmorPiece[] pieces, ArmorPiece exotic,
+                                           StatBlock mins, Stat leastWanted, bool majorMods) {
+            ModType modType = majorMods ? ModType.Major : ModType.Minor;
+            Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade,
+                               Stat.Super, Stat.Class, Stat.Weapons];
+            // Combine all 5 pieces — 4 legendary + exotic
+            List<ArmorPiece> allPieces = [..pieces, exotic];
+
+            // Running total to track which stat still needs the most help
+            StatBlock running = new();
+            foreach (ArmorPiece p in allPieces) running = running.Add(p.GetAllStats());
+
+            foreach (ArmorPiece piece in allPieces) {
+                Stat bestStat = leastWanted;
+                int bestDeficit = 0;
+                Stat bestWanted = leastWanted;
+
+                foreach (Stat stat in allStats) {
+                    if (stat == leastWanted) continue;
+                    if (mins.Get(stat) == 0) continue;
+
+                    int deficit = StatHelper.GetDeficit(running.Get(stat), mins.Get(stat));
+                    if (deficit > bestDeficit) {
+                        bestDeficit = deficit;
+                        bestStat = stat;
+                    }
+                    if (bestStat == leastWanted) bestWanted = stat;
+                }
+
+                if (bestStat == leastWanted && bestWanted != leastWanted) bestStat = bestWanted;
+
+                if (bestStat != leastWanted) {
+                    StatMod mod = Mods.GetMod(modType, bestStat);
+                    piece.StatMod = mod;
+                    running.Set(bestStat, running.Get(bestStat) + mod.Bonus);
+                }
+            }
         }
     }
 }

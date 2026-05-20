@@ -21,9 +21,14 @@ namespace D2ArmorCalc_Algorithm {
                         ArmorPiece       exotic      : Fixed exotic piece.
         Return Values : StatBlock                    : Combined base stats of all 5 pieces.
         */
-        public static StatBlock ResolveBaseStats(ArmorCandidate[] legendaries, ArmorPiece exotic){
-            StatBlock total = exotic.GetAllStats();
+        public static StatBlock ResolveBaseStats(ArmorCandidate[] legendaries, ArmorPiece exotic) {
+            StatBlock total;
+
+            if (exotic.IsCustomRoll && exotic.CustomStatBlock != null)  total = exotic.CustomStatBlock;
+            else total = exotic.GetAllStats();
+
             foreach (ArmorCandidate piece in legendaries) total = total.Add(piece.BaseStats);
+
             return total;
         }
         /*
@@ -39,20 +44,22 @@ namespace D2ArmorCalc_Algorithm {
                         bool        majorMods   : True = major mods, false = minor.
         Return Values : StatBlock               : Stats after best mods applied.
         */
-        public static StatBlock ApplyStatMods(StatBlock current, StatBlock mins, Stat leastWanted, 
-                                              ArmorRarity rarity, int fontCount, bool majorMods){
+        public static StatBlock ApplyStatMods(StatBlock current, StatBlock mins, Stat leastWanted,
+                                              ArmorRarity rarity, int fontCount, bool majorMods) {
             StatBlock result = new(current.Health, current.Melee, current.Grenade,
-                                         current.Super, current.Class, current.Weapons);
+                                   current.Super, current.Class, current.Weapons);
             ModType modType = majorMods ? ModType.Major : ModType.Minor;
             Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade, Stat.Super, Stat.Class, Stat.Weapons];
 
-            //Apply one stat mod per legendary piece (4 pieces).
-            for (int i = 0; i < 4; i++){
+            //5 mod slots total (4 legendary + 1 exotic).
+            for (int i = 0; i < 5; i++){
                 Stat bestStat = leastWanted;
                 int bestDeficit = 0;
+                Stat bestWanted = leastWanted;
 
                 foreach (Stat stat in allStats){
                     if (stat == leastWanted) continue;
+                    //Skip stats with no minimum set.
                     if (mins.Get(stat) == 0) continue;
 
                     int deficit = StatHelper.GetDeficit(result.Get(stat), mins.Get(stat));
@@ -60,8 +67,13 @@ namespace D2ArmorCalc_Algorithm {
                         bestDeficit = deficit;
                         bestStat = stat;
                     }
+                    //Track wanted stat even if deficit is 0 (already met).
+                    if (bestStat == leastWanted) bestWanted = stat;
                 }
-                //Only apply mod if fits within energy budget.
+
+                //If no stat has a deficit, still apply mod to first wanted stat.
+                if (bestStat == leastWanted && bestWanted != leastWanted) bestStat = bestWanted;
+
                 StatMod mod = Mods.GetMod(modType, bestStat);
                 if (Mods.IsCompatible(mod, EnergyHelper.GetRemainingGeneralEnergy(rarity, fontCount)))
                     result.Set(bestStat, result.Get(bestStat) + mod.Bonus);
@@ -78,13 +90,52 @@ namespace D2ArmorCalc_Algorithm {
         */
         public static StatBlock ApplyFonts(StatBlock current, Dictionary<ArmorSlot, int> fonts){
             StatBlock result = new(current.Health, current.Melee, current.Grenade,
-                                       current.Super, current.Class, current.Weapons);
+                                   current.Super, current.Class, current.Weapons);
 
             foreach (var kvp in fonts){
                 Font[] slotFonts = Fonts.GetFontsBySlot(kvp.Key);
                 foreach (Font font in slotFonts){
                     int bonus = Fonts.GetTotalBonus(kvp.Value);
                     result.Set(font.Stat, result.Get(font.Stat) + bonus);
+                }
+            }
+            return result;
+        }
+        /*
+        Method        : ApplyStatCap
+        Description   : Clamps all stats to maximum of 209, redistributing
+                        excess points to other wanted stats top to bottom,
+                        skipping least wanted stat.
+        Parameters    : StatBlock current     : Current stat totals.
+                        StatBlock mins        : Minimum stat targets.
+                        Stat      leastWanted : Stat to skip when redistributing.
+        Return Values : StatBlock             : Stats with 209 cap applied.
+        */
+        private static StatBlock ApplyStatCap(StatBlock current, StatBlock mins, Stat leastWanted) {
+            const int Cap = 209;
+            Stat[] order = [Stat.Health, Stat.Melee, Stat.Grenade, Stat.Super, Stat.Class, Stat.Weapons];
+
+            StatBlock result = new(current.Health, current.Melee, current.Grenade,
+                                   current.Super, current.Class, current.Weapons);
+
+            foreach (Stat stat in order) {
+                if (result.Get(stat) <= Cap) continue;
+
+                int excess = result.Get(stat) - Cap;
+                result.Set(stat, Cap);
+
+                //Redistribute excess to next wanted stat top to bottom.
+                foreach (Stat other in order) {
+                    if (other == stat) continue;
+                    if (other == leastWanted) continue;
+                    if (excess <= 0) break;
+
+                    int space = Cap - result.Get(other);
+                    if (space <= 0) continue;
+
+                    int add = Math.Min(excess, space);
+                    result.Set(other, result.Get(other) + add);
+                    excess -= add;
                 }
             }
             return result;
@@ -121,14 +172,20 @@ namespace D2ArmorCalc_Algorithm {
 
             //Step 3: Apply fonts if enabled.
             if (fontsEnabled) stats = ApplyFonts(stats, fontCounts);
+            //Step 3.5: Apply 209 stat cap with redistribution
+            stats = ApplyStatCap(stats, adjustedMins, leastWanted);
 
             //Step 4: Apply fragments.
             StatBlock finalStats = stats.ApplyFragments(fragments);
 
             //Step 5: Score.
+            int focusCount = 0;
+            foreach (ArmorCandidate piece in legendaries) {
+                if (piece.FocusStat != piece.FocusMinus) focusCount++;
+            }
             int deficit = StatHelper.GetTotalDeficit(finalStats, mins);
             int excess = StatHelper.GetTotalExcess(finalStats, maxs);
-            int score = CalculateScore(finalStats, mins);
+            int score = CalculateScore(finalStats, mins, focusCount);
 
             return new ResolvedResult {
                 FinalStats = finalStats, BaseStats = ResolveBaseStats(legendaries, exotic),
@@ -144,13 +201,16 @@ namespace D2ArmorCalc_Algorithm {
                         StatBlock mins  : Minimum stat targets.
         Return Values : int             : Build score (higher = better).
         */
-        private static int CalculateScore(StatBlock final, StatBlock mins){
+        private static int CalculateScore(StatBlock final, StatBlock mins, int focusCount) {
             int score = 0;
             Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade,
                                Stat.Super, Stat.Class, Stat.Weapons];
             foreach (Stat stat in allStats){
                 if (mins.Get(stat) > 0) score += final.Get(stat);
             }
+            //Penalize focus usage. each focus used costs 1000 points.
+            //This ensures mod-only builds always rank above equivalent focus builds.
+            score -= focusCount * 1000;
             return score;
         }
     }
