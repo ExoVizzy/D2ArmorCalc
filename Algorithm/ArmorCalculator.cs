@@ -26,6 +26,7 @@ namespace D2ArmorCalc_Algorithm {
         public bool ArmorModsEnabled {get; set;}
         public bool MajorMods {get; set;} = true;
         public int MinorModCount {get; set;} //Used when ArmorModsEnabled is false.
+        public Dictionary<int, (Stat FocusStat, Stat FocusMinus)>? CustomTuning { get; set; }
     }
     public static class ArmorCalculator {
         /*
@@ -63,7 +64,7 @@ namespace D2ArmorCalc_Algorithm {
                     //Custom exotic — use as-is.
                     ResolvedResult resolved = StatResolver.Resolve(combo, input.Exotic, input.Mins, input.Maxs,
                         adjustedMins, adjustedMaxs, input.Fragments, input.LeastWantedStat,
-                        input.FontsEnabled, input.FontCounts, input.MajorMods);
+                        input.FontsEnabled, input.FontCounts, input.MajorMods, input.CustomTuning);
                     if (resolved.MeetsMinimums) validResults.Add((combo, null, resolved));
                 } else {
                     //Try each exotic candidate.
@@ -72,7 +73,7 @@ namespace D2ArmorCalc_Algorithm {
                         ArmorPiece exoticPiece = BuildExoticFromCandidate(exoticCandidate, input.Exotic.Slot);
                         ResolvedResult resolved = StatResolver.Resolve(combo, exoticPiece, input.Mins, input.Maxs,
                             adjustedMins, adjustedMaxs, input.Fragments, input.LeastWantedStat,
-                            input.FontsEnabled, input.FontCounts, input.MajorMods);
+                            input.FontsEnabled, input.FontCounts, input.MajorMods, input.CustomTuning);
                         if (resolved.MeetsMinimums)
                             validResults.Add((combo, exoticCandidate, resolved));
                     }
@@ -150,8 +151,18 @@ namespace D2ArmorCalc_Algorithm {
             }
             //Resolve exotic piece — either from best candidate or custom roll.
             ArmorPiece exotic = bestExoticCandidate != null ? BuildExoticFromCandidate(bestExoticCandidate, input.Exotic.Slot) : input.Exotic;
+
+            //Apply custom tuning if enabled.
+            if (input.CustomTuning != null) {
+                for (int i = 0; i < pieces.Length; i++) {
+                    if (input.CustomTuning.TryGetValue(i, out var tuning)) {
+                        pieces[i].FocusStat  = tuning.FocusStat;
+                        pieces[i].FocusMinus = tuning.FocusMinus;
+                    }
+                }
+            }
             //Assign stat mods to pieces based on algorithm decisions.
-            AssignStatMods(pieces, exotic, input.Mins, input.LeastWantedStat, input.MajorMods);
+            AssignStatMods(pieces, exotic, input.Mins, input.LeastWantedStat, input.MajorMods, input.CustomTuning);
 
             //Build final result.
             BuildResult buildResult = new(){
@@ -244,29 +255,29 @@ namespace D2ArmorCalc_Algorithm {
         Method        : AssignStatMods
         Description   : Re-runs mod assignment logic and stores the chosen StatMod
                         on each ArmorPiece for display in the results panel.
-        Parameters    : ArmorPiece[] pieces      : The 4 legendary pieces.
-                        ArmorPiece   exotic      : The exotic piece.
-                        StatBlock    mins        : Minimum stat targets.
-                        Stat         leastWanted : Stat to avoid modding.
-                        bool         majorMods   : True = major, false = minor.
+        Parameters    : ArmorPiece[] pieces       : The 4 legendary pieces.
+                      : ArmorPiece   exotic       : The exotic piece.
+                      : StatBlock    mins         : Minimum stat targets.
+                      : Stat         leastWanted  : Stat to avoid modding.
+                      : bool         majorMods    : True = major, false = minor.
+                      : Dictionary?  customTuning : Custom tuning values for each piece.
         Return Values : void
         */
         private static void AssignStatMods(ArmorPiece[] pieces, ArmorPiece exotic,
-                                           StatBlock mins, Stat leastWanted, bool majorMods) {
+                                           StatBlock mins, Stat leastWanted, bool majorMods,
+                                           Dictionary<int, (Stat FocusStat, Stat FocusMinus)>? customTuning = null) {
             ModType modType = majorMods ? ModType.Major : ModType.Minor;
             Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade,
                                Stat.Super, Stat.Class, Stat.Weapons];
-            // Combine all 5 pieces — 4 legendary + exotic
             List<ArmorPiece> allPieces = [..pieces, exotic];
 
-            // Running total to track which stat still needs the most help
+            //Build running total including custom tuning bonuses.
             StatBlock running = new();
             foreach (ArmorPiece p in allPieces) running = running.Add(p.GetAllStats());
 
             foreach (ArmorPiece piece in allPieces) {
                 Stat bestStat = leastWanted;
                 int bestDeficit = 0;
-                Stat bestWanted = leastWanted;
 
                 foreach (Stat stat in allStats) {
                     if (stat == leastWanted) continue;
@@ -277,12 +288,9 @@ namespace D2ArmorCalc_Algorithm {
                         bestDeficit = deficit;
                         bestStat = stat;
                     }
-                    if (bestStat == leastWanted) bestWanted = stat;
                 }
 
-                if (bestStat == leastWanted && bestWanted != leastWanted) bestStat = bestWanted;
-
-                if (bestStat != leastWanted) {
+                if (bestStat != leastWanted && bestDeficit > 0) {
                     StatMod mod = Mods.GetMod(modType, bestStat);
                     piece.StatMod = mod;
                     running.Set(bestStat, running.Get(bestStat) + mod.Bonus);

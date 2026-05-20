@@ -300,9 +300,24 @@ namespace D2ArmorCalc_ViewModels {
                 Exotic = exotic, Fragments = _fragmentsEnabled ? FragmentVM.GetSelectedFragments() : [],
                 LeastWantedStat = leastWanted, FontsEnabled = _fontsEnabled, FontsInStats = _fontsInStats,
                 FontCounts = BuildFontCounts(), ArmorModsEnabled = _armorModsEnabled,
-                MajorMods = !_armorModsEnabled || ModVM.MinorModCount == 0,
-                MinorModCount = ModVM.MinorModCount
+                MajorMods = !_armorModsEnabled && ModVM.MinorModCount == 0,
+                MinorModCount = ModVM.MinorModCount,
+                CustomTuning = _customTuning ? BuildTuningSlots() : null,
             };
+        }
+        /*
+        Method        : BuildTuningSlots
+        Description   : Builds dictionary of custom focus stat assignments
+                        per slot index from TuningSlots ViewModels.
+        Parameters    : None.
+        Return Values : Dictionary<int, (Stat, Stat)> : Focus assignments per slot.
+        */
+        private Dictionary<int, (Stat FocusStat, Stat FocusMinus)> BuildTuningSlots() {
+            Dictionary<int, (Stat, Stat)> tuning = [];
+            for (int i = 0; i < TuningSlots.Count; i++) {
+                tuning[i] = (TuningSlots[i].GetFocusStat(), TuningSlots[i].GetFocusMinus());
+            }
+            return tuning;
         }
         /*
         Method        : BuildMinStatBlock

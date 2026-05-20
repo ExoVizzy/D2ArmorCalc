@@ -62,15 +62,20 @@ namespace D2ArmorCalc_Algorithm {
         Parameters    : StatBlock mins  : Minimum stat targets.
         Return Values : List<Archetype> : Valid archetypes for consideration.
         */
-        public static List<Archetype> GetValidArchetypes(StatBlock mins){
-            List<Archetype> valid = [];
-            foreach (Archetype archetype in Archetypes.All){
-                if (mins.Get(archetype.Primary) > 0 || mins.Get(archetype.Secondary) > 0)
-                    valid.Add(archetype);
+        public static List<Archetype> GetValidArchetypes(StatBlock mins) {
+            List<Archetype> primaryMatches = [];
+            List<Archetype> secondaryMatches = [];
+
+            foreach (Archetype archetype in Archetypes.All) {
+                if (mins.Get(archetype.Primary) > 0) primaryMatches.Add(archetype);
+                else if (mins.Get(archetype.Secondary) > 0) secondaryMatches.Add(archetype);
             }
-            //If no archetypes pass filter, allow all (no minimums set).
-            if (valid.Count == 0) valid.AddRange(Archetypes.All);
-            return valid;
+            //Prefer primary matches. only use secondary matches if no primary matches exist.
+            if (primaryMatches.Count > 0) return primaryMatches;
+            if (secondaryMatches.Count > 0) return secondaryMatches;
+
+            //No minimums set. allow all.
+            return [..Archetypes.All]; //Technically Not possible since user must set at least one minimum, but just in case.
         }
         /*
         Method        : GetValidTertiaryStats
@@ -79,18 +84,31 @@ namespace D2ArmorCalc_Algorithm {
                         to all valid tertiary options if none have minimums.
         Parameters    : Archetype archetype : The archetype to get tertiary options for.
                         StatBlock mins      : Minimum stat targets.
+                      : Stat leastWanted    : Stat to avoid if possible (used for focus -5).
         Return Values : List<Stat>          : Valid tertiary stats for consideration.
         */
-        public static List<Stat> GetValidTertiaryStats(Archetype archetype, StatBlock mins){
+        public static List<Stat> GetValidTertiaryStats(Archetype archetype, StatBlock mins, Stat leastWanted) {
             Stat[] all = Archetypes.GetTertiaryStats(archetype);
+            Stat[] order = [Stat.Health, Stat.Melee, Stat.Grenade,
+                            Stat.Super,  Stat.Class,  Stat.Weapons];
+
             List<Stat> valid = [];
 
-            foreach (Stat stat in all){
+            //First try stats with non-zero minimums.
+            foreach (Stat stat in all) {
                 if (mins.Get(stat) > 0) valid.Add(stat);
             }
-            //Fall back to all tertiary options if none match minimums.
-            if (valid.Count == 0) valid.AddRange(all);
-            return valid;
+            if (valid.Count > 0) return valid;
+
+            //Fall back. pick first valid tertiary top-down, skipping least wanted.
+            foreach (Stat stat in order) {
+                if (!all.Contains(stat))   continue;
+                if (stat == leastWanted)   continue;
+                return [stat];
+            }
+
+            //Last resort — if least wanted is the only option, use it.
+            return [all[0]]; //Technically not possible but yknow, just in case.
         }
         /*
         Method        : GetValidFocusStats
@@ -127,7 +145,7 @@ namespace D2ArmorCalc_Algorithm {
             const int MaxModBoost = 40;
 
             foreach (Archetype archetype in validArchetypes) {
-                List<Stat> validTertiaries = GetValidTertiaryStats(archetype, mins);
+                List<Stat> validTertiaries = GetValidTertiaryStats(archetype, mins, focusMinus);
                 foreach (Stat tertiary in validTertiaries) {
                     //Check if mods alone can cover all deficits for this archetype+tertiary.
                     StatBlock baseForCheck = new();

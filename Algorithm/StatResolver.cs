@@ -47,32 +47,28 @@ namespace D2ArmorCalc_Algorithm {
         public static StatBlock ApplyStatMods(StatBlock current, StatBlock mins, Stat leastWanted,
                                               ArmorRarity rarity, int fontCount, bool majorMods) {
             StatBlock result = new(current.Health, current.Melee, current.Grenade,
-                                   current.Super, current.Class, current.Weapons);
+                                   current.Super,  current.Class, current.Weapons);
             ModType modType = majorMods ? ModType.Major : ModType.Minor;
-            Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade, Stat.Super, Stat.Class, Stat.Weapons];
+            Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade,
+                               Stat.Super, Stat.Class, Stat.Weapons];
 
-            //5 mod slots total (4 legendary + 1 exotic).
-            for (int i = 0; i < 5; i++){
+            for (int i = 0; i < 5; i++) {
                 Stat bestStat = leastWanted;
                 int bestDeficit = 0;
-                Stat bestWanted = leastWanted;
 
-                foreach (Stat stat in allStats){
+                foreach (Stat stat in allStats) {
                     if (stat == leastWanted) continue;
-                    //Skip stats with no minimum set.
                     if (mins.Get(stat) == 0) continue;
 
                     int deficit = StatHelper.GetDeficit(result.Get(stat), mins.Get(stat));
-                    if (deficit > bestDeficit){
+                    if (deficit > bestDeficit) {
                         bestDeficit = deficit;
                         bestStat = stat;
                     }
-                    //Track wanted stat even if deficit is 0 (already met).
-                    if (bestStat == leastWanted) bestWanted = stat;
                 }
 
-                //If no stat has a deficit, still apply mod to first wanted stat.
-                if (bestStat == leastWanted && bestWanted != leastWanted) bestStat = bestWanted;
+                //Only apply mod if there is deficits to fill.
+                if (bestStat == leastWanted || bestDeficit == 0) break;
 
                 StatMod mod = Mods.GetMod(modType, bestStat);
                 if (Mods.IsCompatible(mod, EnergyHelper.GetRemainingGeneralEnergy(rarity, fontCount)))
@@ -158,14 +154,26 @@ namespace D2ArmorCalc_Algorithm {
                         bool                      majorMods    : True = major, false = minor.
         Return Values : ResolvedResult                         : Resolved stats & score.
         */
-        public static ResolvedResult Resolve(ArmorCandidate[] legendaries, ArmorPiece exotic, StatBlock mins, StatBlock maxs, 
-            StatBlock adjustedMins, StatBlock adjustedMaxs, Fragment[] fragments, Stat leastWanted, 
-            bool fontsEnabled, Dictionary<ArmorSlot,int> fontCounts, bool majorMods){
+        public static ResolvedResult Resolve(ArmorCandidate[] legendaries, ArmorPiece exotic,
+            StatBlock mins, StatBlock maxs, StatBlock adjustedMins, StatBlock adjustedMaxs,
+            Fragment[] fragments, Stat leastWanted, bool fontsEnabled, Dictionary<ArmorSlot, int> fontCounts,
+            bool majorMods, Dictionary<int, (Stat FocusStat, Stat FocusMinus)>? customTuning = null) {
 
             int fontCount = fontsEnabled ? 1 : 0; //Average fonts per piece for energy calc.
 
-            //Step 1: Base stats.
-            StatBlock stats = ResolveBaseStats(legendaries, exotic);
+            //Step 1: Apply custom tuning to base stats if provided.
+            StatBlock baseWithTuning = ResolveBaseStats(legendaries, exotic);
+            if (customTuning != null) {
+                Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade,
+                                   Stat.Super,  Stat.Class,  Stat.Weapons];
+                for (int i = 0; i < 4; i++) {
+                    if (!customTuning.TryGetValue(i, out var tuning)) continue;
+                    //Add +5 to focus stat, -5 from focus minus.
+                    baseWithTuning.Set(tuning.FocusStat, baseWithTuning.Get(tuning.FocusStat) + 5);
+                    baseWithTuning.Set(tuning.FocusMinus, baseWithTuning.Get(tuning.FocusMinus) - 5);
+                }
+            }
+            StatBlock stats = baseWithTuning;
 
             //Step 2: Apply stat mods.
             stats = ApplyStatMods(stats, adjustedMins, leastWanted, ArmorRarity.Legendary, fontCount, majorMods);
@@ -185,7 +193,7 @@ namespace D2ArmorCalc_Algorithm {
             }
             int deficit = StatHelper.GetTotalDeficit(finalStats, mins);
             int excess = StatHelper.GetTotalExcess(finalStats, maxs);
-            int score = CalculateScore(finalStats, mins, focusCount);
+            int score = CalculateScore(finalStats, mins, maxs, focusCount);
 
             return new ResolvedResult {
                 FinalStats = finalStats, BaseStats = ResolveBaseStats(legendaries, exotic),
@@ -197,20 +205,30 @@ namespace D2ArmorCalc_Algorithm {
         Method        : CalculateScore
         Description   : Scores resolved stat block based on sum of all
                         stats with non-zero minimum target. Higher is better.
-        Parameters    : StatBlock final : Final resolved stats.
-                        StatBlock mins  : Minimum stat targets.
-        Return Values : int             : Build score (higher = better).
+        Parameters    : StatBlock final      : Final resolved stats.
+                        StatBlock mins       : Minimum stat targets.
+                      : StatBlock maxs       : Maximum stat targets (for penalizing excess).
+                        int       focusCount : Number of focus mods used (for penalizing).
+        Return Values : int                  : Build score (higher = better).
         */
-        private static int CalculateScore(StatBlock final, StatBlock mins, int focusCount) {
+        private static int CalculateScore(StatBlock final, StatBlock mins, StatBlock maxs, int focusCount) {
             int score = 0;
             Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade,
-                               Stat.Super, Stat.Class, Stat.Weapons];
-            foreach (Stat stat in allStats){
+                               Stat.Super,  Stat.Class,  Stat.Weapons];
+
+            foreach (Stat stat in allStats) {
                 if (mins.Get(stat) > 0) score += final.Get(stat);
             }
-            //Penalize focus usage. each focus used costs 1000 points.
-            //This ensures mod-only builds always rank above equivalent focus builds.
-            score -= focusCount * 1000;
+            //Penalize focus usage.
+            score -= focusCount * 100;
+
+            //Heavily penalize exceeding maximums. forces algorithm to prefer builds within max.
+            foreach (Stat stat in allStats) {
+                if (maxs.Get(stat) > 0 && final.Get(stat) > maxs.Get(stat)) {
+                    int excess = final.Get(stat) - maxs.Get(stat);
+                    score -= excess * 500; //500 per point over max.
+                }
+            }
             return score;
         }
     }
