@@ -39,7 +39,7 @@ namespace D2ArmorCalc {
         //=====================================================================
         //Constructor.
         //=====================================================================
-        public RangeSlider() {
+        public RangeSlider(){
             InitializeComponent();
 
             Loaded += (s, e) => UpdateThumbPositions();
@@ -89,7 +89,7 @@ namespace D2ArmorCalc {
         Parameters    : None.
         Return Values : void
         */
-        private void UpdateThumbPositions() {
+        private void UpdateThumbPositions(){
             if (_isUpdating) return;
             if (TrackWidth <= 0) return;
 
@@ -118,7 +118,7 @@ namespace D2ArmorCalc {
         Parameters    : None.
         Return Values : void
         */
-        private void UpdateTooltips() {
+        private void UpdateTooltips(){
             string minBuff = StatHelper.GetBuff(Stat, MinValue);
             string maxBuff = StatHelper.GetBuff(Stat, MaxValue);
 
@@ -134,7 +134,7 @@ namespace D2ArmorCalc {
         Parameters    : int value : Stat value to convert.
         Return Values : double    : X position on canvas.
         */
-        private double ValueToPosition(int value) {
+        private double ValueToPosition(int value){
             return (value / 200.0) * TrackWidth;
         }
         /*
@@ -145,15 +145,16 @@ namespace D2ArmorCalc {
         */
         private int PositionToValue(double position) {
             int value = (int)Math.Round((position / TrackWidth) * 200.0);
+            value = (int)Math.Round(value / 5.0) * 5; //snap to nearest 5.
             return Math.Max(0, Math.Min(200, value));
         }
         //=====================================================================
         //Callbacks.
         //=====================================================================
-        private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e){
             if (d is RangeSlider slider && !slider._isUpdating) slider.UpdateThumbPositions();
         }
-        protected override void OnRenderSizeChanged(SizeChangedInfo info) {
+        protected override void OnRenderSizeChanged(SizeChangedInfo info){
             base.OnRenderSizeChanged(info);
             UpdateThumbPositions();
         }

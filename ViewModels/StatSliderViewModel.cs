@@ -19,8 +19,8 @@ namespace D2ArmorCalc_ViewModels {
         //=====================================================================
         //Properties.
         //=====================================================================
-        public Stat Stat { get; } = stat;
-        public string Label { get; } = stat.ToString();
+        public Stat Stat {get;} = stat;
+        public string Label {get;} = stat.ToString();
         private bool _isEnabled = false;
         public bool IsEnabled {
             get => _isEnabled;

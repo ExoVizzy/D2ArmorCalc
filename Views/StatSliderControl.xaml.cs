@@ -8,7 +8,7 @@
 */
 namespace D2ArmorCalc {
     public partial class StatSliderControl : System.Windows.Controls.UserControl {
-        public StatSliderControl() {
+        public StatSliderControl(){
             InitializeComponent();
         }
     }

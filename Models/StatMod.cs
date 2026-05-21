@@ -16,9 +16,9 @@ namespace D2ArmorCalc_Models {
     }
     //Holds data for single stat mod instance (type + boosted stat).
     public class StatMod(ModType modType, Stat stat) : Mod(modType == ModType.Major ? "Major " + stat : "Minor " + stat,
-               modType == ModType.Major ? 3 : 1) {
-        public ModType ModType { get; } = modType;
-        public Stat Stat { get; } = stat;
+               modType == ModType.Major ? 3 : 1){
+        public ModType ModType {get;} = modType;
+        public Stat Stat {get;} = stat;
         public int Bonus => ModType == ModType.Major ? 10 : 5;
     }
 }

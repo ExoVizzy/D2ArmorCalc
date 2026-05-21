@@ -68,7 +68,7 @@ namespace D2ArmorCalc_Models {
         Parameters    : string key : App.config key to read.
         Return Values : string     : Stored value, or null if not found.
         */
-        private static string Read(string key) {
+        private static string Read(string key){
             return ConfigurationManager.AppSettings[key];
         }
 

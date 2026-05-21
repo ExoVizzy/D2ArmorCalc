@@ -10,7 +10,7 @@ using System.Windows;
 
 namespace D2ArmorCalc {
     public partial class D2ArmorCalcWindow : Window {
-        public D2ArmorCalcWindow() {
+        public D2ArmorCalcWindow(){
             InitializeComponent();
         }
     }

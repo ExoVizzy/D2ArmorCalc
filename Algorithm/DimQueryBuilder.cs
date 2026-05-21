@@ -28,7 +28,7 @@ namespace D2ArmorCalc_Algorithm {
                 {Stat.Class, "class"}, {Stat.Weapons, "weapons"}
             };
         private static readonly Dictionary<ArmorSlot, string> SlotKeywords =
-            new() {
+            new(){
                 {ArmorSlot.Helmet, "helmet"}, {ArmorSlot.Arms, "gauntlets"},
                 {ArmorSlot.Chestplate, "chest"}, {ArmorSlot.Boots, "leg"},
                 {ArmorSlot.ClassItem, "classitem"}
@@ -71,23 +71,48 @@ namespace D2ArmorCalc_Algorithm {
             //Prefix.
             string classKeyword = ClassKeywords[playerClass];
             string exoticSlot = SlotKeywords[result.Helmet?.Rarity == ArmorRarity.Exotic ? ArmorSlot.Helmet :
-                                               result.Arms?.Rarity == ArmorRarity.Exotic ? ArmorSlot.Arms :
-                                               result.Chestplate?.Rarity == ArmorRarity.Exotic ? ArmorSlot.Chestplate :
-                                               result.Boots?.Rarity == ArmorRarity.Exotic ? ArmorSlot.Boots : ArmorSlot.ClassItem];
+                                             result.Arms?.Rarity == ArmorRarity.Exotic ? ArmorSlot.Arms :
+                                             result.Chestplate?.Rarity == ArmorRarity.Exotic ? ArmorSlot.Chestplate :
+                                             result.Boots?.Rarity == ArmorRarity.Exotic ? ArmorSlot.Boots : ArmorSlot.ClassItem];
+            //Append Prefix.
+            sb.Append($"is:legendary is:{classKeyword} (not is:{exoticSlot}) (");
 
-            sb.Append($"is:legendary is:{classKeyword} (not is:{exoticSlot})");
-
-            //Build per-piece query segments.
-            List<string> pieceSegments = [];
+            //Group pieces by archetype & tertiary to minimize query segments.
+            Dictionary<string, HashSet<string>> uniqueCombos = [];
+            List<string> uniqueTuning = [];
             foreach (ArmorPiece piece in result.GetPieces()){
-                if (piece == null || piece.Rarity == ArmorRarity.Exotic) continue;
-                pieceSegments.Add(BuildPieceSegment(piece));
+                if (piece.Rarity == ArmorRarity.Exotic) continue;
+
+                string archetype = ArchetypeKeywords[piece.Archetype.Type];
+                string tertiary = StatKeywords[piece.TertiaryStat];
+                string tuning = StatKeywords[piece.FocusStat];
+                if (!uniqueTuning.Contains(tuning)) uniqueTuning.Add(tuning);
+
+                if (!uniqueCombos.ContainsKey(archetype)) uniqueCombos[archetype] = [];
+
+                uniqueCombos[archetype].Add(tertiary);
             }
-            //Join with OR if pieces differ, otherwise just append.
-            if (pieceSegments.Count > 0){
-                sb.Append(' ');
-                sb.Append(JoinSegments(pieceSegments));
+
+            //Build query segments for each unique archetype + tertiary combo, joining with OR.
+            bool firstCombo = true;
+            foreach (var kvp in uniqueCombos){
+                if (!firstCombo)
+                    sb.Append(") or (");
+                firstCombo = false;
+                sb.Append(BuildArchetypeTertiarySegment(kvp.Key, kvp.Value.ToArray()));
             }
+            sb.Append(") (");
+
+            //Add Focus Stats.
+            firstCombo = true;
+            foreach (string s in uniqueTuning){
+                if (!firstCombo)
+                    sb.Append(" or ");
+                firstCombo = false;
+                sb.Append($"tunedstat:{s}");
+            }
+            sb.Append(")");
+
             return sb.ToString();
         }
         /*
@@ -111,7 +136,7 @@ namespace D2ArmorCalc_Algorithm {
 
             string classKeyword = ClassKeywords[playerClass];
             string slotKeyword = SlotKeywords[exotic.Slot];
-            string segment = BuildPieceSegment(exotic);
+            string segment = BuildPieceArchetypeSegment(exotic);
 
             return $"is:exotic is:{classKeyword} is:{slotKeyword} {segment}";
         }
@@ -132,17 +157,33 @@ namespace D2ArmorCalc_Algorithm {
         //Helpers.
         //=====================================================================
         /*
-        Method        : BuildPieceSegment
-        Description   : Builds archetype, tertiary, & focus portion of
+        Method        : BuildArchetypeTertiarySegment
+        Description   : Builds archetype & tertiary portions of
                         DIM query for single armor piece.
         Parameters    : ArmorPiece piece : Armor piece to build a segment for.
-        Return Values : string           : DIM query segment for this piece.
+        Return Values : string           : DIM query segment.
         */
-        private static string BuildPieceSegment(ArmorPiece piece){
+        private static string BuildArchetypeTertiarySegment(string arch, string[] terts){
+            string result = $"exactperk:{arch} (";
+            bool first = true;
+            foreach (string tert in terts) {
+                if(!first) result += " or ";
+                result += $"tertiarystat:{tert}";
+                first = false;
+            }
+            return (result += ")");
+        }
+        /*
+        Method        : BuildPieceArchetypeSegment
+        Description   : Builds archetype & tertiary portion of
+                        DIM query for single armor piece.
+        Parameters    : ArmorPiece piece : Armor piece to build a segment for.
+        Return Values : string           : DIM query segment.
+        */
+        private static string BuildPieceArchetypeSegment(ArmorPiece piece){
             string archetype = ArchetypeKeywords[piece.Archetype.Type];
             string tertiary = StatKeywords[piece.TertiaryStat];
-            string focus = StatKeywords[piece.FocusStat];
-            return $"exactperk:{archetype} tertiarystat:{tertiary} tunedstat:{focus}";
+            return $"exactperk:{archetype} tertiarystat:{tertiary}";
         }
         /*
         Method        : JoinSegments

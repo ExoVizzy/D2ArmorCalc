@@ -9,10 +9,10 @@ using System.Windows;
 
 namespace D2ArmorCalc {
     public partial class AboutBox : Window {
-        public AboutBox() {
+        public AboutBox(){
             InitializeComponent();
         }
-        private void CloseButton_Click(object sender, RoutedEventArgs e) {
+        private void CloseButton_Click(object sender, RoutedEventArgs e){
             Close();
         }
     }

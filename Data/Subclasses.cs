@@ -30,24 +30,30 @@ namespace D2ArmorCalc_Data {
         //=====================================================================
         //Arc Fragments.
         //=====================================================================
-        private static readonly Fragment[] ArcFragments = [
-            new Fragment("Haste", "Arc"), 
-            new Fragment("Instinct", "Arc"),
-            new Fragment("Beacons", "Arc"), 
-            new Fragment("Protection", "Arc", new StatChange(Stat.Melee, +10)),
-            new Fragment("Momentum", "Arc"), 
-            new Fragment("Shock", "Arc", new StatChange(Stat.Grenade, -10)),
-            new Fragment("Ions", "Arc"), 
-            new Fragment("Discharge", "Arc", new StatChange(Stat.Melee, -10)),
-            new Fragment("Frequency", "Arc"), 
-            new Fragment("Focus", "Arc", new StatChange(Stat.Class, -10)),
-            new Fragment("Recharge", "Arc"), 
-            new Fragment("Magnitude", "Arc"),
-            new Fragment("Amplitude", "Arc"), 
-            new Fragment("Feedback", "Arc", new StatChange(Stat.Health, +10)),
-            new Fragment("Volts", "Arc", new StatChange(Stat.Class, +10)),
-            new Fragment("Brilliance", "Arc", new StatChange(Stat.Super, +10))
-        ];
+        private static Fragment[] GetArcFragments(PlayerClass playerClass){
+            Stat focusStat = playerClass switch {
+                PlayerClass.Titan => Stat.Health,
+                PlayerClass.Hunter => Stat.Weapons,
+                _ => Stat.Class //Warlock.
+            };
+            return [
+                new Fragment("Haste", "Arc"),
+                new Fragment("Instinct", "Arc"),
+                new Fragment("Beacons", "Arc"),
+                new Fragment("Protection", "Arc", new StatChange(Stat.Melee, +10)),
+                new Fragment("Momentum", "Arc"),
+                new Fragment("Shock", "Arc", new StatChange(Stat.Grenade, -10)),
+                new Fragment("Ions", "Arc"),
+                new Fragment("Discharge", "Arc", new StatChange(Stat.Melee, -10)),
+                new Fragment("Frequency", "Arc"),
+                new Fragment("Focus", "Arc", new StatChange(focusStat, -10)),
+                new Fragment("Recharge", "Arc"),
+                new Fragment("Magnitude", "Arc"),
+                new Fragment("Amplitude", "Arc"),
+                new Fragment("Feedback", "Arc", new StatChange(Stat.Health, +10)),
+                new Fragment("Volts", "Arc", new StatChange(Stat.Class, +10)),
+                new Fragment("Brilliance", "Arc", new StatChange(Stat.Super, +10))];
+        }
         //=====================================================================
         //Solar Fragments.
         //=====================================================================
@@ -67,29 +73,34 @@ namespace D2ArmorCalc_Data {
             new Fragment("Eruption", "Solar", new StatChange(Stat.Melee, +10)),
             new Fragment("Ashes", "Solar"),
             new Fragment("Wonder", "Solar", new StatChange(Stat.Health, +10)),
-            new Fragment("Searing", "Solar", new StatChange(Stat.Class, +10))
-        ];
+            new Fragment("Searing", "Solar", new StatChange(Stat.Class, +10))];
         //=====================================================================
         //Void Fragments.
         //=====================================================================
-        private static readonly Fragment[] VoidFragments = [
-            new Fragment("Vigilance", "Void"),
-            new Fragment("Cessation", "Void"),
-            new Fragment("Expulsion", "Void", new StatChange(Stat.Super, +10)),
-            new Fragment("Provision", "Void", new StatChange(Stat.Grenade, +10)),
-            new Fragment("Exchange", "Void", new StatChange(Stat.Melee, +10)),
-            new Fragment("Remnants", "Void"),
-            new Fragment("Reprisal", "Void"),
-            new Fragment("Undermining", "Void", new StatChange(Stat.Grenade, -10)),
-            new Fragment("Persistence", "Void", new StatChange(Stat.Class, -10)),
-            new Fragment("Leeching", "Void", new StatChange(Stat.Health, +10)),
-            new Fragment("Domineering", "Void", new StatChange(Stat.Grenade, +10)),
-            new Fragment("Dilation", "Void", new StatChange(Stat.Weapons, +10), new StatChange(Stat.Super, +10)),
-            new Fragment("Instability", "Void", new StatChange(Stat.Melee, +10)),
-            new Fragment("Harvest", "Void"),
-            new Fragment("Obscurity", "Void", new StatChange(Stat.Class, +10)),
-            new Fragment("Starvation", "Void", new StatChange(Stat.Class, -10))
-        ];
+        private static Fragment[] GetVoidFragments(PlayerClass playerClass){
+            Stat persistenceStat = playerClass switch {
+                PlayerClass.Titan => Stat.Health,
+                PlayerClass.Hunter => Stat.Weapons,
+                _ => Stat.Class //Warlock.
+            };
+            return [
+                new Fragment("Vigilance", "Void"),
+                new Fragment("Cessation", "Void"),
+                new Fragment("Expulsion", "Void", new StatChange(Stat.Super, +10)),
+                new Fragment("Provision", "Void", new StatChange(Stat.Grenade, +10)),
+                new Fragment("Exchange", "Void", new StatChange(Stat.Melee, +10)),
+                new Fragment("Remnants", "Void"),
+                new Fragment("Reprisal", "Void"),
+                new Fragment("Undermining", "Void", new StatChange(Stat.Grenade, -10)),
+                new Fragment("Persistence", "Void", new StatChange(persistenceStat, -10)),
+                new Fragment("Leeching", "Void", new StatChange(Stat.Health, +10)),
+                new Fragment("Domineering", "Void", new StatChange(Stat.Grenade, +10)),
+                new Fragment("Dilation", "Void", new StatChange(Stat.Weapons, +10), new StatChange(Stat.Super, +10)),
+                new Fragment("Instability", "Void", new StatChange(Stat.Melee, +10)),
+                new Fragment("Harvest", "Void"),
+                new Fragment("Obscurity", "Void", new StatChange(Stat.Class, +10)),
+                new Fragment("Starvation", "Void", new StatChange(Stat.Class, -10))];
+        }
         //=====================================================================
         //Stasis Fragments.
         //=====================================================================
@@ -109,8 +120,7 @@ namespace D2ArmorCalc_Data {
             new Fragment("Hunger", "Stasis", new StatChange(Stat.Melee, -20)),
             new Fragment("Rime", "Stasis"),
             new Fragment("Reversal", "Stasis"),
-            new Fragment("Chill", "Stasis")
-        ];
+            new Fragment("Chill", "Stasis")];
         //=====================================================================
         //Strand Fragments.
         //=====================================================================
@@ -128,8 +138,7 @@ namespace D2ArmorCalc_Data {
             new Fragment("Isolation", "Strand"),
             new Fragment("Binding", "Strand", new StatChange(Stat.Health, +10)),
             new Fragment("Generation", "Strand", new StatChange(Stat.Grenade, -10)),
-            new Fragment("Continuity", "Strand")
-        ];
+            new Fragment("Continuity", "Strand")];
         //=====================================================================
         //Prismatic Fragments.
         //=====================================================================
@@ -153,8 +162,7 @@ namespace D2ArmorCalc_Data {
             new Fragment("Mending", "Prismatic"),
             new Fragment("Defiance", "Prismatic", new StatChange(Stat.Class, +10)),
             new Fragment("Solitude", "Prismatic"),
-            new Fragment("Ruin", "Prismatic", new StatChange(Stat.Weapons, +10))
-        ];
+            new Fragment("Ruin", "Prismatic", new StatChange(Stat.Weapons, +10))];
         //=====================================================================
         //Grenades.
         //=====================================================================
@@ -173,7 +181,7 @@ namespace D2ArmorCalc_Data {
         public static readonly Subclass WarlockArc = new(
             name: "Arc",
             playerClass: PlayerClass.Warlock,
-            fragments: ArcFragments,
+            fragments: GetArcFragments(PlayerClass.Warlock),
             aspects: [
                 new Aspect("Arc Soul", 2), new Aspect("Lightning Surge", 2),
                 new Aspect("Electrostatic Mind", 2), new Aspect("Ionic Sentry", 2)],
@@ -199,7 +207,7 @@ namespace D2ArmorCalc_Data {
         public static readonly Subclass WarlockVoid = new(
             name: "Void",
             playerClass: PlayerClass.Warlock,
-            fragments: VoidFragments,
+            fragments: GetVoidFragments(PlayerClass.Warlock),
             aspects: [
                 new Aspect("Chaos Accelerant", 2), new Aspect("Feed the Void", 2), 
                 new Aspect("Child of the Old Gods", 2)],
@@ -255,7 +263,7 @@ namespace D2ArmorCalc_Data {
         public static readonly Subclass TitanArc = new(
             name: "Arc",
             playerClass: PlayerClass.Titan,
-            fragments: ArcFragments,
+            fragments: GetArcFragments(PlayerClass.Titan),
             aspects: [
                 new Aspect("Storms Keep", 2), new Aspect("Touch of Thunder",2),
                 new Aspect("Juggernaut", 2), new Aspect("Knockout", 2)],
@@ -281,7 +289,7 @@ namespace D2ArmorCalc_Data {
         public static readonly Subclass TitanVoid = new(
             name: "Void",
             playerClass: PlayerClass.Titan,
-            fragments: VoidFragments,
+            fragments: GetVoidFragments(PlayerClass.Titan),
             aspects: [
                 new Aspect("Controlled Demolition", 2), new Aspect("Bastion", 2),
                 new Aspect("Offensive Bulwark", 2), new Aspect("Unbreakable", 3)],
@@ -338,7 +346,7 @@ namespace D2ArmorCalc_Data {
         public static readonly Subclass HunterArc = new(
             name: "Arc",
             playerClass: PlayerClass.Hunter,
-            fragments: ArcFragments,
+            fragments: GetArcFragments(PlayerClass.Hunter),
             aspects: [
                 new Aspect("Flow State", 2), new Aspect("Tempest Strike", 2),
                 new Aspect("Lethal Current", 2), new Aspect("Ascension", 3)],
@@ -364,7 +372,7 @@ namespace D2ArmorCalc_Data {
         public static readonly Subclass HunterVoid = new(
             name: "Void",
             playerClass: PlayerClass.Hunter,
-            fragments: VoidFragments,
+            fragments: GetVoidFragments(PlayerClass.Hunter),
             aspects: [
                 new Aspect("Trappers Ambush", 2), new Aspect("Vanishing Step", 2),
                 new Aspect("Stylish Executioner", 2), new Aspect("On the Prowl", 3)],
@@ -405,7 +413,7 @@ namespace D2ArmorCalc_Data {
             playerClass: PlayerClass.Hunter,
             fragments: PrismaticFragments,
             aspects: [
-                new Aspect("Ascension", 2),  new Aspect("Stylish Executioner",2),
+                new Aspect("Ascension", 2), new Aspect("Stylish Executioner",2),
                 new Aspect("Gunpowder Gamble", 3), new Aspect("Winters Shroud", 2),
                 new Aspect("Threaded Specter", 3)],
             supers: ["Golden Gun Marksman", "Silence and Squall", "Storms Edge", "Shadowshot Deadfall", "Silkstrike"],
@@ -417,7 +425,7 @@ namespace D2ArmorCalc_Data {
         //=====================================================================
         //All Subclasses lookup.
         //=====================================================================
-        public static readonly Dictionary<PlayerClass, Subclass[]> All = new() {
+        public static readonly Dictionary<PlayerClass, Subclass[]> All = new(){
             {PlayerClass.Warlock, new[] {WarlockArc, WarlockSolar, WarlockVoid, WarlockStasis, WarlockStrand, WarlockPrismatic}},
             {PlayerClass.Titan, new[] {TitanArc, TitanSolar, TitanVoid, TitanStasis, TitanStrand, TitanPrismatic}},
             {PlayerClass.Hunter, new[] {HunterArc, HunterSolar, HunterVoid, HunterStasis, HunterStrand, HunterPrismatic}}

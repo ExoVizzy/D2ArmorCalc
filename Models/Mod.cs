@@ -7,8 +7,8 @@
 *                   with name & energy cost.
 */
 namespace D2ArmorCalc_Models {
-    public class Mod(string name, int energyCost) {
-        public string Name { get; } = name;
-        public int EnergyCost { get; } = energyCost;
+    public class Mod(string name, int energyCost){
+        public string Name {get;} = name;
+        public int EnergyCost {get;} = energyCost;
     }
 }

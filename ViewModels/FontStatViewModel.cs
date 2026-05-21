@@ -18,10 +18,10 @@ namespace D2ArmorCalc_ViewModels {
         //=====================================================================
         //Properties.
         //=====================================================================
-        public Stat Stat { get; } = stat;
-        public ArmorSlot Slot { get; } = slot;
-        public string? StatLabel { get; } = stat.ToString();
-        public string? SlotLabel { get; } = slot.ToString();
+        public Stat Stat {get;} = stat;
+        public ArmorSlot Slot {get;} = slot;
+        public string? StatLabel {get;} = stat.ToString();
+        public string? SlotLabel {get;} = slot.ToString();
         public static int MaxFonts  => 3;
         private int _fontCount = 0;
         public int FontCount {

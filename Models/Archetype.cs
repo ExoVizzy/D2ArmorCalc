@@ -17,7 +17,7 @@ namespace D2ArmorCalc_Models {
         Brawler, Gunner, Specialist, Grenadier, Paragon, Bulwark
     }
     //Holds stat layout for given archetype.
-    public class Archetype(ArchetypeType type, Stat primary, Stat secondary) {
+    public class Archetype(ArchetypeType type, Stat primary, Stat secondary){
         public ArchetypeType Type {get;} = type;
         public Stat Primary {get;} = primary;
         public Stat Secondary {get;} = secondary;

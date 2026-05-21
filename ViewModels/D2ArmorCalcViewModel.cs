@@ -27,16 +27,16 @@ namespace D2ArmorCalc_ViewModels {
         //=====================================================================
         //Sub-ViewModels.
         //=====================================================================
-        public StatSliderViewModel HealthSlider {get;} = new StatSliderViewModel(Stat.Health);
-        public StatSliderViewModel MeleeSlider {get;} = new StatSliderViewModel(Stat.Melee);
-        public StatSliderViewModel GrenadeSlider {get;} = new StatSliderViewModel(Stat.Grenade);
-        public StatSliderViewModel SuperSlider {get;} = new StatSliderViewModel(Stat.Super);
-        public StatSliderViewModel ClassSlider {get;} = new StatSliderViewModel(Stat.Class);
-        public StatSliderViewModel WeaponsSlider {get;} = new StatSliderViewModel(Stat.Weapons);
-        public ExoticViewModel ExoticVM {get;} = new ExoticViewModel();
-        public FragmentViewModel FragmentVM {get;} = new FragmentViewModel();
-        public ModViewModel ModVM {get;} = new ModViewModel();
-        public ResultViewModel ResultVM {get;} = new ResultViewModel();
+        public StatSliderViewModel HealthSlider {get;} = new(Stat.Health);
+        public StatSliderViewModel MeleeSlider {get;} = new(Stat.Melee);
+        public StatSliderViewModel GrenadeSlider {get;} = new(Stat.Grenade);
+        public StatSliderViewModel SuperSlider {get;} = new(Stat.Super);
+        public StatSliderViewModel ClassSlider {get;} = new(Stat.Class);
+        public StatSliderViewModel WeaponsSlider {get;} = new(Stat.Weapons);
+        public ExoticViewModel ExoticVM {get;} = new();
+        public FragmentViewModel FragmentVM {get;} = new();
+        public ModViewModel ModVM {get;} = new();
+        public ResultViewModel ResultVM {get;} = new();
         //=====================================================================
         //Toggle States.
         //=====================================================================
@@ -172,7 +172,7 @@ namespace D2ArmorCalc_ViewModels {
                     ExoticVM.SelectedClass = className;
             };
             ExoticVM.PropertyChanged += (s, e) => {
-                if (e.PropertyName == nameof(ExoticViewModel.SelectedClass)) {
+                if (e.PropertyName == nameof(ExoticViewModel.SelectedClass)){
                     if (FragmentVM.SelectedClass != ExoticVM.SelectedClass) FragmentVM.SelectedClass = ExoticVM.SelectedClass;
                 }
                 if (e.PropertyName == nameof(ExoticViewModel.SelectedSlot)) SyncExoticSlotToMods();
@@ -233,6 +233,23 @@ namespace D2ArmorCalc_ViewModels {
         //Calculation.
         //=====================================================================
         /*
+        Method        : BuildAdvancedModEnergy
+        Description   : Builds dictionary of total armor mod energy used per slot
+                        when advanced mod mode is enabled.
+        Parameters    : None.
+        Return Values : Dictionary<ArmorSlot, int> : Energy used by armor mods per slot.
+        */
+        private Dictionary<ArmorSlot, int> BuildAdvancedModEnergy() {
+            if (!_armorModsEnabled) return [];
+            Dictionary<ArmorSlot, int> energy = [];
+            foreach (var kvp in ModVM.GetAllSelectedMods()) {
+                int total = 0;
+                foreach (ArmorMod mod in kvp.Value) total += mod.EnergyCost;
+                energy[kvp.Key] = total;
+            }
+            return energy;
+        }
+        /*
         Method        : RunCalculationAsync
         Description   : Builds CalcInput from all sub-ViewModels, runs
                         armor calculator asynchronously to keep UI responsive,
@@ -260,7 +277,7 @@ namespace D2ArmorCalc_ViewModels {
                 //Load into result ViewModel.
                 StatBlock mins = BuildMinStatBlock();
                 StatBlock maxs = BuildMaxStatBlock();
-                ResultVM.LoadResult(result, mins, maxs, _showDimQueries);
+                ResultVM.LoadResult(result, mins, maxs, _showDimQueries, BuildFontCounts(), _fontsEnabled);
             } catch (Exception ex){
                 MessageBox.Show($"Calculation error: {ex.Message}", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
@@ -279,7 +296,7 @@ namespace D2ArmorCalc_ViewModels {
             //Validate at least one stat has minimum set.
             StatBlock mins = BuildMinStatBlock();
             bool anyMin = false;
-            foreach (Stat stat in Enum.GetValues<Stat>()) {
+            foreach (Stat stat in Enum.GetValues<Stat>()){
                 if (mins.Get(stat) > 0){anyMin = true; break;}
             }
 
@@ -300,9 +317,8 @@ namespace D2ArmorCalc_ViewModels {
                 Exotic = exotic, Fragments = _fragmentsEnabled ? FragmentVM.GetSelectedFragments() : [],
                 LeastWantedStat = leastWanted, FontsEnabled = _fontsEnabled, FontsInStats = _fontsInStats,
                 FontCounts = BuildFontCounts(), ArmorModsEnabled = _armorModsEnabled,
-                MajorMods = !_armorModsEnabled && ModVM.MinorModCount == 0,
-                MinorModCount = ModVM.MinorModCount,
-                CustomTuning = _customTuning ? BuildTuningSlots() : null,
+                MinorModCount = ModVM.MinorModCount, CustomTuning = _customTuning ? BuildTuningSlots() : null,
+                PerStatFontCounts = BuildPerStatFontCounts(), AdvancedModEnergy = BuildAdvancedModEnergy(),
             };
         }
         /*
@@ -312,9 +328,9 @@ namespace D2ArmorCalc_ViewModels {
         Parameters    : None.
         Return Values : Dictionary<int, (Stat, Stat)> : Focus assignments per slot.
         */
-        private Dictionary<int, (Stat FocusStat, Stat FocusMinus)> BuildTuningSlots() {
+        private Dictionary<int, (Stat FocusStat, Stat FocusMinus)> BuildTuningSlots(){
             Dictionary<int, (Stat, Stat)> tuning = [];
-            for (int i = 0; i < TuningSlots.Count; i++) {
+            for (int i = 0; i < TuningSlots.Count; i++){
                 tuning[i] = (TuningSlots[i].GetFocusStat(), TuningSlots[i].GetFocusMinus());
             }
             return tuning;
@@ -379,6 +395,17 @@ namespace D2ArmorCalc_ViewModels {
 
             return counts;
         }
+        private Dictionary<Stat, int> BuildPerStatFontCounts(){
+            if (!_fontsEnabled) return [];
+            return new Dictionary<Stat, int> {
+                {Stat.Super,FontStats[0].FontCount},
+                {Stat.Grenade, FontStats[1].FontCount},
+                {Stat.Melee, FontStats[2].FontCount},
+                {Stat.Health, FontStats[3].FontCount},
+                {Stat.Weapons, FontStats[4].FontCount},
+                {Stat.Class, FontStats[5].FontCount}
+            };
+        }
         /*
         Method        : OnArmsFontChanged
         Description   : Enforces 3-font cap shared between Grenade & Melee
@@ -388,13 +415,13 @@ namespace D2ArmorCalc_ViewModels {
                         PropertyChangedEventArgs e : Property change event.
         Return Values : void
         */
-        private void OnArmsFontChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
+        private void OnArmsFontChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e){
             if (e.PropertyName != nameof(FontStatViewModel.FontCount)) return;
 
             FontStatViewModel grenade = FontStats[1];
             FontStatViewModel melee   = FontStats[2];
 
-            if (grenade.FontCount + melee.FontCount > 3) {
+            if (grenade.FontCount + melee.FontCount > 3){
                 //Clamp whichever one just changed.
                 if (sender == grenade) grenade.FontCount = 3 - melee.FontCount;
                 else melee.FontCount = 3 - grenade.FontCount;
@@ -407,7 +434,7 @@ namespace D2ArmorCalc_ViewModels {
         Parameters    : None.
         Return Values : void
         */
-        private void SyncFontCountsToMods() {
+        private void SyncFontCountsToMods(){
             //FontStats order: Super(Helmet), Grenade(Arms), Melee(Arms), Health(Chest), Weapons(Boots), Class(ClassItem).
             ModVM.HelmetMods.FontCount = FontStats[0].FontCount;
             ModVM.ArmsMods.FontCount = FontStats[1].FontCount + FontStats[2].FontCount;
@@ -422,7 +449,7 @@ namespace D2ArmorCalc_ViewModels {
         Parameters    : None.
         Return Values : void
         */
-        private void SyncExoticSlotToMods() {
+        private void SyncExoticSlotToMods(){
             ArmorSlot exoticSlot = ExoticVM.GetArmorSlot();
             ModVM.HelmetMods.IsExotic = exoticSlot == ArmorSlot.Helmet;
             ModVM.ArmsMods.IsExotic = exoticSlot == ArmorSlot.Arms;
@@ -440,7 +467,7 @@ namespace D2ArmorCalc_ViewModels {
         Parameters    : None.
         Return Values : void
         */
-        private void RunImport() {
+        private void RunImport(){
             BuildExport export = ImportExportHelper.Import();
             if (export == null) return;
             ApplyImport(export);
@@ -519,11 +546,11 @@ namespace D2ArmorCalc_ViewModels {
         Parameters    : None.
         Return Values : void
         */
-        private void RunExport() {
+        private void RunExport(){
             if (!ResultVM.HasResult) return;
             if (_lastResult == null) return;
 
-            StatTargetsExport targets = new() {
+            StatTargetsExport targets = new(){
                 HealthMin = HealthSlider.ToMinValue(), HealthMax = HealthSlider.ToMaxValue(),
                 MeleeMin = MeleeSlider.ToMinValue(), MeleeMax = MeleeSlider.ToMaxValue(),
                 GrenadeMin = GrenadeSlider.ToMinValue(), GrenadeMax = GrenadeSlider.ToMaxValue(),
@@ -533,7 +560,7 @@ namespace D2ArmorCalc_ViewModels {
             };
 
             SubclassExport? subclassExport = null;
-            if (_subclassCustomization && FragmentVM.SelectedSubclass != "None") {
+            if (_subclassCustomization && FragmentVM.SelectedSubclass != "None"){
                 Aspect[] aspects = FragmentVM.GetSelectedAspects();
                 Fragment[] fragments = FragmentVM.GetSelectedFragments();
 

@@ -18,8 +18,8 @@ namespace D2ArmorCalc_ViewModels {
         //=====================================================================
         //Properties.
         //=====================================================================
-        public string SlotLabel { get; } = slotLabel;
-        public ObservableCollection<string> StatOptions { get; } = ["Health", "Melee", "Grenade", "Super", "Class", "Weapons"];
+        public string SlotLabel {get;} = slotLabel;
+        public ObservableCollection<string> StatOptions {get;} = ["Health", "Melee", "Grenade", "Super", "Class", "Weapons"];
         private string _focusStat = defaultFocusStat;
         public string FocusStat {
             get => _focusStat;
@@ -46,7 +46,7 @@ namespace D2ArmorCalc_ViewModels {
         Parameters    : None.
         Return Values : Stat : Selected +5 focus stat.
         */
-        public Stat GetFocusStat() {
+        public Stat GetFocusStat(){
             _ = Enum.TryParse(_focusStat, out Stat stat);
             return stat;
         }
@@ -56,7 +56,7 @@ namespace D2ArmorCalc_ViewModels {
         Parameters    : None.
         Return Values : Stat : Selected -5 focus stat.
         */
-        public Stat GetFocusMinus() {
+        public Stat GetFocusMinus(){
             _ = Enum.TryParse(_focusMinus, out Stat stat);
             return stat;
         }

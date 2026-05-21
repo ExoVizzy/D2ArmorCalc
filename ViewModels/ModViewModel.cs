@@ -12,12 +12,12 @@ using System.ComponentModel;
 
 namespace D2ArmorCalc_ViewModels {
     //Wraps ArmorMod with selection state for slot's mod list.
-    public class ModSelectionItem(ArmorMod mod) {
-        public ArmorMod Mod { get; } = mod;
+    public class ModSelectionItem(ArmorMod mod){
+        public ArmorMod Mod {get;} = mod;
         public string Name => Mod.Name;
         public string EnergyCost => $"{Mod.EnergyCost} energy";
 
-        public override string ToString() => Mod.Name;
+        public override string ToString() => $"{Mod.Name} ({Mod.EnergyCost})";
     }
     public class ModViewModel : INotifyPropertyChanged {
         public int MajorModCount => 5 - MinorModCount;

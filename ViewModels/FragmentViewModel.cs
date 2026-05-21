@@ -17,9 +17,9 @@ namespace D2ArmorCalc_ViewModels {
     public class FragmentSelectionItem(Fragment fragment) : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        public Fragment Fragment { get; } = fragment;
+        public Fragment Fragment {get;} = fragment;
         public string Name => Fragment.Name;
-        public string StatInfo { get; } = BuildStatInfo(fragment);
+        public string StatInfo {get;} = BuildStatInfo(fragment);
         private bool _isSelected;
         public bool IsSelected {
             get => _isSelected;
@@ -38,7 +38,7 @@ namespace D2ArmorCalc_ViewModels {
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        public Aspect Aspect { get; } = aspect;
+        public Aspect Aspect {get;} = aspect;
         public string Name => Aspect.Name;
         public string FragmentSlots => $"({Aspect.FragmentSlots} fragment slots)";
         private bool _isSelected;
@@ -181,7 +181,7 @@ namespace D2ArmorCalc_ViewModels {
 
             foreach (Fragment fragment in subclass.Fragments){
                 if (!_showFullSubclass && fragment.StatChanges.Length == 0) continue;
-                FragmentSelectionItem item = new(fragment) {
+                FragmentSelectionItem item = new(fragment){
                     IsSelected = previousSelections.Contains(fragment.Name)
                 };
                 item.PropertyChanged += (s, e) => {
@@ -259,15 +259,15 @@ namespace D2ArmorCalc_ViewModels {
         Parameters    : None.
         Return Values : int : Total available fragment slots.
         */
-        private int GetMaxFragmentSlots() {
+        private int GetMaxFragmentSlots(){
             //When full subclass is off, always return 6.
             if (!_showFullSubclass) return 6;
             if (_selectedSubclass == "None") return 6;
 
             int total = 0;
             int selected = 0;
-            foreach (AspectSelectionItem item in Aspects) {
-                if (item.IsSelected) {
+            foreach (AspectSelectionItem item in Aspects){
+                if (item.IsSelected){
                     total += item.Aspect.FragmentSlots;
                     selected++;
                     if (selected >= 2) break;
@@ -332,7 +332,7 @@ namespace D2ArmorCalc_ViewModels {
         public Fragment[] GetSelectedFragments(){
             if (!_fragmentsEnabled) return [];
             List<Fragment> selected = [];
-            foreach (FragmentSelectionItem item in Fragments) {
+            foreach (FragmentSelectionItem item in Fragments){
                 if (item.IsSelected) selected.Add(item.Fragment);
             }
             return [.. selected];

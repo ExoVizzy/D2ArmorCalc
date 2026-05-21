@@ -37,14 +37,14 @@ namespace D2ArmorCalc_ViewModels {
             get => _selectedSlot;
             set {_selectedSlot = value; OnPropertyChanged(nameof(SelectedSlot));}
         }
-        public ObservableCollection<string> ArchetypeOptions { get; } = new(
+        public ObservableCollection<string> ArchetypeOptions {get;} = new(
             new[]{"Brawler", "Gunner", "Specialist", "Grenadier", "Paragon", "Bulwark"}
         );
 
         private string _selectedArchetype = "Gunner";
         public string SelectedArchetype {
             get => _selectedArchetype;
-            set { _selectedArchetype = value; OnPropertyChanged(nameof(SelectedArchetype)); }
+            set {_selectedArchetype = value; OnPropertyChanged(nameof(SelectedArchetype));}
         }
         //Custom roll toggle.
         private bool _customRollEnabled;
@@ -137,14 +137,14 @@ namespace D2ArmorCalc_ViewModels {
         Parameters    : None.
         Return Values : ArmorPiece : Configured exotic armor piece.
         */
-        public ArmorPiece BuildExoticPiece() {
+        public ArmorPiece BuildExoticPiece(){
             ArmorSlot slot = GetArmorSlot();
             ArmorPiece piece = new(slot, ArmorRarity.Exotic);
             Archetype archetype = Archetypes.All.FirstOrDefault(a => a.Type.ToString() == _selectedArchetype) ?? Archetypes.Gunner;
 
             piece.Archetype = archetype;
 
-            if (_customRollEnabled) {
+            if (_customRollEnabled){
                 piece.CustomStatBlock = new StatBlock(
                     _customHealth, _customMelee, _customGrenade,
                     _customSuper, _customClass, _customWeapons

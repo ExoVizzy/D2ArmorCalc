@@ -33,13 +33,13 @@ namespace D2ArmorCalc_Algorithm {
         Parameters    : None.
         Return Values : StatBlock : Base stats for this candidate piece.
         */
-        private StatBlock CalculateBaseStats() {
+        private StatBlock CalculateBaseStats(){
             Archetype archetype = Archetypes.All[(int)Archetype];
             StatBlock stats = new();
             Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade,
                                Stat.Super, Stat.Class, Stat.Weapons];
 
-            foreach (Stat stat in allStats) {
+            foreach (Stat stat in allStats){
                 if (stat == archetype.Primary) stats.Set(stat, 30);
                 else if (stat == archetype.Secondary) stats.Set(stat, 25);
                 else if (stat == Tertiary) stats.Set(stat, 20);
@@ -62,11 +62,11 @@ namespace D2ArmorCalc_Algorithm {
         Parameters    : StatBlock mins  : Minimum stat targets.
         Return Values : List<Archetype> : Valid archetypes for consideration.
         */
-        public static List<Archetype> GetValidArchetypes(StatBlock mins) {
+        public static List<Archetype> GetValidArchetypes(StatBlock mins){
             List<Archetype> primaryMatches = [];
             List<Archetype> secondaryMatches = [];
 
-            foreach (Archetype archetype in Archetypes.All) {
+            foreach (Archetype archetype in Archetypes.All){
                 if (mins.Get(archetype.Primary) > 0) primaryMatches.Add(archetype);
                 else if (mins.Get(archetype.Secondary) > 0) secondaryMatches.Add(archetype);
             }
@@ -87,21 +87,21 @@ namespace D2ArmorCalc_Algorithm {
                       : Stat leastWanted    : Stat to avoid if possible (used for focus -5).
         Return Values : List<Stat>          : Valid tertiary stats for consideration.
         */
-        public static List<Stat> GetValidTertiaryStats(Archetype archetype, StatBlock mins, Stat leastWanted) {
+        public static List<Stat> GetValidTertiaryStats(Archetype archetype, StatBlock mins, Stat leastWanted){
             Stat[] all = Archetypes.GetTertiaryStats(archetype);
             Stat[] order = [Stat.Health, Stat.Melee, Stat.Grenade,
-                            Stat.Super,  Stat.Class,  Stat.Weapons];
+                            Stat.Super, Stat.Class, Stat.Weapons];
 
             List<Stat> valid = [];
 
             //First try stats with non-zero minimums.
-            foreach (Stat stat in all) {
+            foreach (Stat stat in all){
                 if (mins.Get(stat) > 0) valid.Add(stat);
             }
             if (valid.Count > 0) return valid;
 
             //Fall back. pick first valid tertiary top-down, skipping least wanted.
-            foreach (Stat stat in order) {
+            foreach (Stat stat in order){
                 if (!all.Contains(stat))   continue;
                 if (stat == leastWanted)   continue;
                 return [stat];
@@ -136,7 +136,7 @@ namespace D2ArmorCalc_Algorithm {
                         Stat      focusMinus : Least wanted stat (always used for -5).
         Return Values : List<ArmorCandidate> : All valid candidates for one piece.
         */
-        public static List<ArmorCandidate> GenerateCandidates(StatBlock mins, Stat focusMinus) {
+        public static List<ArmorCandidate> GenerateCandidates(StatBlock mins, Stat focusMinus){
             List<ArmorCandidate> candidates = [];
             List<Archetype> validArchetypes = GetValidArchetypes(mins);
             List<Stat> validFocusStats = GetValidFocusStats(mins);
@@ -144,9 +144,9 @@ namespace D2ArmorCalc_Algorithm {
             //Max stat boost from 4 major mods = +40 total.
             const int MaxModBoost = 40;
 
-            foreach (Archetype archetype in validArchetypes) {
+            foreach (Archetype archetype in validArchetypes){
                 List<Stat> validTertiaries = GetValidTertiaryStats(archetype, mins, focusMinus);
-                foreach (Stat tertiary in validTertiaries) {
+                foreach (Stat tertiary in validTertiaries){
                     //Check if mods alone can cover all deficits for this archetype+tertiary.
                     StatBlock baseForCheck = new();
                     baseForCheck.Set(archetype.Primary, 30);
@@ -159,8 +159,8 @@ namespace D2ArmorCalc_Algorithm {
                     candidates.Add(new ArmorCandidate(archetype.Type, tertiary, focusMinus, focusMinus));
 
                     //Only add focus candidates if mods alone can't cover deficit.
-                    if (!modsCanCover) {
-                        foreach (Stat focusStat in validFocusStats) {
+                    if (!modsCanCover){
+                        foreach (Stat focusStat in validFocusStats){
                             if (focusStat == focusMinus) continue;
                             candidates.Add(new ArmorCandidate(archetype.Type, tertiary, focusStat, focusMinus));
                         }
@@ -188,6 +188,28 @@ namespace D2ArmorCalc_Algorithm {
                         }
 
             return combinations;
+        }
+        /*
+        Method        : GenerateCandidatesNoFocus
+        Description   : Generates candidates without any focus stat variation.
+                        Used when custom tuning is enabled so algorithm
+                        doesn't search focus combinations.
+        Parameters    : StatBlock mins       : Minimum stat targets.
+                        Stat      focusMinus : Least wanted stat.
+        Return Values : List<ArmorCandidate> : Candidates with no focus applied.
+        */
+        public static List<ArmorCandidate> GenerateCandidatesNoFocus(StatBlock mins, Stat focusMinus) {
+            List<ArmorCandidate> candidates = [];
+            List<Archetype> validArchetypes = GetValidArchetypes(mins);
+
+            foreach (Archetype archetype in validArchetypes) {
+                List<Stat> validTertiaries = GetValidTertiaryStats(archetype, mins, focusMinus);
+                foreach (Stat tertiary in validTertiaries) {
+                    //Only add no-focus candidate (focusStat == focusMinus = net zero).
+                    candidates.Add(new ArmorCandidate(archetype.Type, tertiary, focusMinus, focusMinus));
+                }
+            }
+            return candidates;
         }
     }
 }

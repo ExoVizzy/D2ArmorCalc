@@ -12,22 +12,22 @@ namespace D2ArmorCalc_Models {
         Warlock, Titan, Hunter
     }
     //Represents aspect & how many fragment slots it provides.
-    public class Aspect(string name, int fragmentSlots) {
-        public string Name { get; } = name;
-        public int FragmentSlots { get; } = fragmentSlots;
+    public class Aspect(string name, int fragmentSlots){
+        public string Name {get;} = name;
+        public int FragmentSlots {get;} = fragmentSlots;
     }
     //Holds all subclass data for specific class + subclass combination.
     public class Subclass(string name, PlayerClass playerClass, Fragment[] fragments,
             Aspect[] aspects, string[] supers, string[] melees,
-            string[] grenades, string[] classAbilities, string[] jumps) {
-        public string Name { get; } = name;
-        public PlayerClass Class { get; } = playerClass;
-        public Fragment[] Fragments { get; } = fragments;
-        public Aspect[] Aspects { get; } = aspects;
-        public string[] Supers { get; } = supers;
-        public string[] Melees { get; } = melees;
-        public string[] Grenades { get; } = grenades;
-        public string[] ClassAbilities { get; } = classAbilities;
-        public string[] Jumps { get; } = jumps;
+            string[] grenades, string[] classAbilities, string[] jumps){
+        public string Name {get;} = name;
+        public PlayerClass Class {get;} = playerClass;
+        public Fragment[] Fragments {get;} = fragments;
+        public Aspect[] Aspects {get;} = aspects;
+        public string[] Supers {get;} = supers;
+        public string[] Melees {get;} = melees;
+        public string[] Grenades {get;} = grenades;
+        public string[] ClassAbilities {get;} = classAbilities;
+        public string[] Jumps {get;} = jumps;
     }
 }

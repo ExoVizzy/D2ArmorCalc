@@ -9,7 +9,7 @@
 */
 namespace D2ArmorCalc_Models {
     //Represents general slot armor mod locked to specific armor slot.
-    public class ArmorMod(string name, int energyCost, ArmorSlot slot) : Mod(name, energyCost) {
-        public ArmorSlot Slot { get; } = slot;
+    public class ArmorMod(string name, int energyCost, ArmorSlot slot) : Mod(name, energyCost){
+        public ArmorSlot Slot {get;} = slot;
     }
 }

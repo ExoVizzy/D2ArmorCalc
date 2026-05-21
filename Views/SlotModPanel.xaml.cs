@@ -8,7 +8,7 @@
 */
 namespace D2ArmorCalc {
     public partial class SlotModPanel : System.Windows.Controls.UserControl {
-        public SlotModPanel() {
+        public SlotModPanel(){
             InitializeComponent();
         }
     }

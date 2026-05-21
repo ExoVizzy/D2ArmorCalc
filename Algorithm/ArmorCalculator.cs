@@ -21,12 +21,13 @@ namespace D2ArmorCalc_Algorithm {
         public Fragment[] Fragments {get; set;} = [];
         public Stat LeastWantedStat {get; set;}
         public bool FontsEnabled {get; set;}
-        public Dictionary<ArmorSlot, int> FontCounts {get; set;} = [];
         public bool FontsInStats {get; set;}
         public bool ArmorModsEnabled {get; set;}
-        public bool MajorMods {get; set;} = true;
-        public int MinorModCount {get; set;} //Used when ArmorModsEnabled is false.
-        public Dictionary<int, (Stat FocusStat, Stat FocusMinus)>? CustomTuning { get; set; }
+        public int MinorModCount {get; set;} = 0; //0 = all major, 1-5 = N minor rest major.
+        public Dictionary<ArmorSlot, int> AdvancedModEnergy {get; set;} = [];
+        public Dictionary<ArmorSlot, int> FontCounts {get; set;} = [];
+        public Dictionary<int, (Stat FocusStat, Stat FocusMinus)>? CustomTuning {get; set;}
+        public Dictionary<Stat, int> PerStatFontCounts {get; set;} = [];
     }
     public static class ArmorCalculator {
         /*
@@ -38,42 +39,58 @@ namespace D2ArmorCalc_Algorithm {
         Return Values : BuildResult     : Best result found, or failed result
                                           if no valid combination exists.
         */
-        public static BuildResult Calculate(CalcInput input) {
+        public static BuildResult Calculate(CalcInput input){
+            //Step 1: Build all user-controlled bonus StatBlock upfront.
             StatBlock fragmentStats = new StatBlock().ApplyFragments(input.Fragments);
             StatBlock adjustedMins = SubtractStats(input.Mins, fragmentStats);
             StatBlock adjustedMaxs = SubtractStats(input.Maxs, fragmentStats);
+            //Subtract font bonuses if FontsInStats is enabled.
+            if (input.FontsInStats && input.FontsEnabled){
+                StatBlock fontBonus = BuildFontStatBlock(input.PerStatFontCounts);
+                adjustedMins = SubtractStats(adjustedMins, fontBonus);
+                adjustedMaxs = SubtractStats(adjustedMaxs, fontBonus);
+            }
+            //Subtract custom tuning bonuses. algorithm doesn't need to fill what tuning provides.
+            if (input.CustomTuning != null){
+                foreach ((Stat FocusStat, Stat FocusMinus) tuning in input.CustomTuning.Values){
+                    // +5 to focus stat means armor needs 5 less of that stat.
+                    adjustedMins.Set(tuning.FocusStat, Math.Max(0, adjustedMins.Get(tuning.FocusStat) - 5));
+                    //-5 from focus minus means that stat effectively loses 5.
+                    //don't subtract from mins for the minus stat. it's a penalty not a bonus.
+                }
+            }
 
             //Generate legendary candidates as before.
-            List<ArmorCandidate> candidates = ComboGenerator.GenerateCandidates(adjustedMins, input.LeastWantedStat);
+            List<ArmorCandidate> candidates = input.CustomTuning != null
+                    ? ComboGenerator.GenerateCandidatesNoFocus(adjustedMins, input.LeastWantedStat)
+                    : ComboGenerator.GenerateCandidates(adjustedMins, input.LeastWantedStat);
 
             //Generate exotic candidates separately.
             List<ArmorCandidate> exoticCandidates;
-            if (input.Exotic.IsCustomRoll && input.Exotic.CustomStatBlock != null) {
-                //Custom roll — exotic stats are fixed, no need to iterate.
-                exoticCandidates = null;
-            } else {
-                //Try all valid archetypes for the exotic slot.
-                exoticCandidates = ComboGenerator.GenerateCandidates(adjustedMins, input.LeastWantedStat);
-            }
+            if (input.Exotic.IsCustomRoll && input.Exotic.CustomStatBlock != null) exoticCandidates = null;
+            else if (input.CustomTuning != null) exoticCandidates = ComboGenerator.GenerateCandidatesNoFocus(adjustedMins, input.LeastWantedStat);
+            else exoticCandidates = ComboGenerator.GenerateCandidates(adjustedMins, input.LeastWantedStat);
 
             List<ArmorCandidate[]> combinations = ComboGenerator.GenerateAllCombinations(candidates);
             ConcurrentBag<(ArmorCandidate[] combo, ArmorCandidate? exoticCandidate, ResolvedResult result)> validResults = [];
 
-            foreach (ArmorCandidate[] combo in combinations) {
-                if (exoticCandidates == null) {
-                    //Custom exotic — use as-is.
+            foreach (ArmorCandidate[] combo in combinations){
+                if (exoticCandidates == null){
+                    //Custom exotic. use as-is.
                     ResolvedResult resolved = StatResolver.Resolve(combo, input.Exotic, input.Mins, input.Maxs,
-                        adjustedMins, adjustedMaxs, input.Fragments, input.LeastWantedStat,
-                        input.FontsEnabled, input.FontCounts, input.MajorMods, input.CustomTuning);
+                                              adjustedMins, adjustedMaxs, input.Fragments, input.LeastWantedStat,
+                                              input.FontsEnabled, input.FontCounts, input.AdvancedModEnergy,
+                                              input.MinorModCount, input.CustomTuning);
                     if (resolved.MeetsMinimums) validResults.Add((combo, null, resolved));
                 } else {
                     //Try each exotic candidate.
-                    foreach (ArmorCandidate exoticCandidate in exoticCandidates) {
+                    foreach (ArmorCandidate exoticCandidate in exoticCandidates){
                         //Build temporary exotic piece from candidate.
                         ArmorPiece exoticPiece = BuildExoticFromCandidate(exoticCandidate, input.Exotic.Slot);
                         ResolvedResult resolved = StatResolver.Resolve(combo, exoticPiece, input.Mins, input.Maxs,
                             adjustedMins, adjustedMaxs, input.Fragments, input.LeastWantedStat,
-                            input.FontsEnabled, input.FontCounts, input.MajorMods, input.CustomTuning);
+                            input.FontsEnabled, input.FontCounts, input.AdvancedModEnergy,
+                            input.MinorModCount, input.CustomTuning);
                         if (resolved.MeetsMinimums)
                             validResults.Add((combo, exoticCandidate, resolved));
                     }
@@ -83,13 +100,13 @@ namespace D2ArmorCalc_Algorithm {
         }
         /*
         Method        : BuildExoticFromCandidate
-        Description   : Builds a temporary ArmorPiece for the exotic from an
+        Description   : Builds temporary ArmorPiece for exotic from
                         ArmorCandidate, using exotic stat values (30/20/12).
-        Parameters    : ArmorCandidate candidate : The candidate to build from.
-                        ArmorSlot      slot      : The exotic armor slot.
-        Return Values : ArmorPiece               : The exotic piece.
+        Parameters    : ArmorCandidate candidate : Candidate to build from.
+                        ArmorSlot      slot      : Exotic armor slot.
+        Return Values : ArmorPiece               : Exotic piece.
         */
-        private static ArmorPiece BuildExoticFromCandidate(ArmorCandidate candidate, ArmorSlot slot) {
+        private static ArmorPiece BuildExoticFromCandidate(ArmorCandidate candidate, ArmorSlot slot){
             Archetype archetype = Archetypes.All[(int)candidate.Archetype];
             ArmorPiece piece = new(slot, ArmorRarity.Exotic){
                 Archetype = archetype, TertiaryStat = candidate.Tertiary
@@ -109,9 +126,9 @@ namespace D2ArmorCalc_Algorithm {
         Return Values : BuildResult         : Best build result.
         */
         private static BuildResult BuildBestResult(ConcurrentBag<(ArmorCandidate[] combo, ArmorCandidate? exoticCandidate, 
-            ResolvedResult result)> results, CalcInput input, StatBlock adjMins, StatBlock adjMaxs) {
+            ResolvedResult result)> results, CalcInput input, StatBlock adjMins, StatBlock adjMaxs){
 
-            if (results.IsEmpty) {
+            if (results.IsEmpty){
                 return new BuildResult {
                     Status = BuildStatus.MinsFailed,
                     Fragments = input.Fragments
@@ -122,8 +139,8 @@ namespace D2ArmorCalc_Algorithm {
             ArmorCandidate? bestExoticCandidate = null;
             ResolvedResult bestResult = null;
 
-            foreach (var (combo, exoticCandidate, result) in results) {
-                if (bestResult == null || result.Score > bestResult.Score) {
+            foreach (var (combo, exoticCandidate, result) in results){
+                if (bestResult == null || result.Score > bestResult.Score){
                     bestCombo = combo;
                     bestExoticCandidate = exoticCandidate;
                     bestResult = result;
@@ -134,17 +151,17 @@ namespace D2ArmorCalc_Algorithm {
 
             //Determine which slot exotic is NOT occupying.
             List<ArmorSlot> legendarySlots = [];
-            foreach (ArmorSlot slot in slots) {
+            foreach (ArmorSlot slot in slots){
                 if (slot != input.Exotic.Slot) legendarySlots.Add(slot);
             }
             legendarySlots.Add(ArmorSlot.ClassItem);
 
             //Build ArmorPiece objects from legendary candidates.
             ArmorPiece[] pieces = new ArmorPiece[4];
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 4; i++){
                 ArmorCandidate candidate = bestCombo[i];
                 Archetype archetype = Archetypes.All[(int)candidate.Archetype];
-                pieces[i] = new ArmorPiece(legendarySlots[i], ArmorRarity.Legendary) {
+                pieces[i] = new ArmorPiece(legendarySlots[i], ArmorRarity.Legendary){
                     Archetype = archetype, TertiaryStat = candidate.Tertiary,
                     FocusStat = candidate.FocusStat, FocusMinus = candidate.FocusMinus
                 };
@@ -153,16 +170,16 @@ namespace D2ArmorCalc_Algorithm {
             ArmorPiece exotic = bestExoticCandidate != null ? BuildExoticFromCandidate(bestExoticCandidate, input.Exotic.Slot) : input.Exotic;
 
             //Apply custom tuning if enabled.
-            if (input.CustomTuning != null) {
-                for (int i = 0; i < pieces.Length; i++) {
-                    if (input.CustomTuning.TryGetValue(i, out var tuning)) {
+            if (input.CustomTuning != null){
+                for (int i = 0; i < pieces.Length; i++){
+                    if (input.CustomTuning.TryGetValue(i, out (Stat FocusStat, Stat FocusMinus) tuning)){
                         pieces[i].FocusStat  = tuning.FocusStat;
                         pieces[i].FocusMinus = tuning.FocusMinus;
                     }
                 }
             }
-            //Assign stat mods to pieces based on algorithm decisions.
-            AssignStatMods(pieces, exotic, input.Mins, input.LeastWantedStat, input.MajorMods, input.CustomTuning);
+            AssignStatMods(pieces, exotic, adjMins, input.LeastWantedStat,
+               input.MinorModCount, input.FontCounts, input.AdvancedModEnergy);
 
             //Build final result.
             BuildResult buildResult = new(){
@@ -182,7 +199,7 @@ namespace D2ArmorCalc_Algorithm {
                 }
             }
             //Place exotic in its slot.
-            switch (exotic.Slot) {
+            switch (exotic.Slot){
                 case ArmorSlot.Helmet: buildResult.Helmet = exotic; break;
                 case ArmorSlot.Arms: buildResult.Arms = exotic; break;
                 case ArmorSlot.Chestplate: buildResult.Chestplate = exotic; break;
@@ -200,17 +217,11 @@ namespace D2ArmorCalc_Algorithm {
         Parameters    : Dictionary<ArmorSlot, int> fontCounts : Font counts per slot.
         Return Values : StatBlock                             : Total font bonuses.
         */
-        private static StatBlock BuildFontStatBlock(Dictionary<ArmorSlot, int> fontCounts) {
-            var stats = new StatBlock();
-            var allFonts = new[]{
-                (Stat.Super, ArmorSlot.Helmet), (Stat.Grenade, ArmorSlot.Arms),
-                (Stat.Melee, ArmorSlot.Arms), (Stat.Health, ArmorSlot.Chestplate),
-                (Stat.Weapons, ArmorSlot.Boots), (Stat.Class, ArmorSlot.ClassItem)
-            };
-
-            foreach (var (stat, slot) in allFonts) {
-                if (fontCounts.TryGetValue(slot, out int count))
-                    stats.Set(stat, stats.Get(stat) + Fonts.GetTotalBonus(count));
+        private static StatBlock BuildFontStatBlock(Dictionary<Stat, int> perStatFontCounts){
+            StatBlock stats = new();
+            Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade, Stat.Super, Stat.Class, Stat.Weapons];
+            foreach (Stat stat in allStats){
+                if (perStatFontCounts.TryGetValue(stat, out int count)) stats.Set(stat, Fonts.GetTotalBonus(count));
             }
             return stats;
         }
@@ -253,44 +264,76 @@ namespace D2ArmorCalc_Algorithm {
         }
         /*
         Method        : AssignStatMods
-        Description   : Re-runs mod assignment logic and stores the chosen StatMod
-                        on each ArmorPiece for display in the results panel.
-        Parameters    : ArmorPiece[] pieces       : The 4 legendary pieces.
-                      : ArmorPiece   exotic       : The exotic piece.
-                      : StatBlock    mins         : Minimum stat targets.
-                      : Stat         leastWanted  : Stat to avoid modding.
-                      : bool         majorMods    : True = major, false = minor.
-                      : Dictionary?  customTuning : Custom tuning values for each piece.
+        Description   : Re-runs mod assignment logic & stores chosen StatMod
+                        on each ArmorPiece for display in results panel.
+        Parameters    : ArmorPiece[] pieces        : The 4 legendary pieces.
+                      : ArmorPiece   exotic        : The exotic piece.
+                      : StatBlock    mins          : Minimum stat targets.
+                      : Stat         leastWanted   : Stat to avoid modding.
+                      : int          minorModCount : Number of minor mods to apply.
+                      : Dictionary?  customTuning  : Custom tuning values for each piece.
         Return Values : void
         */
         private static void AssignStatMods(ArmorPiece[] pieces, ArmorPiece exotic,
-                                           StatBlock mins, Stat leastWanted, bool majorMods,
-                                           Dictionary<int, (Stat FocusStat, Stat FocusMinus)>? customTuning = null) {
-            ModType modType = majorMods ? ModType.Major : ModType.Minor;
+                                           StatBlock adjMins, Stat leastWanted, int minorModCount,
+                                           Dictionary<ArmorSlot, int> fontCounts,
+                                           Dictionary<ArmorSlot, int> advancedModEnergy) {
             Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade,
                                Stat.Super, Stat.Class, Stat.Weapons];
             List<ArmorPiece> allPieces = [..pieces, exotic];
 
-            //Build running total including custom tuning bonuses.
+            int minorsRemaining = minorModCount;
+            int majorsRemaining = 5 - minorModCount;
+
+            //Build running total from pure armor stats only. no focus/tuning
+            //Use ArmorCandidate base logic: primary=30, secondary=25, tertiary=20, rest=5
+            //Since pieces already have Archetype/TertiaryStat set, GetAllStats() includes
+            //focus from FocusStat/FocusMinus. We need to exclude that.
+            //Solution: rebuild stats without focus.
             StatBlock running = new();
-            foreach (ArmorPiece p in allPieces) running = running.Add(p.GetAllStats());
+            foreach (ArmorPiece p in allPieces) {
+                //Get stats without focus by temporarily zeroing focus effect.
+                Stat savedFocusStat = p.FocusStat;
+                Stat savedFocusMinus = p.FocusMinus;
+                //Set focus to same stat so net effect is zero.
+                p.FocusStat = p.FocusMinus;
+                running = running.Add(p.GetAllStats());
+                p.FocusStat = savedFocusStat;
+                p.FocusMinus = savedFocusMinus;
+            }
 
             foreach (ArmorPiece piece in allPieces) {
                 Stat bestStat = leastWanted;
                 int bestDeficit = 0;
 
                 foreach (Stat stat in allStats) {
-                    if (stat == leastWanted) continue;
-                    if (mins.Get(stat) == 0) continue;
-
-                    int deficit = StatHelper.GetDeficit(running.Get(stat), mins.Get(stat));
-                    if (deficit > bestDeficit) {
-                        bestDeficit = deficit;
-                        bestStat = stat;
-                    }
+                    if (stat == leastWanted)       continue;
+                    if (adjMins.Get(stat) == 0)    continue;
+                    int deficit = StatHelper.GetDeficit(running.Get(stat), adjMins.Get(stat));
+                    if (deficit > bestDeficit) { bestDeficit = deficit; bestStat = stat; }
                 }
 
                 if (bestStat != leastWanted && bestDeficit > 0) {
+                    int fontCount = fontCounts.TryGetValue(piece.Slot, out int fc) ? fc : 0;
+                    int advModEnergy = advancedModEnergy.TryGetValue(piece.Slot, out int ae) ? ae : 0;
+                    int remainingEnergy = EnergyHelper.GetRemainingGeneralEnergy(piece.Rarity, fontCount) - advModEnergy;
+                    bool majorFits = remainingEnergy >= EnergyHelper.MajorModEnergyCost;
+                    bool minorFits = remainingEnergy >= EnergyHelper.MinorModEnergyCost;
+
+                    if (!minorFits) continue;
+
+                    bool energyForced = !majorFits;
+                    ModType modType;
+
+                    if (!majorFits || majorsRemaining == 0) {
+                        if (!energyForced && minorsRemaining <= 0) continue;
+                        if (!energyForced) minorsRemaining--;
+                        modType = ModType.Minor;
+                    } else {
+                        modType = ModType.Major;
+                        majorsRemaining--;
+                    }
+
                     StatMod mod = Mods.GetMod(modType, bestStat);
                     piece.StatMod = mod;
                     running.Set(bestStat, running.Get(bestStat) + mod.Bonus);

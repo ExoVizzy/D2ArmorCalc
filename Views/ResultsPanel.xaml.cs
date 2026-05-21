@@ -8,7 +8,7 @@
 */
 namespace D2ArmorCalc {
     public partial class ResultsPanel : System.Windows.Controls.UserControl {
-        public ResultsPanel() {
+        public ResultsPanel(){
             InitializeComponent();
         }
     }

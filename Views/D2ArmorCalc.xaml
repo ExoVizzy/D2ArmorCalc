@@ -4,70 +4,39 @@
 *   PROGRAMMER    : ExoVizzy
 *   FIRST VERSION : May 17, 2026
 *   DESCRIPTION   : Main application window containing all input sections
-*                   and the results panel for the D2 Armor Calculator.
+*                   & the results panel for the D2 Armor Calculator.
 -->
-<Window x:Class="D2ArmorCalc.D2ArmorCalcWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:D2ArmorCalc"
-        xmlns:helpers="clr-namespace:D2ArmorCalc_Helpers"
-        xmlns:vm="clr-namespace:D2ArmorCalc_ViewModels"
-        Style="{StaticResource WindowStyle}"
-        Title="D2 Armor Calc"
-        Width="1200" Height="1000"
-        WindowStartupLocation="CenterScreen">
-
+<Window x:Class="D2ArmorCalc.D2ArmorCalcWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:D2ArmorCalc" xmlns:helpers="clr-namespace:D2ArmorCalc_Helpers" xmlns:vm="clr-namespace:D2ArmorCalc_ViewModels" Style="{StaticResource WindowStyle}" Title="D2 Armor Calc" Width="1200" Height="1000" WindowStartupLocation="CenterScreen">
     <Window.DataContext>
-        <vm:D2ArmorCalcViewModel />
+        <vm:D2ArmorCalcViewModel/>
     </Window.DataContext>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="52"  />
-            <!-- Top bar -->
-            <RowDefinition Height="*"   />
-            <!-- Main content -->
+            <RowDefinition Height="52"/> <!-- Top bar -->
+            <RowDefinition Height="*"/> <!-- Main content -->
         </Grid.RowDefinitions>
 
         <!-- =================================================================-->
         <!-- Top Bar                                                          -->
         <!-- =================================================================-->
-        <Border Grid.Row="0"
-                Background="{StaticResource SurfaceBrush}"
-                BorderBrush="{StaticResource BorderBrush}"
-                BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
             <Grid Margin="16,0,16,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*"    />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- App Title -->
-                <TextBlock Grid.Column="0"
-                           Text="D2 Armor Calc"
-                           Style="{StaticResource TitleText}"
-                           VerticalAlignment="Center" />
+                <TextBlock Grid.Column="0" Text="D2 Armor Calc" Style="{StaticResource TitleText}" VerticalAlignment="Center"/>
 
                 <!-- Top bar buttons -->
-                <StackPanel Grid.Column="2"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Center">
-                    <Button Style="{StaticResource SecondaryButton}"
-                            Content="Import"
-                            Command="{Binding ImportCommand}"
-                            Margin="0,0,8,0" />
-                    <Button Style="{StaticResource SecondaryButton}"
-                            Content="Export"
-                            Command="{Binding ExportCommand}"
-                            Margin="0,0,8,0" />
-                    <Button Style="{StaticResource SecondaryButton}"
-                            Content="Reset"
-                            Command="{Binding ResetCommand}"
-                            Margin="0,0,8,0" />
-                    <Button Style="{StaticResource SecondaryButton}"
-                            Content="About"
-                            Command="{Binding OpenAboutCommand}" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource SecondaryButton}" Content="Import" Command="{Binding ImportCommand}" Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource SecondaryButton}" Content="Export" Command="{Binding ExportCommand}" Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource SecondaryButton}" Content="Reset" Command="{Binding ResetCommand}" Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource SecondaryButton}" Content="About" Command="{Binding OpenAboutCommand}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -77,17 +46,15 @@
         <!-- =================================================================-->
         <Grid Grid.Row="1" Margin="16,12,16,12">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="650" />
-                <ColumnDefinition Width="12"  />
-                <ColumnDefinition Width="*"   />
+                <ColumnDefinition Width="650"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <!-- =============================================================-->
             <!-- Left Panel (Inputs)                                          -->
             <!-- =============================================================-->
-            <ScrollViewer Grid.Column="0"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Margin="0,0,8,0">
 
                     <!-- =====================================================-->
@@ -95,30 +62,22 @@
                     <!-- =====================================================-->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
-                            <TextBlock Text="Stat Targets" Style="{StaticResource SectionHeaderText}" />
+                            <TextBlock Text="Stat Targets" Style="{StaticResource SectionHeaderText}"/>
 
-                            <local:StatSliderControl DataContext="{Binding HealthSlider}" />
-                            <local:StatSliderControl DataContext="{Binding MeleeSlider}" />
-                            <local:StatSliderControl DataContext="{Binding GrenadeSlider}" />
-                            <local:StatSliderControl DataContext="{Binding SuperSlider}" />
-                            <local:StatSliderControl DataContext="{Binding ClassSlider}" />
-                            <local:StatSliderControl DataContext="{Binding WeaponsSlider}" />
+                            <local:StatSliderControl DataContext="{Binding HealthSlider}"/>
+                            <local:StatSliderControl DataContext="{Binding MeleeSlider}"/>
+                            <local:StatSliderControl DataContext="{Binding GrenadeSlider}"/>
+                            <local:StatSliderControl DataContext="{Binding SuperSlider}"/>
+                            <local:StatSliderControl DataContext="{Binding ClassSlider}"/>
+                            <local:StatSliderControl DataContext="{Binding WeaponsSlider}"/>
 
                             <!-- Calculate Button -->
                             <Grid Margin="0,12,0,0">
-                                <Button Style="{StaticResource PrimaryButton}"
-                                        Content="Calculate"
-                                        Command="{Binding CalculateCommand}"
-                                        IsEnabled="{Binding CanCalculate}"
-                                        HorizontalAlignment="Center"
-                                        MinWidth="120" />
+                                <Button Style="{StaticResource PrimaryButton}" Content="Calculate" Command="{Binding CalculateCommand}" IsEnabled="{Binding CanCalculate}" HorizontalAlignment="Center" MinWidth="120"/>
+                                
                                 <!-- Loading indicator -->
-                                <TextBlock Text="Calculating..."
-                                           Style="{StaticResource SecondaryText}"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Visibility="{Binding IsCalculating,
-                                               Converter={StaticResource BoolToVisibility}}" />
+                                <TextBlock Text="Calculating..." Style="{StaticResource SecondaryText}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsCalculating,
+                                               Converter={StaticResource BoolToVisibility}}"/>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -128,76 +87,41 @@
                     <!-- =====================================================-->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
+                            
                             <!-- Section header row -->
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*"    />
+                                    <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="1"
-                                           Text="Tuning"
-                                           Style="{StaticResource SectionHeaderText}"
-                                           HorizontalAlignment="Center"
-                                           Margin="0" />
-
-                                <CheckBox Grid.Column="2"
-                                          Style="{StaticResource ToggleCheckBox}"
-                                          IsChecked="{Binding CustomTuning}"
-                                          Content="Custom"
-                                          VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="Tuning" Style="{StaticResource SectionHeaderText}" HorizontalAlignment="Center" Margin="0" />
+                                <CheckBox Grid.Column="2" Style="{StaticResource ToggleCheckBox}" IsChecked="{Binding CustomTuning}" Content="Custom" VerticalAlignment="Center"/>
                             </Grid>
 
                             <!-- Least Wanted Stat (always visible) -->
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="0,0,0,8"
-                                        VerticalAlignment="Center">
-                                <TextBlock Text="Least Wanted Stat:"
-                                           Style="{StaticResource BodyText}"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,10,0" />
-                                <ComboBox Style="{StaticResource DarkComboBox}"
-                                          ItemsSource="{Binding StatOptions}"
-                                          SelectedItem="{Binding LeastWantedStat}"
-                                          Width="120" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8" VerticalAlignment="Center">
+                                <TextBlock Text="Least Wanted Stat:" Style="{StaticResource BodyText}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <ComboBox Style="{StaticResource DarkComboBox}" ItemsSource="{Binding StatOptions}" SelectedItem="{Binding LeastWantedStat}" Width="120"/>
                             </StackPanel>
 
                             <!-- Custom Focus per slot (expanded when CustomTuning is on) -->
-                            <StackPanel Visibility="{Binding CustomTuning,
-                                        Converter={StaticResource BoolToVisibility}}">
-                                <TextBlock Text="Focus per Slot (+5 / -5)"
-                                           Style="{StaticResource SecondaryText}"
-                                           Margin="0,4,0,8" />
+                            <StackPanel Visibility="{Binding CustomTuning, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="Focus per Slot (+5 / -5)" Style="{StaticResource SecondaryText}" Margin="0,4,0,8"/>
                                 <ItemsControl ItemsSource="{Binding TuningSlots}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Margin="0,3,0,3">
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="80"  />
-                                                    <ColumnDefinition Width="*"   />
-                                                    <ColumnDefinition Width="16"  />
-                                                    <ColumnDefinition Width="*"   />
+                                                    <ColumnDefinition Width="80"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="16"/>
+                                                    <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0"
-                                                           Text="{Binding SlotLabel}"
-                                                           Style="{StaticResource SecondaryText}"
-                                                           VerticalAlignment="Center" />
-                                                <ComboBox Grid.Column="1"
-                                                          Style="{StaticResource DarkComboBox}"
-                                                          ItemsSource="{Binding StatOptions}"
-                                                          SelectedItem="{Binding FocusStat}"
-                                                          ToolTip="+5 focus stat" />
-                                                <TextBlock Grid.Column="2"
-                                                           Text="/"
-                                                           Style="{StaticResource SecondaryText}"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center" />
-                                                <ComboBox Grid.Column="3"
-                                                          Style="{StaticResource DarkComboBox}"
-                                                          ItemsSource="{Binding StatOptions}"
-                                                          SelectedItem="{Binding FocusMinus}"
-                                                          ToolTip="-5 focus stat" />
+                                                <TextBlock Grid.Column="0" Text="{Binding SlotLabel}" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
+                                                <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding StatOptions}" SelectedItem="{Binding FocusStat}" ToolTip="+5 focus stat"/>
+                                                <TextBlock Grid.Column="2" Text="/" Style="{StaticResource SecondaryText}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                <ComboBox Grid.Column="3" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding StatOptions}" SelectedItem="{Binding FocusMinus}" ToolTip="-5 focus stat"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -211,71 +135,41 @@
                     <!-- =====================================================-->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
+                            
                             <!-- Section header row -->
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*"    />
-                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <CheckBox Grid.Column="0"
-                                          Style="{StaticResource ToggleCheckBox}"
-                                          IsChecked="{Binding FontsEnabled}"
-                                          Content="Enabled"
-                                          VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="1"
-                                           Text="Fonts"
-                                           Style="{StaticResource SectionHeaderText}"
-                                           HorizontalAlignment="Center"
-                                           Margin="0" />
-                                <CheckBox Grid.Column="2"
-                                          Style="{StaticResource ToggleCheckBox}"
-                                          IsChecked="{Binding FontsInStats}"
-                                          IsEnabled="{Binding FontsEnabled}"
-                                          Content="In Stats"
-                                          VerticalAlignment="Center" />
+                                <CheckBox Grid.Column="0" Style="{StaticResource ToggleCheckBox}" IsChecked="{Binding FontsEnabled}" Content="Enabled" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Fonts" Style="{StaticResource SectionHeaderText}" HorizontalAlignment="Center" Margin="0"/>
+                                <CheckBox Grid.Column="2" Style="{StaticResource ToggleCheckBox}" IsChecked="{Binding FontsInStats}" IsEnabled="{Binding FontsEnabled}" Content="Include In Calculation" VerticalAlignment="Center"/>
                             </Grid>
 
                             <!-- Collapsible content — only shown when fonts enabled -->
                             <StackPanel Visibility="{Binding FontsEnabled, Converter={StaticResource BoolToVisibility}}">
-                                <TextBlock Text="Fonts per stat:"
-                                           Style="{StaticResource SecondaryText}"
-                                           Margin="0,0,0,8" />
+                                <TextBlock Text="Fonts per stat:" Style="{StaticResource SecondaryText}" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding FontStats}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Margin="0,3,0,3">
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="80"  />
-                                                    <ColumnDefinition Width="60"  />
-                                                    <ColumnDefinition Width="*"   />
+                                                    <ColumnDefinition Width="80"/>
+                                                    <ColumnDefinition Width="60"/>
+                                                    <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0"
-                                                           Text="{Binding StatLabel}"
-                                                           Style="{StaticResource SecondaryText}"
-                                                           VerticalAlignment="Center" />
-                                                                            <TextBlock Grid.Column="1"
-                                                           Text="{Binding SlotLabel, Mode=OneWay}"
-                                                           Style="{StaticResource SecondaryText}"
-                                                           VerticalAlignment="Center"
-                                                           Opacity="0.5" />
-                                                <Slider Grid.Column="2"
-                                                        Minimum="0" Maximum="3"
-                                                        Value="{Binding FontCount}"
-                                                        IsSnapToTickEnabled="True"
-                                                        TickFrequency="1"
-                                                        VerticalAlignment="Center" />
-                                                <TextBlock Grid.Column="3"
-                                                           Style="{StaticResource BodyText}"
-                                                           VerticalAlignment="Center"
-                                                           Margin="8,0,0,0">
-                                                    <Run Text="×" />
-                                                    <Run Text="{Binding FontCount, Mode=OneWay}" />
-                                                    <Run Text=" (" />
-                                                    <Run Text="{Binding BonusLabel, Mode=OneWay}"
-                                                         Foreground="{StaticResource SuccessBrush}" />
-                                                    <Run Text=")" />
+                                                <TextBlock Grid.Column="0" Text="{Binding StatLabel}" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding SlotLabel, Mode=OneWay}" Style="{StaticResource SecondaryText}" VerticalAlignment="Center" Opacity="0.5"/>
+                                                <Slider Grid.Column="2" Minimum="0" Maximum="3" Value="{Binding FontCount}" IsSnapToTickEnabled="True" TickFrequency="1" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="3" Style="{StaticResource BodyText}" VerticalAlignment="Center" Margin="8,0,0,0">
+                                                    <Run Text="×"/>
+                                                    <Run Text="{Binding FontCount, Mode=OneWay}"/>
+                                                    <Run Text=" ("/>
+                                                    <Run Text="{Binding BonusLabel, Mode=OneWay}" Foreground="{StaticResource SuccessBrush}"/>
+                                                    <Run Text=")"/>
                                                 </TextBlock>
                                             </Grid>
                                         </DataTemplate>
@@ -284,9 +178,7 @@
                             </StackPanel>
 
                             <!-- Info text shown when fonts off -->
-                            <TextBlock Style="{StaticResource SecondaryText}"
-                                       TextWrapping="Wrap"
-                                       Visibility="{Binding FontsEnabled, Converter={StaticResource InverseBoolToVisibility}}">
+                            <TextBlock Style="{StaticResource SecondaryText}" TextWrapping="Wrap" Visibility="{Binding FontsEnabled, Converter={StaticResource InverseBoolToVisibility}}">
                                 Fonts excluded from calculation. Font bonuses will be shown in
                                 <Run Foreground="{StaticResource SuccessBrush}">green</Run> in results.
                             </TextBlock>
@@ -298,65 +190,43 @@
                     <!-- =====================================================-->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
+                            
                             <!-- Section header row -->
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*"    />
-                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="1"
-                                           Text="Stat Mods"
-                                           Style="{StaticResource SectionHeaderText}"
-                                           HorizontalAlignment="Center"
-                                           Margin="0" />
-
-                                <CheckBox Grid.Column="2"
-                                          Style="{StaticResource ToggleCheckBox}"
-                                          IsChecked="{Binding ArmorModsEnabled}"
-                                          Content="Advanced"
-                                          VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="Stat Mods" Style="{StaticResource SectionHeaderText}" HorizontalAlignment="Center" Margin="0"/>
+                                <CheckBox Grid.Column="2" Style="{StaticResource ToggleCheckBox}" IsChecked="{Binding ArmorModsEnabled}" Content="Advanced" VerticalAlignment="Center"/>
                             </Grid>
 
                             <!-- Simple mode: minor mod count slider -->
-                            <StackPanel Visibility="{Binding ModVM.IsSimpleMode,
-                                            Converter={StaticResource BoolToVisibility}}">
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <TextBlock Text="Minor Mods:"
-                                               Style="{StaticResource BodyText}"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,10,0" />
-                                    <Slider Minimum="0" Maximum="5"
-                                            Value="{Binding ModVM.MinorModCount}"
-                                            IsSnapToTickEnabled="True"
-                                            TickFrequency="1"
-                                            Width="140"
-                                            VerticalAlignment="Center" />
-                                    <TextBlock Style="{StaticResource BodyText}"
-                                               VerticalAlignment="Center"
-                                               Margin="8,0,0,0">
-                                        <Run Text="{Binding ModVM.MinorModCount, Mode=OneWay}" />
-                                        <Run Text="/ 5" Foreground="{StaticResource TextSecondaryBrush}" />
+                            <StackPanel Visibility="{Binding ModVM.IsSimpleMode, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Minor Mods:" Style="{StaticResource BodyText}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <Slider Minimum="0" Maximum="5" Value="{Binding ModVM.MinorModCount}" IsSnapToTickEnabled="True" TickFrequency="1" Width="140" VerticalAlignment="Center"/>
+                                    <TextBlock Style="{StaticResource BodyText}" VerticalAlignment="Center" Margin="8,0,0,0">
+                                        <Run Text="{Binding ModVM.MinorModCount, Mode=OneWay}"/>
+                                        <Run Text="/ 5" Foreground="{StaticResource TextSecondaryBrush}"/>
                                     </TextBlock>
                                 </StackPanel>
-                                <TextBlock Style="{StaticResource SecondaryText}"
-                                           Margin="0,6,0,0">
-                                    <Run Text="{Binding ModVM.MinorModCount, Mode=OneWay}" />
-                                    <Run Text="minor (+5) and" />
-                                    <Run Text="{Binding ModVM.MajorModCount, Mode=OneWay}" />
-                                    <Run Text="major (+10) stat mods." />
+                                <TextBlock Style="{StaticResource SecondaryText}" Margin="0,6,0,0">
+                                    <Run Text="{Binding ModVM.MinorModCount, Mode=OneWay}"/>
+                                    <Run Text="minor (+5) and"/>
+                                    <Run Text="{Binding ModVM.MajorModCount, Mode=OneWay}"/>
+                                    <Run Text="major (+10) stat mods."/>
                                 </TextBlock>
                             </StackPanel>
 
                             <!-- Advanced mode: per-slot mod selectors -->
                             <StackPanel Visibility="{Binding ArmorModsEnabled, Converter={StaticResource BoolToVisibility}}">
-                                <local:SlotModPanel DataContext="{Binding ModVM.HelmetMods}" /> <!-- Helmet -->
-                                <local:SlotModPanel DataContext="{Binding ModVM.ArmsMods}" /> <!-- Arms -->
-                                <local:SlotModPanel DataContext="{Binding ModVM.ChestplateMods}" /> <!-- Chestplate -->
-                                <local:SlotModPanel DataContext="{Binding ModVM.BootsMods}" /> <!-- Boots -->
-                                <local:SlotModPanel DataContext="{Binding ModVM.ClassItemMods}" /> <!-- Class Item -->
+                                <local:SlotModPanel DataContext="{Binding ModVM.HelmetMods}"/> <!-- Helmet -->
+                                <local:SlotModPanel DataContext="{Binding ModVM.ArmsMods}"/> <!-- Arms -->
+                                <local:SlotModPanel DataContext="{Binding ModVM.ChestplateMods}"/> <!-- Chestplate -->
+                                <local:SlotModPanel DataContext="{Binding ModVM.BootsMods}"/> <!-- Boots -->
+                                <local:SlotModPanel DataContext="{Binding ModVM.ClassItemMods}"/> <!-- Class Item -->
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -369,78 +239,48 @@
                             <!-- Section header row — always enabled -->
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*"    />
-                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <CheckBox Grid.Column="0"
-                                          Style="{StaticResource ToggleCheckBox}"
-                                          IsChecked="{Binding FragmentsEnabled}"
-                                          Content="Enabled"
-                                          VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="1"
-                                           Text="Fragments"
-                                           Style="{StaticResource SectionHeaderText}"
-                                           HorizontalAlignment="Center"
-                                           Margin="0" />
-                                <CheckBox Grid.Column="2"
-                                          Style="{StaticResource ToggleCheckBox}"
-                                          IsChecked="{Binding FragmentVM.ShowFullSubclass}"
-                                          IsEnabled="{Binding FragmentsEnabled}"
-                                          Content="Full Subclass"
-                                          VerticalAlignment="Center" />
+                                <CheckBox Grid.Column="0" Style="{StaticResource ToggleCheckBox}" IsChecked="{Binding FragmentsEnabled}" Content="Enabled" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Fragments" Style="{StaticResource SectionHeaderText}" HorizontalAlignment="Center" Margin="0"/>
+                                <CheckBox Grid.Column="2" Style="{StaticResource ToggleCheckBox}" IsChecked="{Binding FragmentVM.ShowFullSubclass}" IsEnabled="{Binding FragmentsEnabled}" Content="Full Subclass" VerticalAlignment="Center"/>
                             </Grid>
 
-                            <!-- Fragment content — greyed out when disabled -->
-                            <StackPanel IsEnabled="{Binding FragmentsEnabled}"
-                                        Opacity="{Binding FragmentsEnabled, Converter={StaticResource BoolToOpacityConverter}}">
+                            <!-- Fragment content — collapses when disabled -->
+                            <StackPanel Visibility="{Binding FragmentsEnabled, Converter={StaticResource BoolToVisibility}}">
 
-                                <!-- Subclass dropdown -->
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <TextBlock Text="Subclass:" Style="{StaticResource BodyText}"
-                                               VerticalAlignment="Center" Margin="0,0,10,0" />
-                                    <ComboBox Style="{StaticResource DarkComboBox}" ItemsSource="{Binding FragmentVM.SubclassOptions}"
-                                              SelectedItem="{Binding FragmentVM.SelectedSubclass}" Width="140" />
-                                    <TextBlock Style="{StaticResource SecondaryText}" VerticalAlignment="Center" Margin="12,0,0,0">
-                                        <Run Text="{Binding FragmentVM.SelectedFragmentCount, Mode=OneWay}" />
-                                        <Run Text="/" />
-                                        <Run Text="{Binding FragmentVM.MaxFragmentSlots, Mode=OneWay}" />
-                                        <Run Text="fragments" />
+                                <!-- Class + Subclass dropdowns -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Class:" Style="{StaticResource BodyText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding FragmentVM.ClassOptions}" SelectedItem="{Binding FragmentVM.SelectedClass}"/>
+                                    <TextBlock Grid.Column="2" Text="Subclass:" Style="{StaticResource BodyText}" VerticalAlignment="Center" Margin="12,0,8,0"/>
+                                    <ComboBox Grid.Column="3" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding FragmentVM.SubclassOptions}" SelectedItem="{Binding FragmentVM.SelectedSubclass}"/>
+                                    <TextBlock Grid.Column="4" Style="{StaticResource SecondaryText}" VerticalAlignment="Center" Margin="12,0,0,0">
+                                        <Run Text="{Binding FragmentVM.SelectedFragmentCount, Mode=OneWay}"/>
+                                        <Run Text="/"/>
+                                        <Run Text="{Binding FragmentVM.MaxFragmentSlots, Mode=OneWay}"/>
+                                        <Run Text="fragments"/>
                                     </TextBlock>
-                                </StackPanel>
-
-                                <!-- Class selector (full subclass mode only) -->
-                                <StackPanel Orientation="Horizontal"
-                                            Margin="0,0,0,10"
-                                            Visibility="{Binding FragmentVM.ShowFullSubclass,
-                                            Converter={StaticResource BoolToVisibility}}">
-                                    <TextBlock Text="Class:"
-                                               Style="{StaticResource BodyText}"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,10,0" />
-                                    <ComboBox Style="{StaticResource DarkComboBox}"
-                                              ItemsSource="{Binding FragmentVM.ClassOptions}"
-                                              SelectedItem="{Binding FragmentVM.SelectedClass}"
-                                              Width="120" />
-                                </StackPanel>
+                                </Grid>
 
                                 <!-- Stat-only fragments (default mode) -->
-                                <ItemsControl ItemsSource="{Binding FragmentVM.Fragments}"
-                                              Visibility="{Binding FragmentVM.ShowFullSubclass,
-                                              Converter={StaticResource InverseBoolToVisibility}}">
+                                <ItemsControl ItemsSource="{Binding FragmentVM.Fragments}" Visibility="{Binding FragmentVM.ShowFullSubclass, Converter={StaticResource InverseBoolToVisibility}}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <CheckBox Style="{StaticResource ToggleCheckBox}"
-                                                      IsChecked="{Binding IsSelected}"
-                                                      Margin="0,3,0,3">
+                                            <CheckBox Style="{StaticResource ToggleCheckBox}" IsChecked="{Binding IsSelected}" Margin="0,3,0,3">
                                                 <CheckBox.Content>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding Name}"
-                                                                   Style="{StaticResource BodyText}"
-                                                                   Margin="0,0,8,0" />
-                                                        <TextBlock Text="{Binding StatInfo}"
-                                                                   Style="{StaticResource SecondaryText}"
-                                                                   VerticalAlignment="Center" />
+                                                        <TextBlock Text="{Binding Name}" Style="{StaticResource BodyText}" Margin="0,0,8,0"/>
+                                                        <TextBlock Text="{Binding StatInfo}" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </CheckBox.Content>
                                             </CheckBox>
@@ -449,27 +289,18 @@
                                 </ItemsControl>
 
                                 <!-- Full subclass mode -->
-                                <StackPanel Visibility="{Binding FragmentVM.ShowFullSubclass,
-                                            Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel Visibility="{Binding FragmentVM.ShowFullSubclass, Converter={StaticResource BoolToVisibility}}">
 
                                     <!-- Aspects -->
-                                    <TextBlock Text="Aspects (select 2):"
-                                               Style="{StaticResource SecondaryText}"
-                                               Margin="0,0,0,6" />
+                                    <TextBlock Text="Aspects (select 2):" Style="{StaticResource SecondaryText}" Margin="0,0,0,6"/>
                                     <ItemsControl ItemsSource="{Binding FragmentVM.Aspects}" Margin="0,0,0,10">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <CheckBox Style="{StaticResource ToggleCheckBox}"
-                                                          IsChecked="{Binding IsSelected}"
-                                                          Margin="0,3,0,3">
+                                                <CheckBox Style="{StaticResource ToggleCheckBox}" IsChecked="{Binding IsSelected}" Margin="0,3,0,3">
                                                     <CheckBox.Content>
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="{Binding Name}"
-                                                                       Style="{StaticResource BodyText}"
-                                                                       Margin="0,0,8,0" />
-                                                            <TextBlock Text="{Binding FragmentSlots}"
-                                                                       Style="{StaticResource SecondaryText}"
-                                                                       VerticalAlignment="Center" />
+                                                            <TextBlock Text="{Binding Name}" Style="{StaticResource BodyText}" Margin="0,0,8,0"/>
+                                                            <TextBlock Text="{Binding FragmentSlots}" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                     </CheckBox.Content>
                                                 </CheckBox>
@@ -478,24 +309,15 @@
                                     </ItemsControl>
 
                                     <!-- All fragments -->
-                                    <TextBlock Text="Fragments:"
-                                               Style="{StaticResource SecondaryText}"
-                                               Margin="0,0,0,6" />
-                                    <ItemsControl ItemsSource="{Binding FragmentVM.Fragments}"
-                                                  Margin="0,0,0,10">
+                                    <TextBlock Text="Fragments:" Style="{StaticResource SecondaryText}" Margin="0,0,0,6"/>
+                                    <ItemsControl ItemsSource="{Binding FragmentVM.Fragments}" Margin="0,0,0,10">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <CheckBox Style="{StaticResource ToggleCheckBox}"
-                                                          IsChecked="{Binding IsSelected}"
-                                                          Margin="0,3,0,3">
+                                                <CheckBox Style="{StaticResource ToggleCheckBox}" IsChecked="{Binding IsSelected}" Margin="0,3,0,3">
                                                     <CheckBox.Content>
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="{Binding Name}"
-                                                                       Style="{StaticResource BodyText}"
-                                                                       Margin="0,0,8,0" />
-                                                            <TextBlock Text="{Binding StatInfo}"
-                                                                       Style="{StaticResource SecondaryText}"
-                                                                       VerticalAlignment="Center" />
+                                                            <TextBlock Text="{Binding Name}" Style="{StaticResource BodyText}" Margin="0,0,8,0"/>
+                                                            <TextBlock Text="{Binding StatInfo}" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                     </CheckBox.Content>
                                                 </CheckBox>
@@ -506,164 +328,104 @@
                                     <!-- Super -->
                                     <Grid Margin="0,4,0,4">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100" />
-                                            <ColumnDefinition Width="*"   />
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Super:"
-                                                   Style="{StaticResource SecondaryText}"
-                                                   VerticalAlignment="Center" />
-                                        <ComboBox Grid.Column="1"
-                                                  Style="{StaticResource DarkComboBox}"
-                                                  ItemsSource="{Binding FragmentVM.Supers}"
-                                                  SelectedItem="{Binding FragmentVM.SelectedSuper}" />
+                                        <TextBlock Grid.Column="0" Text="Super:" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
+                                        <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding FragmentVM.Supers}" SelectedItem="{Binding FragmentVM.SelectedSuper}"/>
                                     </Grid>
 
                                     <!-- Melee -->
                                     <Grid Margin="0,4,0,4">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100" />
-                                            <ColumnDefinition Width="*"   />
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Melee:"
-                                                   Style="{StaticResource SecondaryText}"
-                                                   VerticalAlignment="Center" />
-                                        <ComboBox Grid.Column="1"
-                                                  Style="{StaticResource DarkComboBox}"
-                                                  ItemsSource="{Binding FragmentVM.Melees}"
-                                                  SelectedItem="{Binding FragmentVM.SelectedMelee}" />
+                                        <TextBlock Grid.Column="0" Text="Melee:" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
+                                        <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding FragmentVM.Melees}" SelectedItem="{Binding FragmentVM.SelectedMelee}"/>
                                     </Grid>
 
                                     <!-- Grenade -->
                                     <Grid Margin="0,4,0,4">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100" />
-                                            <ColumnDefinition Width="*"   />
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Grenade:"
-                                                   Style="{StaticResource SecondaryText}"
-                                                   VerticalAlignment="Center" />
-                                        <ComboBox Grid.Column="1"
-                                                  Style="{StaticResource DarkComboBox}"
-                                                  ItemsSource="{Binding FragmentVM.Grenades}"
-                                                  SelectedItem="{Binding FragmentVM.SelectedGrenade}" />
+                                        <TextBlock Grid.Column="0" Text="Grenade:" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
+                                        <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding FragmentVM.Grenades}" SelectedItem="{Binding FragmentVM.SelectedGrenade}"/>
                                     </Grid>
 
                                     <!-- Class Ability -->
                                     <Grid Margin="0,4,0,4">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100" />
-                                            <ColumnDefinition Width="*"   />
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Class Ability:"
-                                                   Style="{StaticResource SecondaryText}"
-                                                   VerticalAlignment="Center" />
-                                        <ComboBox Grid.Column="1"
-                                                  Style="{StaticResource DarkComboBox}"
-                                                  ItemsSource="{Binding FragmentVM.ClassAbilities}"
-                                                  SelectedItem="{Binding FragmentVM.SelectedClassAbility}" />
+                                        <TextBlock Grid.Column="0" Text="Class Ability:" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
+                                        <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding FragmentVM.ClassAbilities}" SelectedItem="{Binding FragmentVM.SelectedClassAbility}"/>
                                     </Grid>
 
                                     <!-- Jump -->
                                     <Grid Margin="0,4,0,4">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100" />
-                                            <ColumnDefinition Width="*"   />
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Jump:"
-                                                   Style="{StaticResource SecondaryText}"
-                                                   VerticalAlignment="Center" />
-                                        <ComboBox Grid.Column="1"
-                                                  Style="{StaticResource DarkComboBox}"
-                                                  ItemsSource="{Binding FragmentVM.Jumps}"
-                                                  SelectedItem="{Binding FragmentVM.SelectedJump}" />
+                                        <TextBlock Grid.Column="0" Text="Jump:" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
+                                        <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding FragmentVM.Jumps}" SelectedItem="{Binding FragmentVM.SelectedJump}"/>
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
                     </Border>
+                    
                     <!-- =====================================================-->
                     <!-- Exotic Section                                       -->
                     <!-- =====================================================-->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
+                            
                             <!-- Section header row -->
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*"    />
+                                    <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="1"
-                                           Text="Exotic"
-                                           Style="{StaticResource SectionHeaderText}"
-                                           HorizontalAlignment="Center"
-                                           Margin="0" />
-
-                                <CheckBox Grid.Column="2"
-                                          Style="{StaticResource ToggleCheckBox}"
-                                          IsChecked="{Binding ExoticVM.CustomRollEnabled}"
-                                          Content="Custom Roll"
-                                          VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="Exotic" Style="{StaticResource SectionHeaderText}" HorizontalAlignment="Center" Margin="0" />
+                                <CheckBox Grid.Column="2" Style="{StaticResource ToggleCheckBox}" IsChecked="{Binding ExoticVM.CustomRollEnabled}" Content="Custom Roll" VerticalAlignment="Center"/>
                             </Grid>
 
                             <!-- Class + Slot selectors (always visible) -->
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="12" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Class"
-                                               Style="{StaticResource SecondaryText}"
-                                               Margin="0,0,0,4" />
-                                    <ComboBox Style="{StaticResource DarkComboBox}"
-                                              ItemsSource="{Binding ExoticVM.Classes}"
-                                              SelectedItem="{Binding ExoticVM.SelectedClass}" />
+                                    <TextBlock Text="Class" Style="{StaticResource SecondaryText}" Margin="0,0,0,4"/>
+                                    <ComboBox Style="{StaticResource DarkComboBox}" ItemsSource="{Binding ExoticVM.Classes}" SelectedItem="{Binding ExoticVM.SelectedClass}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Slot"
-                                               Style="{StaticResource SecondaryText}"
-                                               Margin="0,0,0,4" />
-                                    <ComboBox Style="{StaticResource DarkComboBox}"
-                                              ItemsSource="{Binding ExoticVM.Slots}"
-                                              SelectedItem="{Binding ExoticVM.SelectedSlot}" />
+                                    <TextBlock Text="Slot" Style="{StaticResource SecondaryText}" Margin="0,0,0,4"/>
+                                    <ComboBox Style="{StaticResource DarkComboBox}" ItemsSource="{Binding ExoticVM.Slots}" SelectedItem="{Binding ExoticVM.SelectedSlot}"/>
                                 </StackPanel>
                             </Grid>
 
-                            <!-- Archetype selector -->
-                            <StackPanel Margin="0,0,0,8">
-                                <TextBlock Text="Archetype"
-                                           Style="{StaticResource SecondaryText}"
-                                           Margin="0,0,0,4" />
-                                <ComboBox Style="{StaticResource DarkComboBox}"
-                                          ItemsSource="{Binding ExoticVM.ArchetypeOptions}"
-                                          SelectedItem="{Binding ExoticVM.SelectedArchetype}" />
-                            </StackPanel>
-                            
                             <!-- Standard roll display -->
-                            <Border Style="{StaticResource CardAltStyle}"
-                                    Margin="0,0,0,0"
-                                    Visibility="{Binding ExoticVM.IsStandardRoll,
-                                        Converter={StaticResource BoolToVisibility}}">
-                                <TextBlock Text="{Binding ExoticVM.StandardRollDisplay}"
-                                           Style="{StaticResource SecondaryText}" />
+                            <Border Style="{StaticResource CardAltStyle}" Margin="0,0,0,0" Visibility="{Binding ExoticVM.IsStandardRoll, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="{Binding ExoticVM.StandardRollDisplay}" Style="{StaticResource SecondaryText}"/>
                             </Border>
 
                             <!-- Custom roll disclaimer -->
-                            <TextBlock Style="{StaticResource ErrorText}"
-                                       TextWrapping="Wrap"
-                                       Margin="0,4,0,8"
-                                       Visibility="{Binding ExoticVM.CustomRollEnabled,
-                                           Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Style="{StaticResource ErrorText}" TextWrapping="Wrap" Margin="0,4,0,8" Visibility="{Binding ExoticVM.CustomRollEnabled, Converter={StaticResource BoolToVisibility}}">
                                 Note: Exotic armor stats vary. Enter your exact exotic roll below.
                                 Pre-rework exotics can use all 6 stat fields.
                             </TextBlock>
 
                             <!-- Custom roll inputs (6 stats) -->
-                            <StackPanel Visibility="{Binding ExoticVM.CustomRollEnabled,
-                                            Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel Visibility="{Binding ExoticVM.CustomRollEnabled, Converter={StaticResource BoolToVisibility}}">
                                 <Grid Margin="0,0,0,6">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
@@ -674,18 +436,15 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="Health" Style="{StaticResource SecondaryText}" Margin="0,0,0,3" />
-                                        <TextBox Style="{StaticResource InputTextBox}"
-                                                 Text="{Binding ExoticVM.CustomHealth, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Style="{StaticResource InputTextBox}" Text="{Binding ExoticVM.CustomHealth, UpdateSourceTrigger=PropertyChanged}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Melee" Style="{StaticResource SecondaryText}" Margin="0,0,0,3" />
-                                        <TextBox Style="{StaticResource InputTextBox}"
-                                                 Text="{Binding ExoticVM.CustomMelee, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Style="{StaticResource InputTextBox}" Text="{Binding ExoticVM.CustomMelee, UpdateSourceTrigger=PropertyChanged}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="4">
                                         <TextBlock Text="Grenade" Style="{StaticResource SecondaryText}" Margin="0,0,0,3" />
-                                        <TextBox Style="{StaticResource InputTextBox}"
-                                                 Text="{Binding ExoticVM.CustomGrenade, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Style="{StaticResource InputTextBox}" Text="{Binding ExoticVM.CustomGrenade, UpdateSourceTrigger=PropertyChanged}" />
                                     </StackPanel>
                                 </Grid>
                                 <Grid>
@@ -698,29 +457,21 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="Super" Style="{StaticResource SecondaryText}" Margin="0,0,0,3" />
-                                        <TextBox Style="{StaticResource InputTextBox}"
-                                                 Text="{Binding ExoticVM.CustomSuper, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Style="{StaticResource InputTextBox}" Text="{Binding ExoticVM.CustomSuper, UpdateSourceTrigger=PropertyChanged}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Class" Style="{StaticResource SecondaryText}" Margin="0,0,0,3" />
-                                        <TextBox Style="{StaticResource InputTextBox}"
-                                                 Text="{Binding ExoticVM.CustomClass, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Style="{StaticResource InputTextBox}" Text="{Binding ExoticVM.CustomClass, UpdateSourceTrigger=PropertyChanged}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="4">
                                         <TextBlock Text="Weapons" Style="{StaticResource SecondaryText}" Margin="0,0,0,3" />
-                                        <TextBox Style="{StaticResource InputTextBox}"
-                                                 Text="{Binding ExoticVM.CustomWeapons, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Style="{StaticResource InputTextBox}" Text="{Binding ExoticVM.CustomWeapons, UpdateSourceTrigger=PropertyChanged}" />
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
-
+                            
                             <!-- T5 Exotic toggle -->
-                            <CheckBox Style="{StaticResource ToggleCheckBox}"
-                                      IsChecked="{Binding T5ExoticEnabled}"
-                                      Content="T5 Exotic (Coming Soon)"
-                                      IsEnabled="False"
-                                      Margin="0,10,0,0"
-                                      Opacity="0.4" />
+                            <CheckBox Style="{StaticResource ToggleCheckBox}" IsChecked="{Binding T5ExoticEnabled}" Content="T5 Exotic (Coming Soon)" IsEnabled="False" Margin="0,10,0,0" Opacity="0.4"/>
                         </StackPanel>
                     </Border>
 
@@ -729,47 +480,23 @@
                     <!-- =====================================================-->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
+                            
                             <!-- Section header row -->
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*"    />
+                                    <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="1"
-                                           Text="DIM Queries"
-                                           Style="{StaticResource SectionHeaderText}"
-                                           HorizontalAlignment="Center"
-                                           Margin="0" />
-
-                                <CheckBox Grid.Column="2"
-                                          Style="{StaticResource ToggleCheckBox}"
-                                          IsChecked="{Binding ShowDimQueries}"
-                                          Content="Enable"
-                                          VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="DIM Queries" Style="{StaticResource SectionHeaderText}" HorizontalAlignment="Center" Margin="0" />
+                                <CheckBox Grid.Column="2" Style="{StaticResource ToggleCheckBox}" IsChecked="{Binding ShowDimQueries}" Content="Enable" VerticalAlignment="Center" />
                             </Grid>
-
-                            <StackPanel Visibility="{Binding ShowDimQueries,
-                                            Converter={StaticResource BoolToVisibility}}">
-                                <TextBlock Style="{StaticResource SecondaryText}"
-                                           TextWrapping="Wrap"
-                                           Margin="0,0,0,10">
-                                    Queries are generated from your build result.
-                                    Click Generate after calculating.
+                            <StackPanel Visibility="{Binding ShowDimQueries, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Style="{StaticResource SecondaryText}" TextWrapping="Wrap" Margin="0,0,0,10">
+                                    Queries are generated from your build result automatically after calculating.
                                 </TextBlock>
-                                <Button Style="{StaticResource PrimaryButton}"
-                                        Content="Generate Queries"
-                                        Command="{Binding GenerateQueriesCommand}"
-                                        IsEnabled="{Binding ResultVM.HasResult}"
-                                        HorizontalAlignment="Left" />
                             </StackPanel>
-
-                            <TextBlock Style="{StaticResource SecondaryText}"
-                                       Text="Enable DIM Queries to generate search strings for your build."
-                                       TextWrapping="Wrap"
-                                       Visibility="{Binding ShowDimQueries,
-                                           Converter={StaticResource InverseBoolToVisibility}}" />
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="Enable DIM Queries to generate search strings for your build." TextWrapping="Wrap" Visibility="{Binding ShowDimQueries, Converter={StaticResource InverseBoolToVisibility}}"/>
                         </StackPanel>
                     </Border>
 
@@ -777,16 +504,12 @@
             </ScrollViewer>
 
             <!-- Vertical divider -->
-            <Border Grid.Column="1"
-                    Background="{StaticResource BorderBrush}"
-                    Width="1"
-                    HorizontalAlignment="Center" />
+            <Border Grid.Column="1" Background="{StaticResource BorderBrush}" Width="1" HorizontalAlignment="Center"/>
 
             <!-- =============================================================-->
             <!-- Right Panel (Results)                                        -->
             <!-- =============================================================-->
-            <local:ResultsPanel Grid.Column="2"
-                                DataContext="{Binding ResultVM}" />
+            <local:ResultsPanel Grid.Column="2" DataContext="{Binding ResultVM}"/>
 
         </Grid>
     </Grid>

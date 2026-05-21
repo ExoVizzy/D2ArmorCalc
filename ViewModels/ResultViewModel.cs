@@ -7,6 +7,7 @@
 *                   to UI including stat totals, overflow, buff strings,
 *                   build status, & DIM query outputs.
 */
+using D2ArmorCalc_Data;
 using D2ArmorCalc_Helpers;
 using D2ArmorCalc_Models;
 using D2ArmorCalc_ViewModels;
@@ -19,8 +20,19 @@ namespace D2ArmorCalc_ViewModels {
     public class StatResultItem(Stat stat) : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        public Stat Stat { get; } = stat;
-        public string Label { get; } = stat.ToString();
+        public Stat Stat {get;} = stat;
+        private int _baseStatValue;
+        public int BaseStatValue {
+            get => _baseStatValue;
+            set {_baseStatValue = value; OnPropertyChanged(nameof(BaseStatValue));}
+        }
+        private int _fontBonus;
+        public int FontBonus {
+            get => _fontBonus;
+            set {_fontBonus = value; OnPropertyChanged(nameof(FontBonus)); OnPropertyChanged(nameof(HasFontBonus)); OnPropertyChanged(nameof(BaseStatValue));}
+        }
+        public bool HasFontBonus  => _fontBonus > 0;
+        public string Label {get;} = stat.ToString();
         private int _baseValue;
         public int BaseValue {
             get => _baseValue;
@@ -75,21 +87,22 @@ namespace D2ArmorCalc_ViewModels {
         public string? StatMod {get; set;}
         public string? Fonts {get; set;}
         public string? EnergyUsed {get; set;}
-        public int TotalAnyPoints { get; set; }
-        public int SlotNumber { get; set; }
-        public bool IsExotic { get; set; }
+        public int TotalAnyPoints {get; set;}
+        public int SlotNumber {get; set;}
+        public bool IsExotic {get; set;}
     }
     public class ResultViewModel : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string name) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================
         //Properties.
         //=====================================================================
+        private StatBlock _fontBonuses = new StatBlock();
         //Stat result rows (one per stat).
         public ObservableCollection<StatResultItem> StatResults {get;} = [];
         //Piece result rows (one per armor slot).
         public ObservableCollection<PieceResultItem> PieceResults {get;} = [];
+        public ObservableCollection<PieceResultItem> PieceResultsUngrouped {get;} = [];
         //Build status.
         private BuildStatus _status;
         public BuildStatus Status {
@@ -170,7 +183,8 @@ namespace D2ArmorCalc_ViewModels {
                         bool      showDim : Whether to show DIM query section.
         Return Values : void
         */
-        public void LoadResult(BuildResult result, StatBlock mins, StatBlock maxs, bool showDim){
+        public void LoadResult(BuildResult result, StatBlock mins, StatBlock maxs, bool showDim, Dictionary<ArmorSlot, int> fontCounts, bool fontsEnabled){
+            _fontBonuses = (fontsEnabled && fontCounts != null) ? CalculateFontBonuses(fontCounts) : new StatBlock();
             _buildResult = result;
             ShowDimQueries = showDim;
             Status = result.Status;
@@ -206,6 +220,24 @@ namespace D2ArmorCalc_ViewModels {
         //Private Helpers.
         //=====================================================================
         /*
+        Method        : CalculateFontBonuses
+        Description   : Calculates total font bonuses per stat from font counts.
+        Parameters    : Dictionary<ArmorSlot, int> fontCounts : Font counts per slot.
+        Return Values : StatBlock                             : Font bonuses per stat.
+        */
+        private static StatBlock CalculateFontBonuses(Dictionary<ArmorSlot, int> fontCounts){
+            StatBlock result = new();
+            (Stat, ArmorSlot)[] allFonts = [
+                (Stat.Super, ArmorSlot.Helmet), (Stat.Grenade, ArmorSlot.Arms),
+                (Stat.Melee, ArmorSlot.Arms), (Stat.Health, ArmorSlot.Chestplate),
+                (Stat.Weapons, ArmorSlot.Boots), (Stat.Class, ArmorSlot.ClassItem)
+            ];
+            foreach ((Stat stat, ArmorSlot slot) in allFonts){
+                if (fontCounts.TryGetValue(slot, out int count)) result.Set(stat, result.Get(stat) + Fonts.GetTotalBonus(count));
+            }
+            return result;
+        }
+        /*
         Method        : UpdateStatRows
         Description   : Updates all 6 stat result rows with base, modded, &
                         final values from build result.
@@ -214,11 +246,14 @@ namespace D2ArmorCalc_ViewModels {
                         StatBlock   maxs   : Maximum targets for exceeded display.
         Return Values : void
         */
-        private void UpdateStatRows(BuildResult result, StatBlock mins, StatBlock maxs) {
-            foreach (StatResultItem row in StatResults) {
-                row.BaseValue = result.BaseStats != null ? result.BaseStats.Get(row.Stat) : 0;
-                row.ModdedValue = result.ModdedStats != null ? result.ModdedStats.Get(row.Stat) : 0;
-                row.FinalValue = result.FinalStats != null ? result.FinalStats.Get(row.Stat) : 0;
+        private void UpdateStatRows(BuildResult result, StatBlock mins, StatBlock maxs){
+            foreach (StatResultItem row in StatResults){
+                int fontBonus = _fontBonuses.Get(row.Stat);
+                int finalVal = result.FinalStats != null ? result.FinalStats.Get(row.Stat) : 0;
+
+                row.BaseStatValue = finalVal - fontBonus;
+                row.FontBonus = fontBonus;
+                row.FinalValue = finalVal;
                 row.TargetMin = mins.Get(row.Stat);
                 row.TargetMax = maxs.Get(row.Stat);
             }
@@ -234,9 +269,12 @@ namespace D2ArmorCalc_ViewModels {
         */
         private void UpdatePieceRows(BuildResult result, StatBlock mins) {
             PieceResults.Clear();
+            PieceResultsUngrouped.Clear();
             int slotNumber = 1;
+            List<(PieceResultItem item, int count)> groups = [];
+
             foreach (ArmorPiece piece in result.GetPieces()) {
-                if (piece == null) continue;
+                if (piece == null) { slotNumber++; continue; }
 
                 string fonts = string.Empty;
                 if (piece.Fonts != null && piece.Fonts.Length > 0) {
@@ -250,15 +288,53 @@ namespace D2ArmorCalc_ViewModels {
                 bool tertiaryIsAny = mins.Get(piece.TertiaryStat) == 0;
                 bool focusIsAny = piece.Rarity == ArmorRarity.Exotic || piece.FocusStat == piece.FocusMinus || mins.Get(piece.FocusStat) == 0;
 
-                PieceResults.Add(new PieceResultItem {
-                    SlotLabel = piece.Slot.ToString(), SlotNumber = slotNumber, IsExotic = piece.Rarity == ArmorRarity.Exotic,
-                    Rarity = piece.Rarity.ToString(), Archetype = piece.Archetype?.Type.ToString() ?? "Custom",
+                var item = new PieceResultItem {
+                    SlotLabel = piece.Slot.ToString(),
+                    SlotNumber = slotNumber,
+                    IsExotic = piece.Rarity == ArmorRarity.Exotic,
+                    Rarity = piece.Rarity.ToString(),
+                    Archetype = piece.Archetype?.Type.ToString() ?? "Custom",
                     Tertiary = tertiaryIsAny ? $"Any ({piece.TertiaryStat})" : piece.TertiaryStat.ToString(),
-                    Focus = focusIsAny ? (piece.Rarity == ArmorRarity.Exotic ? "N/A" : "Any") : $"+{piece.FocusStat} / -{piece.FocusMinus}",
-                    StatMod = statMod, Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,
+                    Focus = piece.Rarity == ArmorRarity.Exotic ? "Exotic (No Tuning)" : focusIsAny ? "Any" : $"+{piece.FocusStat} / -{piece.FocusMinus}",
+                    StatMod = statMod,
+                    Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,
+                    EnergyUsed  = $"{piece.FontEnergy + piece.StatModEnergy} / {piece.TotalEnergy}"
+                };
+
+                // Always add to ungrouped
+                PieceResultItem ungroupedItem = new() {
+                    SlotLabel = piece.Slot.ToString(),
+                    SlotNumber = slotNumber,
+                    IsExotic = piece.Rarity == ArmorRarity.Exotic,
+                    Rarity = piece.Rarity.ToString(),
+                    Archetype = piece.Archetype?.Type.ToString() ?? "Custom",
+                    Tertiary = tertiaryIsAny ? $"Any ({piece.TertiaryStat})" : piece.TertiaryStat.ToString(),
+                    Focus = piece.Rarity == ArmorRarity.Exotic ? "Exotic (No Tuning)" : focusIsAny ? "Any" : $"+{piece.FocusStat} / -{piece.FocusMinus}",
+                    StatMod = statMod,
+                    Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,
                     EnergyUsed = $"{piece.FontEnergy + piece.StatModEnergy} / {piece.TotalEnergy}"
-                });
+                };
+                PieceResultsUngrouped.Add(ungroupedItem);
+
+                //Check if this matches last group (same archetype + tertiary + rarity + focus).
+                bool merged = false;
+                for (int i = 0; i < groups.Count; i++) {
+                    (PieceResultItem? existing, int count) = groups[i];
+                    if (existing.Archetype == item.Archetype && existing.Tertiary == item.Tertiary &&
+                        existing.Rarity == item.Rarity) {
+                        groups[i] = (existing, count + 1);
+                        merged = true;
+                        break;
+                    }
+                }
+                if (!merged) groups.Add((item, 1));
                 slotNumber++;
+            }
+
+            //Add grouped items with count suffix.
+            foreach ((PieceResultItem? item, int count) in groups) {
+                if (count > 1) item.Archetype = $"{item.Archetype} ×{count}";
+                PieceResults.Add(item);
             }
         }
         /*

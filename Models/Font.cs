@@ -14,9 +14,9 @@ namespace D2ArmorCalc_Models {
         Helmet, Arms, Chestplate, Boots, ClassItem
     }
     //Holds data for single font type.
-    public class Font(Stat stat, ArmorSlot slot) {
-        public Stat Stat { get; } = stat;
-        public ArmorSlot Slot { get; } = slot;
-        public int EnergyCost { get; } = 3;
+    public class Font(Stat stat, ArmorSlot slot){
+        public Stat Stat {get;} = stat;
+        public ArmorSlot Slot {get;} = slot;
+        public int EnergyCost {get;} = 3;
     }
 }

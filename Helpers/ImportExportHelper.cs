@@ -20,7 +20,7 @@ namespace D2ArmorCalc_Helpers {
         private const string FileFilter = "D2 Build Files (*.d2build)|*.d2build|All Files (*.*)|*.*";
         private const string CurrentVersion = "1.0";
 
-        private static readonly JsonSerializerOptions JsonOptions = new() {
+        private static readonly JsonSerializerOptions JsonOptions = new(){
             WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
         //=====================================================================
@@ -35,7 +35,7 @@ namespace D2ArmorCalc_Helpers {
                                              cancelled or error occurred.
         */
         public static bool Export(BuildExport export){
-            SaveFileDialog dialog = new() {
+            SaveFileDialog dialog = new(){
                 Title = "Export Build", Filter = FileFilter,
                 DefaultExt = FileExtension, FileName = "MyBuild"
             };
@@ -63,7 +63,7 @@ namespace D2ArmorCalc_Helpers {
                                       if cancelled or error occurred.
         */
         public static BuildExport Import(){
-            OpenFileDialog dialog = new() {
+            OpenFileDialog dialog = new(){
                 Title = "Import Build", Filter = FileFilter
             };
             if (dialog.ShowDialog() != true) return null;
@@ -125,7 +125,7 @@ namespace D2ArmorCalc_Helpers {
             bool customTuning, bool t5ExoticEnabled, bool customExoticRoll,
             string leastWantedStat, int minorModCount){
 
-            BuildExport export = new() {
+            BuildExport export = new(){
                 ExportVersion = CurrentVersion, StatTargets = targets,
                 Subclass = subclassCustomization ? subclass : null,
                 FontsEnabled = fontsEnabled, ArmorModsEnabled = armorModsEnabled,
@@ -138,7 +138,7 @@ namespace D2ArmorCalc_Helpers {
             foreach (ArmorPiece piece in result.GetPieces()){
                 if (piece == null) continue;
 
-                ArmorPieceExport pieceExport = new() {
+                ArmorPieceExport pieceExport = new(){
                     Slot = piece.Slot.ToString(), Rarity = piece.Rarity.ToString(),
                     Archetype = piece.Archetype?.Type.ToString(), Tertiary = piece.TertiaryStat.ToString(),
                     FocusStat = piece.FocusStat.ToString(), FocusMinus = piece.FocusMinus.ToString()
