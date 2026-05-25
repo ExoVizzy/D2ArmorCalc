@@ -33,41 +33,39 @@ namespace D2ArmorCalc_Algorithm {
         Description   : Assigns best stat mod per slot based on remaining
                         deficit against adjusted minimums. Respects energy
                         constraints from fonts & advanced mods.
-        Parameters    : StatBlock                  current          : Current armor stat totals.
-                        StatBlock                  adjustedMins     : Targets with user bonuses subtracted.
-                        Stat                       leastWanted      : Stat to avoid modding.
-                        Dictionary<ArmorSlot, int> fontCounts       : Font counts per slot.
-                        Dictionary<ArmorSlot, int> advancedModEnergy: Advanced armor mod energy per slot.
-                        int                        minorModCount    : Number of minor mods allowed.
-                        ArmorSlot[]                slotOrder        : Order to process slots.
-        Return Values : StatBlock                                   : Stats after mods applied.
+        Parameters    : StatBlock                  current       : Current armor stat totals.
+                        StatBlock                  adjMins       : Targets with user bonuses subtracted.
+                        StatBlock                  adjMaxs       : Stat ceiling with bonuses subtracted.
+                        Stat                       leastWanted   : Stat to avoid modding.
+                        Dictionary<ArmorSlot, int> fontCounts    : Font counts per slot.
+                        Dictionary<ArmorSlot, int> advModPower   : Advanced armor mod energy per slot.
+                        int                        minorModCount : Number of minor mods allowed.
+                        Dictionary<Stat, int>      perStatFonts  : Fonts counts per slot.
+        Return Values : StatBlock                                : Stats after mods applied.
         */
-        public static StatBlock ApplyStatMods(StatBlock current, StatBlock adjustedMins, Stat leastWanted,
-                                              Dictionary<ArmorSlot, int> fontCounts,
-                                              Dictionary<ArmorSlot, int> advancedModEnergy,
-                                              int minorModCount, ArmorSlot[] slotOrder){
-            StatBlock result = new(current.Health, current.Melee, current.Grenade,
-                                   current.Super, current.Class, current.Weapons);
-            Stat[] allStats = [Stat.Health, Stat.Melee, Stat.Grenade,
-                               Stat.Super, Stat.Class, Stat.Weapons];
+        public static StatBlock ApplyStatMods(StatBlock current, StatBlock adjMins, StatBlock adjMaxs, 
+                                              Stat leastWanted, Dictionary<ArmorSlot, int> fontCounts,
+                                              Dictionary<ArmorSlot, int> advModPower, int minorModCount,
+                                              Dictionary<Stat, int> perStatFonts){
+            StatBlock result = new(current.Health, current.Melee, current.Grenade, current.Super, current.Class, current.Weapons);
 
             int minorsRemaining = minorModCount;
             int majorsRemaining = 5 - minorModCount;
 
-            for (int i = 0; i < slotOrder.Length; i++){
+            for (int i = 0; i < GameConstants.SlotOrder.Length; i++){
                 Stat bestStat = leastWanted;
                 int bestDeficit = 0;
 
-                foreach (Stat stat in allStats){
+                foreach (Stat stat in GameConstants.StatOrder){
                     if (stat == leastWanted) continue;
-                    if (adjustedMins.Get(stat) == 0) continue;
-                    int deficit = StatHelper.GetDeficit(result.Get(stat), adjustedMins.Get(stat));
+                    if (adjMins.Get(stat) == 0) continue;
+                    int deficit = StatHelper.GetDeficit(result.Get(stat), adjMins.Get(stat));
                     if (deficit > bestDeficit){bestDeficit = deficit; bestStat = stat;}
                 }
                 if (bestStat == leastWanted || bestDeficit == 0) break;
 
-                int fontCount = fontCounts.TryGetValue(slotOrder[i], out int fc) ? fc : 0;
-                int advModEnergy = advancedModEnergy.TryGetValue(slotOrder[i], out int ae) ? ae : 0;
+                int fontCount = fontCounts.TryGetValue(GameConstants.SlotOrder[i], out int fc) ? fc : 0;
+                int advModEnergy = advModPower.TryGetValue(GameConstants.SlotOrder[i], out int ae) ? ae : 0;
                 int remainingEnergy = EnergyHelper.GetRemainingGeneralEnergy(ArmorRarity.Legendary, fontCount) - advModEnergy;
                 bool majorFits = remainingEnergy >= EnergyHelper.MajorModEnergyCost;
                 bool minorFits = remainingEnergy >= EnergyHelper.MinorModEnergyCost;
@@ -87,12 +85,16 @@ namespace D2ArmorCalc_Algorithm {
                 }
 
                 StatMod mod = Mods.GetMod(modType, bestStat);
-                if (Mods.IsCompatible(mod, remainingEnergy))
+                if (Mods.IsCompatible(mod, remainingEnergy)){
+                    int projected = result.Get(bestStat) + mod.Bonus;
+                    //Only block mod if it would exceed the adjusted max AND we already meet the min.
+                    if (adjMaxs.Get(bestStat) > 0 && projected > adjMaxs.Get(bestStat) 
+                        && result.Get(bestStat) >= adjMins.Get(bestStat)) continue;
                     result.Set(bestStat, result.Get(bestStat) + mod.Bonus);
+                }
             }
             return result;
         }
-
         /*
         Method        : ApplyUserBonuses
         Description   : Adds all user-defined bonuses back to stat block.
@@ -100,18 +102,16 @@ namespace D2ArmorCalc_Algorithm {
         Parameters    : StatBlock                    stats        : Current stat totals.
                         Dictionary<int,(Stat,Stat)>? tuning       : Custom tuning per slot.
                         bool                         fontsEnabled : Whether fonts are on.
-                        Dictionary<ArmorSlot, int>   fontCounts   : Font counts per slot.
+                        Dictionary<Stat, int>        perStatFonts : Font counts per stat.
                         Fragment[]                   fragments    : Selected fragments.
         Return Values : StatBlock                                 : Stats with all bonuses applied.
         */
         public static StatBlock ApplyUserBonuses(StatBlock stats,
             Dictionary<int, (Stat FocusStat, Stat FocusMinus)>? tuning,
-            bool fontsEnabled, Dictionary<ArmorSlot, int> fontCounts,
+            bool fontsEnabled, Dictionary<Stat, int> perStatFonts,
             Fragment[] fragments){
 
-            StatBlock result = new(stats.Health, stats.Melee, stats.Grenade,
-                                   stats.Super, stats.Class, stats.Weapons);
-
+            StatBlock result = new(stats.Health, stats.Melee, stats.Grenade, stats.Super, stats.Class, stats.Weapons);
             //Apply custom tuning.
             if (tuning != null){
                 for (int i = 0; i < 4; i++){
@@ -122,12 +122,10 @@ namespace D2ArmorCalc_Algorithm {
             }
             //Apply fonts.
             if (fontsEnabled){
-                foreach (KeyValuePair<ArmorSlot, int> kvp in fontCounts){
-                    Font[] slotFonts = Fonts.GetFontsBySlot(kvp.Key);
-                    foreach (Font font in slotFonts){
-                        int bonus = Fonts.GetTotalBonus(kvp.Value);
-                        result.Set(font.Stat, result.Get(font.Stat) + bonus);
-                    }
+                foreach (KeyValuePair<Stat, int> kvp in perStatFonts){
+                    if (kvp.Value == 0) continue;
+                    int bonus = Fonts.GetTotalBonus(kvp.Value);
+                    result.Set(kvp.Key, result.Get(kvp.Key) + bonus);
                 }
             }
             //Apply fragments.
@@ -141,14 +139,13 @@ namespace D2ArmorCalc_Algorithm {
         Description   : Clamps all stats to 209, redistributing excess to
                         other wanted stats top to bottom, skipping least wanted.
         Parameters    : StatBlock current      : Current stat totals.
-                        StatBlock adjustedMins : Adjusted minimums for wanted stat detection.
+                        StatBlock adjMins : Adjusted minimums for wanted stat detection.
                         Stat      leastWanted  : Stat to skip when redistributing.
         Return Values : StatBlock              : Stats with 209 cap applied.
         */
-        private static StatBlock ApplyStatCap(StatBlock current, StatBlock adjustedMins, Stat leastWanted){
-            const int Cap = 209;
-            StatBlock result = new(current.Health, current.Melee, current.Grenade,
-                                   current.Super, current.Class, current.Weapons);
+        private static StatBlock ApplyStatCap(StatBlock current, StatBlock adjMins, Stat leastWanted){
+            const int Cap = 204;
+            StatBlock result = new(current.Health, current.Melee, current.Grenade, current.Super, current.Class, current.Weapons);
 
             foreach (Stat stat in GameConstants.StatOrder){
                 if (result.Get(stat) <= Cap) continue;
@@ -173,57 +170,53 @@ namespace D2ArmorCalc_Algorithm {
         Description   : Resolves 4-piece legendary combination against adjusted
                         targets using only armor base stats & mods. User bonuses
                         applied after for final scoring.
-        Parameters    : ArmorCandidate[] legendaries       : 4 legendary candidates.
-                        ArmorPiece       exotic            : Fixed exotic piece.
-                        StatBlock        originalMins      : Users original minimums.
-                        StatBlock        originalMaxs      : Users original maximums.
-                        StatBlock        adjustedMins      : Mins with user bonuses subtracted.
-                        StatBlock        adjustedMaxs      : Maxs with user bonuses subtracted.
-                        Fragment[]       fragments         : Selected fragments.
-                        Stat             leastWanted       : Stat to avoid modding.
-                        bool             fontsEnabled      : Whether fonts are enabled.
-                        Dictionary       fontCounts        : Font counts per slot.
-                        Dictionary       advancedModEnergy : Advanced mod energy per slot.
-                        int              minorModCount     : Number of minor mods allowed.
-                        Dictionary?      customTuning      : Custom tuning per legendary slot.
-        Return Values : ResolvedResult                     : Resolved stats & score.
+        Parameters    : ArmorCandidate[] legendaries   : 4 legendary candidates.
+                        ArmorPiece       exotic        : Fixed exotic piece.
+                        StatBlock        ogMins        : Users original minimums.
+                        StatBlock        ogMaxs        : Users original maximums.
+                        StatBlock        adjMins       : Mins with user bonuses subtracted.
+                        StatBlock        adjMaxs       : Maxs with user bonuses subtracted.
+                        Fragment[]       fragments     : Selected fragments.
+                        Stat             leastWanted   : Stat to avoid modding.
+                        bool             fontsEnabled  : Whether fonts are enabled.
+                        Dictionary       fontCounts    : Font counts per slot.
+                        Dictionary       advModEnergy  : Advanced mod energy per slot.
+                        int              minorModCount : Number of minor mods allowed.
+                        Dictionary       perStatFonts  : Font counts per slot.
+                        Dictionary?      customTuning  : Custom tuning per legendary slot.
+        Return Values : ResolvedResult                 : Resolved stats & score.
         */
         public static ResolvedResult Resolve(
             ArmorCandidate[] legendaries, ArmorPiece exotic,
-            StatBlock originalMins, StatBlock originalMaxs,
-            StatBlock adjustedMins, StatBlock adjustedMaxs,
+            StatBlock ogMins, StatBlock ogMaxs,
+            StatBlock adjMins, StatBlock adjMaxs,
             Fragment[] fragments, Stat leastWanted,
             bool fontsEnabled, Dictionary<ArmorSlot, int> fontCounts,
-            Dictionary<ArmorSlot, int> advancedModEnergy, int minorModCount,
+            Dictionary<ArmorSlot, int> advModEnergy, int minorModCount,
+            Dictionary<Stat, int> perStatFonts,
             Dictionary<int, (Stat FocusStat, Stat FocusMinus)>? customTuning = null){
 
             //Step 1: Pure armor base stats. no tuning, no fonts, no fragments.
             StatBlock stats = ResolveBaseStats(legendaries, exotic);
-
             //Early exit: if deficit is hopeless even with max mods, skip full resolve.
-            int quickDeficit = StatHelper.GetTotalDeficit(stats, adjustedMins);
+            int quickDeficit = StatHelper.GetTotalDeficit(stats, adjMins);
             if (quickDeficit > 50) return new ResolvedResult { MeetsMinimums = false };
-
             //Step 2: Apply stat mods against adjusted targets.
-            stats = ApplyStatMods(stats, adjustedMins, leastWanted, fontCounts, advancedModEnergy, minorModCount, GameConstants.SlotOrder);
-
+            stats = ApplyStatMods(stats, adjMins, adjMaxs, leastWanted, fontCounts, advModEnergy, minorModCount, perStatFonts);
             //Step 3: Cap armor + mods before adding user bonuses.
-            stats = ApplyStatCap(stats, adjustedMins, leastWanted);
-
+            stats = ApplyStatCap(stats, adjMins, leastWanted);
             //Step 4: Store pre-bonus stats for display (ModdedStats).
             StatBlock modded = new(stats.Health, stats.Melee, stats.Grenade, stats.Super, stats.Class, stats.Weapons);
-
             //Step 5: Apply all user bonuses (tuning + fonts + fragments).
-            StatBlock finalStats = ApplyUserBonuses(stats, customTuning, fontsEnabled, fontCounts, fragments);
-
+            StatBlock finalStats = ApplyUserBonuses(stats, customTuning, fontsEnabled, perStatFonts, fragments);
             //Step 6: Score against original targets.
             int focusCount = 0;
             foreach (ArmorCandidate piece in legendaries){
                 if (piece.FocusStat != piece.FocusMinus) focusCount++; 
             }
-            int deficit = StatHelper.GetTotalDeficit(finalStats, originalMins);
-            int excess = StatHelper.GetTotalExcess(finalStats, originalMaxs);
-            int score = CalculateScore(finalStats, originalMins, originalMaxs, focusCount);
+            int deficit = StatHelper.GetTotalDeficit(finalStats, ogMins);
+            int excess = StatHelper.GetTotalExcess(finalStats, ogMaxs);
+            int score = CalculateScore(finalStats, ogMins, ogMaxs, focusCount);
 
             return new ResolvedResult {
                 FinalStats = finalStats, BaseStats = ResolveBaseStats(legendaries, exotic),

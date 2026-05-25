@@ -201,7 +201,7 @@ namespace D2ArmorCalc_ViewModels {
                         bool        showDim : Whether to show DIM query section.
         Return Values : void
         */
-        public void LoadResult(BuildResult result, StatBlock mins, StatBlock maxs, bool showDim, Dictionary<ArmorSlot, int> fontCounts, bool fontsEnabled){
+        public void LoadResult(BuildResult result, StatBlock mins, StatBlock maxs, bool showDim, Dictionary<Stat, int> fontCounts, bool fontsEnabled){
             _fontBonuses = (fontsEnabled && fontCounts != null) ? CalculateFontBonuses(fontCounts) : new StatBlock();
             _buildResult = result;
             ShowDimQueries = showDim;
@@ -243,15 +243,15 @@ namespace D2ArmorCalc_ViewModels {
         Parameters    : Dictionary<ArmorSlot, int> fontCounts : Font counts per slot.
         Return Values : StatBlock                             : Font bonuses per stat.
         */
-        private static StatBlock CalculateFontBonuses(Dictionary<ArmorSlot, int> fontCounts){
+        private static StatBlock CalculateFontBonuses(Dictionary<Stat, int> fontCounts){
             StatBlock result = new();
             (Stat, ArmorSlot)[] allFonts = [
                 (Stat.Super, ArmorSlot.Helmet), (Stat.Grenade, ArmorSlot.Arms),
                 (Stat.Melee, ArmorSlot.Arms), (Stat.Health, ArmorSlot.Chestplate),
                 (Stat.Weapons, ArmorSlot.Boots), (Stat.Class, ArmorSlot.ClassItem)
             ];
-            foreach ((Stat stat, ArmorSlot slot) in allFonts){
-                if (fontCounts.TryGetValue(slot, out int count)) result.Set(stat, result.Get(stat) + Fonts.GetTotalBonus(count));
+            foreach ((Stat stat, ArmorSlot _) in allFonts){
+                if (fontCounts.TryGetValue(stat, out int count)) result.Set(stat, result.Get(stat) + Fonts.GetTotalBonus(count));
             }
             return result;
         }
@@ -304,13 +304,13 @@ namespace D2ArmorCalc_ViewModels {
 
                 bool tertiaryIsAny = mins.Get(piece.TertiaryStat) == 0;
                 bool focusIsAny = piece.Rarity == ArmorRarity.Exotic || piece.FocusStat == piece.FocusMinus || mins.Get(piece.FocusStat) == 0;
-
-                string tertiaryLabel = tertiaryIsAny ? $"Any ({piece.TertiaryStat})" : piece.TertiaryStat.ToString();
+                bool isCustomRoll = piece.IsCustomRoll;
+                string tertiaryLabel = isCustomRoll ? "Custom Roll" : tertiaryIsAny ? $"Any ({piece.TertiaryStat})" : piece.TertiaryStat.ToString();
 
                 PieceResultItem item = new(){
                     SlotLabel = piece.Slot.ToString(), SlotNumber = slotNumber,
                     IsExotic = piece.Rarity == ArmorRarity.Exotic, Rarity = piece.Rarity.ToString(),
-                    Archetype = piece.Archetype?.Type.ToString() ?? "Custom",
+                    Archetype = isCustomRoll ? "Custom" : piece.Archetype?.Type.ToString() ?? "Unknown",
                     Tertiaries = [new TertiaryItem{Label = tertiaryLabel, Count = 1}],
                     Focus = piece.Rarity == ArmorRarity.Exotic ? "Exotic (No Tuning)" : focusIsAny ? "Any" : $"+{piece.FocusStat} / -{piece.FocusMinus}",
                     StatMod = statMod, Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,
@@ -320,7 +320,7 @@ namespace D2ArmorCalc_ViewModels {
                 PieceResultItem ungroupedItem = new(){
                     SlotLabel = piece.Slot.ToString(), SlotNumber = slotNumber,
                     IsExotic = piece.Rarity == ArmorRarity.Exotic, Rarity = piece.Rarity.ToString(),
-                    Archetype = piece.Archetype?.Type.ToString() ?? "Custom",
+                    Archetype = isCustomRoll ? "Custom" : piece.Archetype?.Type.ToString() ?? "Unknown",
                     Tertiaries = [new TertiaryItem{Label = tertiaryLabel, Count = 1}],
                     Focus = piece.Rarity == ArmorRarity.Exotic ? "Exotic (No Tuning)" : focusIsAny ? "Any" : $"+{piece.FocusStat} / -{piece.FocusMinus}",
                     StatMod = statMod, Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,

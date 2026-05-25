@@ -288,7 +288,7 @@ namespace D2ArmorCalc_ViewModels {
 
                 StatBlock mins = BuildMinStatBlock();
                 StatBlock maxs = BuildMaxStatBlock();
-                ResultVM.LoadResult(result, mins, maxs, ShowDimQueries, BuildFontCounts(), FontsEnabled);
+                ResultVM.LoadResult(result, mins, maxs, ShowDimQueries, BuildPerStatFontCounts(), FontsEnabled);
             } catch (Exception ex){
                 MessageBox.Show($"Calculation error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             } finally {
@@ -325,7 +325,7 @@ namespace D2ArmorCalc_ViewModels {
                 LeastWantedStat = leastWanted, CustomTuning = CustomTuning ? BuildTuningSlots() : null,
                 FontsEnabled = FontsEnabled, FontsInStats = FontsInStats, FontCounts = BuildFontCounts(),
                 ArmorModsEnabled = ArmorModsEnabled, MinorModCount = ModVM.MinorModCount,
-                PerStatFontCounts = BuildPerStatFontCounts(), AdvancedModEnergy = BuildAdvancedModEnergy(),
+                PerStatFonts = BuildPerStatFontCounts(), AdvModEnergy = BuildAdvancedModEnergy(),
             };
         }
         /*
@@ -653,7 +653,7 @@ namespace D2ArmorCalc_ViewModels {
             foreach (FontStatViewModel fs in FontStats) fs.FontCount = 0;
             SyncFontCountsToMods();
             //Mods.
-            ArmorModsEnabled = true;
+            ArmorModsEnabled = false;
             ModVM.MinorModCount = 0;
             ModVM.HelmetMods.RestoreSelections([]);
             ModVM.ArmsMods.RestoreSelections([]);
@@ -685,8 +685,6 @@ namespace D2ArmorCalc_ViewModels {
             ShowDimQueries = false;
             //Persist all defaults.
             AppSettings.ResetToDefaults();
-            AppSettings.SelectedClass = "Warlock";
-            AppSettings.SelectedSlot = "Helmet";
  
             SyncExoticSlotToMods();
         }

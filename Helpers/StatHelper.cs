@@ -7,6 +7,7 @@
 *                   stat deficit scoring, clamping, & 100+ buff calculations
 *                   for all 6 armor stats.
 */
+using D2ArmorCalc_Algorithm;
 using D2ArmorCalc_Models;
 
 namespace D2ArmorCalc_Helpers {
@@ -202,6 +203,26 @@ namespace D2ArmorCalc_Helpers {
                 Stat.Weapons => GetWeaponsBuff(statValue),
                 _ => string.Empty,
             };
+        }
+        /*
+        Method        : IsMoreDeterministic
+        Description   : Tiebreaker comparison for equal-scoring combos. Compares
+                        candidates lexicographically by archetype then tertiary
+                        to ensure consistent results regardless of thread ordering.
+        Parameters    : ArmorCandidate[]  a : First combo to compare.
+                        ArmorCandidate[]? b : Second combo to compare.
+        Return Values : bool                : True if a should be preferred over b.
+        */
+        public static bool IsMoreDeterministic(ArmorCandidate[]? a, ArmorCandidate[]? b){
+            if (a == null) return false;
+            if (b == null) return true;
+            for (int i = 0; i < a.Length && i < b.Length; i++){
+                int archCompare = a[i].Archetype.CompareTo(b[i].Archetype);
+                if (archCompare != 0) return archCompare < 0;
+                int tertCompare = a[i].Tertiary.CompareTo(b[i].Tertiary);
+                if (tertCompare != 0) return tertCompare < 0;
+            }
+            return false;
         }
     }
 }

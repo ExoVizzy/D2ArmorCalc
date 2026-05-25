@@ -118,26 +118,6 @@ namespace D2ArmorCalc_Algorithm {
             return valid;
         }
         /*
-        Method        : GenerateAllCombinations
-        Description   : Generates all 4-piece legendary combinations from
-                        candidate list as arrays of 4 ArmorCandidates.
-        Parameters    : List<ArmorCandidate> candidates : All valid single-piece candidates.
-        Return Values : List<ArmorCandidate[]>          : All 4-piece combinations.
-        */
-        public static List<ArmorCandidate[]> GenerateAllCombinations(List<ArmorCandidate> candidates){
-            List<ArmorCandidate[]> combinations = [];
-            int count = candidates.Count;
-
-            for (int a = 0; a < count; a++){
-                for (int b = 0; b < count; b++){
-                    for (int c = 0; c < count; c++){
-                        for (int d = 0; d < count; d++) combinations.Add([candidates[a], candidates[b], candidates[c], candidates[d]]);
-                    } 
-                } 
-            }
-            return combinations;
-        }
-        /*
         Method        : GenerateCandidates
         Description   : Generates all valid ArmorCandidate combinations for
                         single legendary armor piece based on pruned options.
@@ -174,7 +154,10 @@ namespace D2ArmorCalc_Algorithm {
                     }
                 }
             }
-            return candidates.GroupBy(c => (c.Archetype, c.Tertiary, c.FocusStat, c.FocusMinus)).Select(g => g.First()).ToList();;
+            return [.. candidates.Where(c => {
+                    Archetype arch = Archetypes.AllArchetypes[(int)c.Archetype];
+                    return mins.Get(arch.Primary) >= 30;
+                }).GroupBy(c => (c.Archetype, c.Tertiary, c.FocusStat, c.FocusMinus)).Select(g => g.First())];
         }
         /*
         Method        : GenerateCandidatesNoFocus
@@ -194,7 +177,143 @@ namespace D2ArmorCalc_Algorithm {
                 //Only add no-focus candidate (focusStat == focusMinus = net zero).
                 foreach (Stat tertiary in validTertiaries) candidates.Add(new ArmorCandidate(archetype.Type, tertiary, focusMinus, focusMinus));
             }
-            return candidates.GroupBy(c => (c.Archetype, c.Tertiary)).Select(g => g.First()).ToList();;
+            return [.. candidates.GroupBy(c => (c.Archetype, c.Tertiary)).Select(g => g.First())];
+        }
+        /*
+        Method        : GetBestPossibleContribution
+        Description   : Returns StatBlock representing maximum any single
+                        candidate can contribute to each stat. Used by
+                        feasibility check to prune impossible branches early.
+        Parameters    : List<ArmorCandidate> candidates : All valid candidates.
+        Return Values : StatBlock                       : Per-stat maximum contribution.
+        */
+        public static StatBlock GetBestPossibleContribution(List<ArmorCandidate> candidates){
+            StatBlock best = new();
+            foreach (ArmorCandidate c in candidates){
+                foreach (Stat stat in GameConstants.StatOrder){
+                    if (c.BaseStats.Get(stat) > best.Get(stat)) best.Set(stat, c.BaseStats.Get(stat));
+                }
+            }
+            return best;
+        }
+        /*
+        Method        : CouldPossiblyMeetMins
+        Description   : Checks whether remaining slots could possibly cover
+                        deficit in running stat total, given best
+                        contribution any single candidate can make per stat.
+                        Used to prune impossible branches during combo search.
+        Parameters    : StatBlock running     : Accumulated stats so far.
+                        StatBlock adjMins     : Minimum targets to meet.
+                        StatBlock bestPerSlot : Max any one candidate contributes per stat.
+                        int       slotsLeft   : Number of slots still to be filled.
+        Return Values : bool                  : True if meeting minimums is still possible.
+        */
+        public static bool CouldPossiblyMeetMins(StatBlock running, StatBlock adjMins, StatBlock bestPerSlot, int slotsLeft, int maxModBoost){
+            foreach (Stat stat in GameConstants.StatOrder){
+                int deficit = Math.Max(0, adjMins.Get(stat) - running.Get(stat));
+                if (deficit == 0) continue;
+                int maxPossible = (bestPerSlot.Get(stat) * slotsLeft) + maxModBoost;
+                if (maxPossible < deficit) return false;
+            }
+            return true;
+        }
+        /*
+        Method        : SearchCombinations
+        Description   : Recursively fills 4 legendary slots one at a time,
+                        pruning branches where remaining slots cannot possibly
+                        meet adjusted minimums. Dramatically reduces
+                        combinations evaluated vs brute-force O(n^4) approach.
+        Parameters    : List<ArmorCandidate>   candidates  : All valid single-piece candidates.
+                        ArmorCandidate?[]      current     : Current combo being built (4 slots).
+                        int                    slot        : Current slot index being filled (0-3).
+                        StatBlock              running     : Accumulated base stats so far.
+                        StatBlock              adjMins     : Minimum targets adjusted for bonuses.
+                        StatBlock              bestPerSlot : Max per-stat contribution any candidate makes.
+                        int                    maxModBoost : Maximum total stat boost mods can provide.
+                        List<ArmorCandidate[]> results     : Collected valid combinations.
+        Return Values : void
+        */
+        public static void SearchCombinations(List<ArmorCandidate> candidates, ArmorCandidate?[] current,
+                                              int slot, StatBlock running, StatBlock adjMins,
+                                              StatBlock bestPerSlot, int maxModBoost,
+                                              List<ArmorCandidate[]> results){
+            if (slot == 4){
+                //All slots filled. check if mods can cover any remaining deficit.
+                int deficit = StatHelper.GetTotalDeficit(running, adjMins);
+                if (deficit <= maxModBoost) results.Add([current[0]!, current[1]!, current[2]!, current[3]!]);
+                return;
+            }
+            int slotsRemaining = 4 - slot;
+
+            foreach (ArmorCandidate candidate in candidates){
+                StatBlock next = running.Add(candidate.BaseStats);
+
+                //Feasibility check: prune if remaining slots can't cover deficit.
+                if (!CouldPossiblyMeetMins(next, adjMins, bestPerSlot, slotsRemaining - 1, maxModBoost)) continue;
+
+                current[slot] = candidate;
+                SearchCombinations(candidates, current, slot + 1, next, adjMins, bestPerSlot, maxModBoost, results);
+            }
+        }
+        /*
+        Method        : SearchCombinations
+        Description   : Recursively fills 4 legendary slots one at a time,
+                        pruning branches where remaining slots cannot possibly
+                        meet adjusted minimums or satisfy required archetype
+                        counts. Dramatically reduces combinations evaluated vs
+                        brute-force O(n^4) approach.
+        Parameters    : List<ArmorCandidate>          candidates  : All valid single-piece candidates.
+                        ArmorCandidate?[]             current     : Current combo being built (4 slots).
+                        int                           slot        : Current slot index being filled (0-3).
+                        StatBlock                     running     : Accumulated base stats so far.
+                        StatBlock                     adjMins     : Minimum targets adjusted for bonuses.
+                        StatBlock                     bestPerSlot : Max per-stat contribution any candidate makes.
+                        int                           maxModBoost : Maximum total stat boost mods can provide.
+                        List<ArmorCandidate[]>        results     : Collected valid combinations.
+                        Dictionary<ArchetypeType,int> reqCounts   : Min pieces needed per archetype.
+                        Dictionary<ArchetypeType,int> currCounts  : Archetype counts placed so far.
+        Return Values : void
+        */
+        public static void SearchCombinations(List<ArmorCandidate> candidates, ArmorCandidate?[] current,
+                                              int slot, StatBlock running, StatBlock adjMins,
+                                              StatBlock bestPerSlot, int maxModBoost, List<ArmorCandidate[]> results,
+                                              Dictionary<ArchetypeType, int> reqCounts,
+                                              Dictionary<ArchetypeType, int> currCounts){
+            if (slot == 4){
+                //Check all required archetype counts are met.
+                foreach (var kvp in reqCounts){
+                    currCounts.TryGetValue(kvp.Key, out int count);
+                    if (count < kvp.Value) return;
+                }
+                int deficit = StatHelper.GetTotalDeficit(running, adjMins);
+                if (deficit <= maxModBoost) results.Add([current[0]!, current[1]!, current[2]!, current[3]!]);
+                return;
+            }
+            int slotsRemaining = 4 - slot;
+
+            foreach (ArmorCandidate candidate in candidates){
+                StatBlock next = running.Add(candidate.BaseStats);
+                //Stat feasibility check.
+                if (!CouldPossiblyMeetMins(next, adjMins, bestPerSlot, slotsRemaining - 1, maxModBoost)) continue;
+
+                //Archetype feasibility check. can remaining slots still satisfy required counts?
+                bool archetypeFeasible = true;
+                foreach (var kvp in reqCounts){
+                    currCounts.TryGetValue(kvp.Key, out int currentCount);
+                    int willHave = currentCount + (candidate.Archetype == kvp.Key ? 1 : 0);
+                    int stillNeeded = kvp.Value - willHave;
+                    if (stillNeeded > slotsRemaining - 1){archetypeFeasible = false; break;}
+                }
+                if (!archetypeFeasible) continue;
+                //Update counts & recurse.
+                currCounts.TryGetValue(candidate.Archetype, out int existingCount);
+                currCounts[candidate.Archetype] = existingCount + 1;
+                current[slot] = candidate;
+
+                SearchCombinations(candidates, current, slot + 1, next, adjMins, bestPerSlot, maxModBoost, results, reqCounts, currCounts);
+                //Backtrack.
+                currCounts[candidate.Archetype] = existingCount;
+            }
         }
     }
 }
