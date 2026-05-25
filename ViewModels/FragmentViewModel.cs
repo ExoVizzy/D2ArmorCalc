@@ -20,12 +20,13 @@ namespace D2ArmorCalc_ViewModels {
         public Fragment Fragment {get;} = fragment;
         public string Name => Fragment.Name;
         public string StatInfo {get;} = BuildStatInfo(fragment);
-        private bool _isSelected;
         public bool IsSelected {
-            get => _isSelected;
-            set {_isSelected = value; OnPropertyChanged(nameof(IsSelected));}
+            get;
+            set {
+                field = value; 
+                OnPropertyChanged(nameof(IsSelected));
+            }
         }
-
         private static string BuildStatInfo(Fragment fragment){
             if (fragment.StatChanges.Length == 0) return string.Empty;
             List<string> parts = [];
@@ -36,79 +37,70 @@ namespace D2ArmorCalc_ViewModels {
     //Wraps Aspect with selection state for UI.
     public class AspectSelectionItem(Aspect aspect) : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string name) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         public Aspect Aspect {get;} = aspect;
         public string Name => Aspect.Name;
         public string FragmentSlots => $"({Aspect.FragmentSlots} fragment slots)";
-        private bool _isSelected;
         public bool IsSelected {
-            get => _isSelected;
-            set {_isSelected = value; OnPropertyChanged(nameof(IsSelected));}
+            get;
+            set {
+                field = value; 
+                OnPropertyChanged(nameof(IsSelected));
+            }
         }
     }
     public class FragmentViewModel : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string name) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================
         //Properties.
         //=====================================================================
-        //Subclass dropdown.
-        public ObservableCollection<string> SubclassOptions {get;} = ["None", "Arc", "Solar", "Void", "Stasis", "Strand", "Prismatic"];
-        private string _selectedSubclass = "None";
         public string SelectedSubclass {
-            get => _selectedSubclass;
+            get;
             set {
-                _selectedSubclass = value;
+                field = value;
                 OnPropertyChanged(nameof(SelectedSubclass));
                 RefreshFragments();
                 RefreshAspects();
                 RefreshSubclassOptions();
             }
-        }
-        
-        private bool _fragmentsEnabled;
+        } = "None";
         public bool FragmentsEnabled {
-            get => _fragmentsEnabled;
+            get;
             set {
-                _fragmentsEnabled = value;
+                field = value;
                 OnPropertyChanged(nameof(FragmentsEnabled));
             }
         }
-        //Add class options for full subclass mode.
-        public ObservableCollection<string> ClassOptions {get;} = ["Warlock", "Titan", "Hunter"];
-        private string _selectedClass = "Warlock";
         public string SelectedClass {
-            get => _selectedClass;
+            get;
             set {
-                if (_selectedClass == value) return;
-                _selectedClass = value;
+                if (field == value) return;
+                field = value;
                 OnPropertyChanged(nameof(SelectedClass));
                 //Update CurrentClass enum.
                 if (Enum.TryParse(value, out PlayerClass pc)) CurrentClass = pc;
                 //Keep subclass name but reload for new class.
-                string current = _selectedSubclass;
-                _selectedSubclass = "None";
+                string current = SelectedSubclass;
+                SelectedSubclass = "None";
                 RefreshFragments();
                 RefreshAspects();
                 RefreshSubclassOptions();
-                _selectedSubclass = current;
+                SelectedSubclass = current;
                 RefreshFragments();
                 RefreshAspects();
                 RefreshSubclassOptions();
                 //Notify class changed for two-way sync with ExoticVM.
                 ClassChanged?.Invoke(this, value);
             }
-        }
+        } = "Warlock";
         //Event for two-way class sync.
         public event EventHandler<string>? ClassChanged;
         //Show full subclass toggle.
-        private bool _showFullSubclass;
         public bool ShowFullSubclass {
-            get => _showFullSubclass;
+            get;
             set {
-                _showFullSubclass = value;
+                field = value;
                 OnPropertyChanged(nameof(ShowFullSubclass));
                 OnPropertyChanged(nameof(MaxFragmentSlots));
                 RefreshFragments();
@@ -125,31 +117,25 @@ namespace D2ArmorCalc_ViewModels {
         public ObservableCollection<string> Grenades {get;} = [];
         public ObservableCollection<string> ClassAbilities {get;} = [];
         public ObservableCollection<string> Jumps {get;} = [];
-        private string? _selectedSuper;
-        public string SelectedSuper {
-            get => _selectedSuper;
-            set {_selectedSuper = value; OnPropertyChanged(nameof(SelectedSuper));}
+        public string? SelectedSuper {
+            get;
+            set {field = value; OnPropertyChanged(nameof(SelectedSuper));}
         }
-
-        private string? _selectedMelee;
-        public string SelectedMelee {
-            get => _selectedMelee;
-            set {_selectedMelee = value; OnPropertyChanged(nameof(SelectedMelee));}
+        public string? SelectedMelee {
+            get;
+            set {field = value; OnPropertyChanged(nameof(SelectedMelee));}
         }
-        private string? _selectedGrenade;
-        public string SelectedGrenade {
-            get => _selectedGrenade;
-            set {_selectedGrenade = value; OnPropertyChanged(nameof(SelectedGrenade));}
+        public string? SelectedGrenade {
+            get;
+            set {field = value; OnPropertyChanged(nameof(SelectedGrenade));}
         }
-        private string? _selectedClassAbility;
-        public string SelectedClassAbility {
-            get => _selectedClassAbility;
-            set {_selectedClassAbility = value; OnPropertyChanged(nameof(SelectedClassAbility));}
+        public string? SelectedClassAbility {
+            get;
+            set {field = value; OnPropertyChanged(nameof(SelectedClassAbility));}
         }
-        private string? _selectedJump;
-        public string SelectedJump {
-            get => _selectedJump;
-            set {_selectedJump = value; OnPropertyChanged(nameof(SelectedJump));}
+        public string? SelectedJump {
+            get;
+            set {field = value; OnPropertyChanged(nameof(SelectedJump));}
         }
         //Fragment slot tracking.
         public int MaxFragmentSlots => GetMaxFragmentSlots();
@@ -174,19 +160,17 @@ namespace D2ArmorCalc_ViewModels {
             }
             Fragments.Clear();
 
-            if (_selectedSubclass == "None") return;
-
-            Subclass subclass = Subclasses.GetSubclass(CurrentClass, _selectedSubclass);
+            if (SelectedSubclass == "None") return;
+            Subclass? subclass = Subclasses.GetSubclass(CurrentClass, SelectedSubclass);
             if (subclass == null) return;
 
             foreach (Fragment fragment in subclass.Fragments){
-                if (!_showFullSubclass && fragment.StatChanges.Length == 0) continue;
+                if (!ShowFullSubclass && fragment.StatChanges.Length == 0) continue;
                 FragmentSelectionItem item = new(fragment){
                     IsSelected = previousSelections.Contains(fragment.Name)
                 };
                 item.PropertyChanged += (s, e) => {
-                    if (e.PropertyName == nameof(FragmentSelectionItem.IsSelected))
-                        OnFragmentSelectionChanged();
+                    if (e.PropertyName == nameof(FragmentSelectionItem.IsSelected)) OnFragmentSelectionChanged();
                 };
                 Fragments.Add(item);
             }
@@ -201,9 +185,9 @@ namespace D2ArmorCalc_ViewModels {
         */
         private void RefreshAspects(){
             Aspects.Clear();
-            if (_selectedSubclass == "None") return;
+            if (SelectedSubclass == "None") return;
 
-            Subclass subclass = Subclasses.GetSubclass(CurrentClass, _selectedSubclass);
+            Subclass? subclass = Subclasses.GetSubclass(CurrentClass, SelectedSubclass);
             if (subclass == null) return;
 
             foreach (Aspect aspect in subclass.Aspects){
@@ -231,9 +215,9 @@ namespace D2ArmorCalc_ViewModels {
             ClassAbilities.Clear();
             Jumps.Clear();
 
-            if (_selectedSubclass == "None") return;
+            if (SelectedSubclass == "None") return;
 
-            Subclass subclass = Subclasses.GetSubclass(CurrentClass, _selectedSubclass);
+            Subclass? subclass = Subclasses.GetSubclass(CurrentClass, SelectedSubclass);
             if (subclass == null) return;
 
             foreach (string s in subclass.Supers) Supers.Add(s);
@@ -254,18 +238,17 @@ namespace D2ArmorCalc_ViewModels {
         /*
         Method        : GetMaxFragmentSlots
         Description   : Returns total fragment slots available based on
-                        two selected aspects. Defaults to 6 if no aspects
-                        are selected (no subclass chosen).
+                        selected aspects. Defaults to 6 if no aspects
+                        selected (no subclass chosen).
         Parameters    : None.
         Return Values : int : Total available fragment slots.
         */
         private int GetMaxFragmentSlots(){
             //When full subclass is off, always return 6.
-            if (!_showFullSubclass) return 6;
-            if (_selectedSubclass == "None") return 6;
+            if (!ShowFullSubclass) return 6;
+            if (SelectedSubclass == "None") return 6;
 
-            int total = 0;
-            int selected = 0;
+            int total = 0, selected = 0;
             foreach (AspectSelectionItem item in Aspects){
                 if (item.IsSelected){
                     total += item.Aspect.FragmentSlots;
@@ -310,7 +293,6 @@ namespace D2ArmorCalc_ViewModels {
             int max = GetMaxFragmentSlots();
             int count = GetSelectedFragmentCount();
             if (count <= max) return;
-
             //Deselect last selected fragment to bring back under limit
             for (int i = Fragments.Count - 1; i >= 0; i--){
                 if (Fragments[i].IsSelected){
@@ -330,7 +312,7 @@ namespace D2ArmorCalc_ViewModels {
         Return Values : Fragment[] : All selected fragments.
         */
         public Fragment[] GetSelectedFragments(){
-            if (!_fragmentsEnabled) return [];
+            if (!FragmentsEnabled) return [];
             List<Fragment> selected = [];
             foreach (FragmentSelectionItem item in Fragments){
                 if (item.IsSelected) selected.Add(item.Fragment);

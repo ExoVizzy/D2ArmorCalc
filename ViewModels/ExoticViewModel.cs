@@ -16,85 +16,76 @@ using System.ComponentModel;
 namespace D2ArmorCalc_ViewModels {
     public class ExoticViewModel : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string name){
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================
         //Properties.
         //=====================================================================
-        //Class selector.
-        public ObservableCollection<string> Classes {get;} = ["Warlock", "Titan", "Hunter"];
-        private string _selectedClass = "Warlock";
         public string SelectedClass {
-            get => _selectedClass;
-            set {_selectedClass = value; OnPropertyChanged(nameof(SelectedClass));}
-        }
-        //Exotic slot selector.
-        public ObservableCollection<string> Slots {get;} = ["Helmet", "Arms", "Chestplate", "Boots", "Class Item"];
-
-        private string _selectedSlot = "Helmet";
-        public string SelectedSlot {
-            get => _selectedSlot;
-            set {_selectedSlot = value; OnPropertyChanged(nameof(SelectedSlot));}
-        }
-        public ObservableCollection<string> ArchetypeOptions {get;} = new(
-            new[]{"Brawler", "Gunner", "Specialist", "Grenadier", "Paragon", "Bulwark"}
-        );
-
-        private string _selectedArchetype = "Gunner";
-        public string SelectedArchetype {
-            get => _selectedArchetype;
-            set {_selectedArchetype = value; OnPropertyChanged(nameof(SelectedArchetype));}
-        }
-        //Custom roll toggle.
-        private bool _customRollEnabled;
-        public bool CustomRollEnabled {
-            get => _customRollEnabled;
+            get;
             set {
-                _customRollEnabled = value;
+                field = value; 
+                OnPropertyChanged(nameof(SelectedClass));
+            }
+        } = "Warlock";
+        //Exotic slot selector.
+        public string SelectedSlot {
+            get;
+            set {
+                field = value; 
+                OnPropertyChanged(nameof(SelectedSlot));
+            }
+        } = "Helmet";
+        public string SelectedArchetype {
+            get;
+            set {
+                field = value; 
+                OnPropertyChanged(nameof(SelectedArchetype));
+            }
+        } = "Gunner";
+        //Custom roll toggle.
+        public bool CustomRollEnabled {
+            get;
+            set {
+                field = value;
                 OnPropertyChanged(nameof(CustomRollEnabled));
                 OnPropertyChanged(nameof(IsStandardRoll));
             }
         }
-        public bool IsStandardRoll => !_customRollEnabled;
+        public bool IsStandardRoll => !CustomRollEnabled;
         //Standard roll display (read-only, shown when custom roll is off).
         public static string StandardRollDisplay => "Primary: 30  Secondary: 20  Tertiary: 12";
         //Custom roll stat inputs (all 6 stats, for pre-rework exotics).
-        private int _customHealth;
         public int CustomHealth {
-            get => _customHealth;
-            set {_customHealth = StatHelper.Clamp(value); OnPropertyChanged(nameof(CustomHealth));}
+            get;
+            set {field = StatHelper.Clamp(value); OnPropertyChanged(nameof(CustomHealth));}
         }
-        private int _customMelee;
         public int CustomMelee {
-            get => _customMelee;
-            set {_customMelee = StatHelper.Clamp(value); OnPropertyChanged(nameof(CustomMelee));}
+            get;
+            set {field = StatHelper.Clamp(value); OnPropertyChanged(nameof(CustomMelee));}
         }
-        private int _customGrenade;
         public int CustomGrenade {
-            get => _customGrenade;
-            set {_customGrenade = StatHelper.Clamp(value); OnPropertyChanged(nameof(CustomGrenade));}
+            get;
+            set {field = StatHelper.Clamp(value); OnPropertyChanged(nameof(CustomGrenade));}
         }
-        private int _customSuper;
         public int CustomSuper {
-            get => _customSuper;
-            set {_customSuper = StatHelper.Clamp(value); OnPropertyChanged(nameof(CustomSuper));}
+            get;
+            set {field = StatHelper.Clamp(value); OnPropertyChanged(nameof(CustomSuper));}
         }
-        private int _customClass;
         public int CustomClass {
-            get => _customClass;
-            set {_customClass = StatHelper.Clamp(value); OnPropertyChanged(nameof(CustomClass));}
+            get;
+            set {field = StatHelper.Clamp(value); OnPropertyChanged(nameof(CustomClass));}
         }
-        private int _customWeapons;
         public int CustomWeapons {
-            get => _customWeapons;
-            set {_customWeapons = StatHelper.Clamp(value); OnPropertyChanged(nameof(CustomWeapons));}
+            get;
+            set {field = StatHelper.Clamp(value); OnPropertyChanged(nameof(CustomWeapons));}
         }
         //T5 exotic toggle (greyed out until released).
-        private bool _t5ExoticEnabled;
         public bool T5ExoticEnabled {
-            get => _t5ExoticEnabled;
-            set {_t5ExoticEnabled = value; OnPropertyChanged(nameof(T5ExoticEnabled));}
+            get;
+            set {
+                field = value; 
+                OnPropertyChanged(nameof(T5ExoticEnabled));
+            }
         }
         //=====================================================================
         //Helpers.
@@ -107,7 +98,7 @@ namespace D2ArmorCalc_ViewModels {
         Return Values : PlayerClass : Selected player class.
         */
         public PlayerClass GetPlayerClass(){
-            return _selectedClass switch {
+            return SelectedClass switch {
                 "Titan" => PlayerClass.Titan,
                 "Hunter" => PlayerClass.Hunter,
                 _ => PlayerClass.Warlock,
@@ -121,7 +112,7 @@ namespace D2ArmorCalc_ViewModels {
         Return Values : ArmorSlot : Selected exotic armor slot.
         */
         public ArmorSlot GetArmorSlot(){
-            return _selectedSlot switch {
+            return SelectedSlot switch {
                 "Arms" => ArmorSlot.Arms,
                 "Chestplate" => ArmorSlot.Chestplate,
                 "Boots" => ArmorSlot.Boots,
@@ -140,14 +131,13 @@ namespace D2ArmorCalc_ViewModels {
         public ArmorPiece BuildExoticPiece(){
             ArmorSlot slot = GetArmorSlot();
             ArmorPiece piece = new(slot, ArmorRarity.Exotic);
-            Archetype archetype = Archetypes.All.FirstOrDefault(a => a.Type.ToString() == _selectedArchetype) ?? Archetypes.Gunner;
-
+            Archetype archetype = Archetypes.AllArchetypes.FirstOrDefault(a => a.Type.ToString() == SelectedArchetype) ?? Archetypes.Gunner;
             piece.Archetype = archetype;
 
-            if (_customRollEnabled){
+            if (CustomRollEnabled){
                 piece.CustomStatBlock = new StatBlock(
-                    _customHealth, _customMelee, _customGrenade,
-                    _customSuper, _customClass, _customWeapons
+                    CustomHealth, CustomMelee, CustomGrenade,
+                    CustomSuper, CustomClass, CustomWeapons
                 );
                 piece.IsCustomRoll = true;
             } else {
@@ -155,10 +145,10 @@ namespace D2ArmorCalc_ViewModels {
                 piece.StandardPrimary = 30;
                 piece.StandardSecondary = 20;
                 piece.StandardTertiary = 12;
-                // Set tertiary to first valid tertiary for this archetype
+                //Set tertiary to first valid tertiary for this archetype
                 piece.TertiaryStat = Archetypes.GetTertiaryStats(archetype)[0];
                 piece.FocusStat = archetype.Primary;
-                piece.FocusMinus = AppSettings.LeastWantedStat;
+                piece.FocusMinus = (Stat)AppSettings.LeastWantedStat;
             }
             return piece;
         }

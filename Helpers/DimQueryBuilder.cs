@@ -10,31 +10,27 @@
 using D2ArmorCalc_Models;
 using System.Text;
 
-namespace D2ArmorCalc_Algorithm {
+namespace D2ArmorCalc.Helpers {
     public static class DimQueryBuilder {
         //=====================================================================
         //DIM Keyword Maps.
         //=====================================================================
-        private static readonly Dictionary<ArchetypeType, string> ArchetypeKeywords =
-            new(){
+        private static readonly Dictionary<ArchetypeType, string> ArchetypeKeywords = new(){
                 {ArchetypeType.Brawler, "brawler"}, {ArchetypeType.Gunner, "gunner"},
                 {ArchetypeType.Specialist, "specialist"}, {ArchetypeType.Grenadier, "grenadier"},
                 {ArchetypeType.Paragon, "paragon"}, {ArchetypeType.Bulwark, "bulwark"}
             };
-        private static readonly Dictionary<Stat, string> StatKeywords =
-            new(){
+        private static readonly Dictionary<Stat, string> StatKeywords = new(){
                 {Stat.Health, "health"}, {Stat.Melee, "melee"},
                 {Stat.Grenade, "grenade"}, {Stat.Super, "super"},
                 {Stat.Class, "class"}, {Stat.Weapons, "weapons"}
             };
-        private static readonly Dictionary<ArmorSlot, string> SlotKeywords =
-            new(){
+        private static readonly Dictionary<ArmorSlot, string> SlotKeywords = new(){
                 {ArmorSlot.Helmet, "helmet"}, {ArmorSlot.Arms, "gauntlets"},
                 {ArmorSlot.Chestplate, "chest"}, {ArmorSlot.Boots, "leg"},
                 {ArmorSlot.ClassItem, "classitem"}
             };
-        private static readonly Dictionary<PlayerClass, string> ClassKeywords =
-            new(){
+        private static readonly Dictionary<PlayerClass, string> ClassKeywords = new(){
                 {PlayerClass.Warlock, "warlock"}, {PlayerClass.Titan, "titan"},
                 {PlayerClass.Hunter, "hunter"}
             };
@@ -80,14 +76,14 @@ namespace D2ArmorCalc_Algorithm {
             //Group pieces by archetype & tertiary to minimize query segments.
             Dictionary<string, HashSet<string>> uniqueCombos = [];
             List<string> uniqueTuning = [];
-            foreach (ArmorPiece piece in result.GetPieces()){
-                if (piece.Rarity == ArmorRarity.Exotic) continue;
+            foreach (ArmorPiece? piece in result.GetPieces()){
+                if (piece == null || piece.Archetype == null || piece.Rarity == ArmorRarity.Exotic) continue;
 
                 string archetype = ArchetypeKeywords[piece.Archetype.Type];
                 string tertiary = StatKeywords[piece.TertiaryStat];
                 string tuning = StatKeywords[piece.FocusStat];
-                if (!uniqueTuning.Contains(tuning)) uniqueTuning.Add(tuning);
 
+                if (!uniqueTuning.Contains(tuning)) uniqueTuning.Add(tuning);
                 if (!uniqueCombos.ContainsKey(archetype)) uniqueCombos[archetype] = [];
 
                 uniqueCombos[archetype].Add(tertiary);
@@ -96,22 +92,20 @@ namespace D2ArmorCalc_Algorithm {
             //Build query segments for each unique archetype + tertiary combo, joining with OR.
             bool firstCombo = true;
             foreach (var kvp in uniqueCombos){
-                if (!firstCombo)
-                    sb.Append(") or (");
+                if (!firstCombo) sb.Append(") or (");
                 firstCombo = false;
-                sb.Append(BuildArchetypeTertiarySegment(kvp.Key, kvp.Value.ToArray()));
+                sb.Append(BuildArchetypeTertiarySegment(kvp.Key, [.. kvp.Value]));
             }
             sb.Append(") (");
 
             //Add Focus Stats.
             firstCombo = true;
             foreach (string s in uniqueTuning){
-                if (!firstCombo)
-                    sb.Append(" or ");
+                if (!firstCombo) sb.Append(" or ");
                 firstCombo = false;
                 sb.Append($"tunedstat:{s}");
             }
-            sb.Append(")");
+            sb.Append(')');
 
             return sb.ToString();
         }
@@ -125,8 +119,8 @@ namespace D2ArmorCalc_Algorithm {
         */
         public static string BuildExoticQuery(BuildResult result, PlayerClass playerClass){
             //Find the exotic piece.
-            ArmorPiece exotic = null;
-            foreach (ArmorPiece piece in result.GetPieces()){
+            ArmorPiece? exotic = null;
+            foreach (ArmorPiece? piece in result.GetPieces()){
                 if (piece?.Rarity == ArmorRarity.Exotic){
                     exotic = piece;
                     break;
@@ -143,15 +137,14 @@ namespace D2ArmorCalc_Algorithm {
         /*
         Method        : BuildCombinedQuery
         Description   : Combines legendary & exotic query strings into
-                        a single DIM query using OR.
+                        single DIM query using OR.
         Parameters    : string legendaryQuery : Legendary DIM query string.
                         string exoticQuery    : Exotic DIM query string.
         Return Values : string                : Combined DIM query string.
         */
         public static string BuildCombinedQuery(string legendaryQuery, string exoticQuery){
-            if (string.IsNullOrEmpty(legendaryQuery)) return exoticQuery;
-            if (string.IsNullOrEmpty(exoticQuery)) return legendaryQuery;
-            return $"({legendaryQuery}) or ({exoticQuery})";
+            return string.IsNullOrEmpty(legendaryQuery) ? exoticQuery
+                : string.IsNullOrEmpty(exoticQuery) ? legendaryQuery : $"({legendaryQuery}) or ({exoticQuery})";
         }
         //=====================================================================
         //Helpers.
@@ -160,13 +153,13 @@ namespace D2ArmorCalc_Algorithm {
         Method        : BuildArchetypeTertiarySegment
         Description   : Builds archetype & tertiary portions of
                         DIM query for single armor piece.
-        Parameters    : ArmorPiece piece : Armor piece to build a segment for.
+        Parameters    : ArmorPiece piece : Armor piece to build segment for.
         Return Values : string           : DIM query segment.
         */
         private static string BuildArchetypeTertiarySegment(string arch, string[] terts){
             string result = $"exactperk:{arch} (";
             bool first = true;
-            foreach (string tert in terts) {
+            foreach (string tert in terts){
                 if(!first) result += " or ";
                 result += $"tertiarystat:{tert}";
                 first = false;
@@ -181,39 +174,10 @@ namespace D2ArmorCalc_Algorithm {
         Return Values : string           : DIM query segment.
         */
         private static string BuildPieceArchetypeSegment(ArmorPiece piece){
+            if (piece.Archetype == null) return string.Empty;
             string archetype = ArchetypeKeywords[piece.Archetype.Type];
             string tertiary = StatKeywords[piece.TertiaryStat];
             return $"exactperk:{archetype} tertiarystat:{tertiary}";
-        }
-        /*
-        Method        : JoinSegments
-        Description   : Joins list of piece query segments with OR if they
-                        differ, or returns single segment if they are all
-                        identical.
-        Parameters    : List<string> segments : Query segments to join.
-        Return Values : string                : Joined query string.
-        */
-        private static string JoinSegments(List<string> segments){
-            //Check if all segments are identical.
-            bool allSame = true;
-            for (int i = 1; i < segments.Count; i++){
-                if (segments[i] != segments[0]){allSame = false; break;}
-            }
-            if (allSame) return segments[0];
-
-            //Deduplicate segments before joining.
-            List<string> unique = [];
-            foreach (string seg in segments){
-                if (!unique.Contains(seg)) unique.Add(seg);
-            }
-            if (unique.Count == 1) return unique[0];
-
-            StringBuilder sb = new();
-            for (int i = 0; i < unique.Count; i++){
-                if (i > 0) sb.Append(" or ");
-                sb.Append($"({unique[i]})");
-            }
-            return sb.ToString();
         }
     }
 }

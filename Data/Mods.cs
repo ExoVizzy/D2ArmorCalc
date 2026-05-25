@@ -3,7 +3,7 @@
 *   PROJECT       : D2ArmorCalc
 *   PROGRAMMER    : ExoVizzy
 *   FIRST VERSION : May 17, 2026
-*   DESCRIPTION   : Static helpers for creating and validating stat mods.
+*   DESCRIPTION   : Static helpers for creating & validating stat mods.
 */
 using D2ArmorCalc_Models;
 

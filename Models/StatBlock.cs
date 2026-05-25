@@ -9,7 +9,7 @@
 using D2ArmorCalc_Models;
 
 namespace D2ArmorCalc_Models {
-    //Represents a complete set of all 6 armor stats.
+    //Represents complete set of all 6 armor stats.
     public class StatBlock {
         public int Health {get; set;}
         public int Melee {get; set;}
@@ -17,7 +17,6 @@ namespace D2ArmorCalc_Models {
         public int Super {get; set;}
         public int Class {get; set;}
         public int Weapons {get; set;}
-
         public StatBlock(int health, int melee, int grenade, int super, int classVal, int weapons){
             Health = health;
             Melee = melee;
@@ -118,7 +117,7 @@ namespace D2ArmorCalc_Models {
         }
         /*
         Method        : GetOverflow
-        Description   : Returns new StatBlock containing only the amount
+        Description   : Returns new StatBlock containing only amount
                         each stat exceeds 100, for UI display purposes.
         Parameters    : None.
         Return Values : StatBlock : Overflow values per stat (0 if stat is <= 100).

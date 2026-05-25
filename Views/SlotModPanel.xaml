@@ -3,33 +3,32 @@
 *   PROJECT       : D2ArmorCalc
 *   PROGRAMMER    : ExoVizzy
 *   FIRST VERSION : May 17, 2026
-*   DESCRIPTION   : UserControl displaying the 3 general mod slots and energy
+*   DESCRIPTION   : UserControl displaying the 3 general mod slots & energy
 *                   usage for a single armor slot in advanced mod mode.
 -->
 <UserControl x:Class="D2ArmorCalc.SlotModPanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-
     <Border Style="{StaticResource CardAltStyle}" Margin="0,0,0,6">
         <StackPanel>
 
             <!-- Slot header + energy -->
             <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding SlotLabel}" Style="{StaticResource BodyText}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="0" Text="{Binding SlotLabel}" Style="{StaticResource BodyText}" FontWeight="SemiBold" VerticalAlignment="Center"/>
 
                 <!-- Energy display -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource SecondaryText}" Text="{Binding EnergyLabel, Mode=OneWay}" VerticalAlignment="Center" Margin="0,0,4,0" />
+                    <TextBlock Style="{StaticResource SecondaryText}" Text="{Binding EnergyLabel, Mode=OneWay}" VerticalAlignment="Center" Margin="0,0,4,0"/>
                     <!-- Energy warning if over budget -->
                     <TextBlock Text="⚠" Foreground="{StaticResource WarningBrush}" FontSize="11" VerticalAlignment="Center" ToolTip="Energy budget exceeded">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding RemainingEnergy, Converter={StaticResource IsNegativeConverter}}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Setter Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -41,31 +40,31 @@
             <!-- Mod Slot 1 -->
             <Grid Margin="0,0,0,4">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Slot 1:" Style="{StaticResource SecondaryText}" VerticalAlignment="Center" />
-                <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding AvailableMods}" SelectedItem="{Binding ModSlot1}" IsEnabled="{Binding Slot1Available}" Opacity="{Binding Slot1Available, Converter={StaticResource BoolToOpacityConverter}}" />
+                <TextBlock Grid.Column="0" Text="Slot 1:" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
+                <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding AvailableMods}" SelectedItem="{Binding ModSlot1}" IsEnabled="{Binding Slot1Available}" Opacity="{Binding Slot1Available, Converter={StaticResource BoolToOpacityConverter}}"/>
             </Grid>
 
             <!-- Mod Slot 2 -->
             <Grid Margin="0,0,0,4">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Slot 2:" Style="{StaticResource SecondaryText}" VerticalAlignment="Center" />
-                <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding AvailableMods}" SelectedItem="{Binding ModSlot2}" IsEnabled="{Binding Slot2Available}" Opacity="{Binding Slot2Available, Converter={StaticResource BoolToOpacityConverter}}" />
+                <TextBlock Grid.Column="0" Text="Slot 2:" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
+                <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding AvailableMods}" SelectedItem="{Binding ModSlot2}" IsEnabled="{Binding Slot2Available}" Opacity="{Binding Slot2Available, Converter={StaticResource BoolToOpacityConverter}}"/>
             </Grid>
 
             <!-- Mod Slot 3 -->
             <Grid Margin="0,0,0,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Slot 3:" Style="{StaticResource SecondaryText}" VerticalAlignment="Center" />
-                <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding AvailableMods}" SelectedItem="{Binding ModSlot3}" IsEnabled="{Binding Slot3Available}" Opacity="{Binding Slot3Available, Converter={StaticResource BoolToOpacityConverter}}" />
+                <TextBlock Grid.Column="0" Text="Slot 3:" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
+                <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding AvailableMods}" SelectedItem="{Binding ModSlot3}" IsEnabled="{Binding Slot3Available}" Opacity="{Binding Slot3Available, Converter={StaticResource BoolToOpacityConverter}}"/>
             </Grid>
         </StackPanel>
     </Border>

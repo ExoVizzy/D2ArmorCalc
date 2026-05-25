@@ -14,12 +14,12 @@
 
             <!-- Mins Failed Error -->
             <Border Style="{StaticResource CardStyle}" BorderBrush="{StaticResource ErrorBrush}" Visibility="{Binding IsMinsFailed, Converter={StaticResource BoolToVisibility}}">
-                <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource ErrorText}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource ErrorText}" TextWrapping="Wrap"/>
             </Border>
 
             <!-- Maxs Exceeded Warning -->
             <Border Style="{StaticResource CardStyle}" BorderBrush="{StaticResource WarningBrush}" Visibility="{Binding IsMaxsExceeded, Converter={StaticResource BoolToVisibility}}">
-                <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource WarningText}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource WarningText}" TextWrapping="Wrap"/>
             </Border>
 
             <!-- Results content (hidden if no valid result) -->
@@ -30,7 +30,7 @@
                 <!-- =========================================================-->
                 <Border Style="{StaticResource CardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Summary" Style="{StaticResource SectionHeaderText}" />
+                        <TextBlock Text="Summary" Style="{StaticResource SectionHeaderText}"/>
                         <ItemsControl ItemsSource="{Binding PieceResults}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -39,17 +39,17 @@
                                             
                                             <!-- Archetype + Rarity header -->
                                             <TextBlock Style="{StaticResource BodyText}" FontWeight="SemiBold">
-                                                <Run Text="{Binding Archetype, Mode=OneWay}" />
-                                                <Run Text=" (" Foreground="{StaticResource TextSecondaryBrush}" />
-                                                <Run Text="{Binding Rarity, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" />
-                                                <Run Text=")" Foreground="{StaticResource TextSecondaryBrush}" />
+                                                <Run Text="{Binding Archetype, Mode=OneWay}"/>
+                                                <Run Text=" (" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                <Run Text="{Binding Rarity, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                <Run Text=")" Foreground="{StaticResource TextSecondaryBrush}"/>
                                             </TextBlock>
                                             
                                             <!-- Tertiary tag -->
                                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                                <TextBlock Text="Tertiary: " Style="{StaticResource SecondaryText}" VerticalAlignment="Center" />
+                                                <TextBlock Text="Tertiary: " Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
                                                 <Border Style="{StaticResource TagBorder}">
-                                                    <TextBlock Text="{Binding Tertiary}" Style="{StaticResource TagText}" />
+                                                    <TextBlock Text="{Binding Tertiary}" Style="{StaticResource TagText}"/>
                                                 </Border>
                                             </StackPanel>
                                         </StackPanel>
@@ -65,34 +65,34 @@
                 <!-- =========================================================-->
                 <Border Style="{StaticResource CardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Mods Applied" Style="{StaticResource SectionHeaderText}" />
+                        <TextBlock Text="Mods Applied" Style="{StaticResource SectionHeaderText}"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="1" />
-                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <!-- Stat Mods -->
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Stat Mods" Style="{StaticResource SecondaryText}" HorizontalAlignment="Center" Margin="0,0,0,10" />
+                                <TextBlock Text="Stat Mods" Style="{StaticResource SecondaryText}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                                 <ItemsControl ItemsSource="{Binding PieceResultsUngrouped}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Margin="0,3,0,3">
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="8" />
-                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="8"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Style="{StaticResource SecondaryText}" VerticalAlignment="Center">
-                                                    <Run Text="Slot " />
-                                                    <Run Text="{Binding SlotNumber, Mode=OneWay}" />
+                                                    <Run Text="Slot "/>
+                                                    <Run Text="{Binding SlotNumber, Mode=OneWay}"/>
                                                 </TextBlock>
-                                                <TextBlock Grid.Column="1" Style="{StaticResource SecondaryText}" Text=":" VerticalAlignment="Center" Margin="2,0,0,0" />
+                                                <TextBlock Grid.Column="1" Style="{StaticResource SecondaryText}" Text=":" VerticalAlignment="Center" Margin="2,0,0,0"/>
                                                 <Border Grid.Column="3" Style="{StaticResource TagBorder}" MinWidth="120">
-                                                    <TextBlock Text="{Binding StatMod}" Style="{StaticResource TagText}" HorizontalAlignment="Center" />
+                                                    <TextBlock Text="{Binding StatMod}" Style="{StaticResource TagText}" HorizontalAlignment="Center"/>
                                                 </Border>
                                             </Grid>
                                         </DataTemplate>
@@ -101,28 +101,28 @@
                             </StackPanel>
 
                             <!-- Vertical spacer -->
-                            <Border Grid.Column="1" Background="{StaticResource BorderBrush}" Width="1" Margin="8,0,8,0" />
+                            <Border Grid.Column="1" Background="{StaticResource BorderBrush}" Width="1" Margin="8,0,8,0"/>
 
                             <!-- Tuning Mods -->
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Tuning Mods" Style="{StaticResource SecondaryText}" HorizontalAlignment="Center" Margin="0,0,0,10" />
+                                <TextBlock Text="Tuning Mods" Style="{StaticResource SecondaryText}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                                 <ItemsControl ItemsSource="{Binding PieceResultsUngrouped}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Margin="0,3,0,3">
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="8" />
-                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="8"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Style="{StaticResource SecondaryText}" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                                    <Run Text="Slot " />
-                                                    <Run Text="{Binding SlotNumber, Mode=OneWay}" />
+                                                    <Run Text="Slot "/>
+                                                    <Run Text="{Binding SlotNumber, Mode=OneWay}"/>
                                                 </TextBlock>
-                                                <TextBlock Grid.Column="1" Style="{StaticResource SecondaryText}" Text=":" VerticalAlignment="Center" Margin="2,0,0,0" />
+                                                <TextBlock Grid.Column="1" Style="{StaticResource SecondaryText}" Text=":" VerticalAlignment="Center" Margin="2,0,0,0"/>
                                                 <Border Grid.Column="3" Style="{StaticResource TagBorder}" MinWidth="120">
-                                                    <TextBlock Text="{Binding Focus}" Style="{StaticResource TagText}" HorizontalAlignment="Center" />
+                                                    <TextBlock Text="{Binding Focus}" Style="{StaticResource TagText}" HorizontalAlignment="Center"/>
                                                 </Border>
                                             </Grid>
                                         </DataTemplate>
@@ -138,15 +138,15 @@
                 <!-- =========================================================-->
                 <Border Style="{StaticResource CardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Total vs Target" Style="{StaticResource SectionHeaderText}" />
+                        <TextBlock Text="Total vs Target" Style="{StaticResource SectionHeaderText}"/>
                         <Border Style="{StaticResource CardAltStyle}">
                             <StackPanel>
-                                <TextBlock Text="Totals Achieved" Style="{StaticResource SecondaryText}" Margin="0,0,0,8" />
+                                <TextBlock Text="Totals Achieved" Style="{StaticResource SecondaryText}" Margin="0,0,0,8"/>
                                 <WrapPanel>
                                     <ItemsControl ItemsSource="{Binding StatResults}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <WrapPanel />
+                                                <WrapPanel/>
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
@@ -156,34 +156,34 @@
                                                         
                                                         <!-- Stat label -->
                                                         <TextBlock Style="{StaticResource TagText}" Margin="0,0,4,0">
-                                                            <Run Text="{Binding Label, Mode=OneWay}" />
-                                                            <Run Text=":" />
+                                                            <Run Text="{Binding Label, Mode=OneWay}"/>
+                                                            <Run Text=":"/>
                                                         </TextBlock>
 
                                                         <!-- Min (if set) -->
                                                         <TextBlock Style="{StaticResource TagText}" Visibility="{Binding TargetMin, Converter={StaticResource NonZeroToVisibility}}">
-                                                            <Run Text="{Binding TargetMin, Mode=OneWay}" />
-                                                            <Run Text=" &lt; " />
+                                                            <Run Text="{Binding TargetMin, Mode=OneWay}"/>
+                                                            <Run Text=" &lt; "/>
                                                         </TextBlock>
 
                                                         <!-- Actual value (accent colored) — split into base + font bonus if fonts active -->
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Style="{StaticResource StatValueText}" Text="{Binding BaseStatValue, Mode=OneWay}" />
+                                                            <TextBlock Style="{StaticResource StatValueText}" Text="{Binding BaseStatValue, Mode=OneWay}"/>
                                                             <TextBlock Foreground="{StaticResource SuccessBrush}" FontSize="11" VerticalAlignment="Center" Visibility="{Binding HasFontBonus, Converter={StaticResource BoolToVisibility}}">
-                                                                <Run Text="+" />
-                                                                <Run Text="{Binding FontBonus, Mode=OneWay}" />
+                                                                <Run Text="+"/>
+                                                                <Run Text="{Binding FontBonus, Mode=OneWay}"/>
                                                             </TextBlock>
                                                         </StackPanel>
 
                                                         <!-- Max (if set) -->
                                                         <TextBlock Style="{StaticResource TagText}" Visibility="{Binding TargetMax, 
                                                                    Converter={StaticResource NonZeroToVisibility}}">
-                                                            <Run Text=" &lt; " />
-                                                            <Run Text="{Binding TargetMax, Mode=OneWay}" />
+                                                            <Run Text=" &lt; "/>
+                                                            <Run Text="{Binding TargetMax, Mode=OneWay}"/>
                                                         </TextBlock>
 
                                                         <!-- Exceeded max indicator -->
-                                                        <TextBlock Text=" (!)" Foreground="{StaticResource WarningBrush}" FontSize="11" Visibility="{Binding ExceedsMax, Converter={StaticResource BoolToVisibility}}" />
+                                                        <TextBlock Text=" (!)" Foreground="{StaticResource WarningBrush}" FontSize="11" Visibility="{Binding ExceedsMax, Converter={StaticResource BoolToVisibility}}"/>
                                                     </StackPanel>
                                                 </Border>
                                             </DataTemplate>
@@ -200,39 +200,39 @@
                 <!-- =========================================================-->
                 <Border Style="{StaticResource CardStyle}" Visibility="{Binding ShowDimQueries, Converter={StaticResource BoolToVisibility}}">
                     <StackPanel>
-                        <TextBlock Text="DIM Queries" Style="{StaticResource SectionHeaderText}" />
+                        <TextBlock Text="DIM Queries" Style="{StaticResource SectionHeaderText}"/>
 
                         <!-- All -->
-                        <TextBlock Text="All Pieces" Style="{StaticResource SecondaryText}" Margin="0,0,0,4" />
+                        <TextBlock Text="All Pieces" Style="{StaticResource SecondaryText}" Margin="0,0,0,4"/>
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DimQueryAll}" TextWrapping="Wrap" />
-                            <Button Grid.Column="1" Style="{StaticResource IconButton}" Command="{Binding CopyAllQueryCommand}" Content="Copy" Margin="6,0,0,0" />
+                            <TextBox Grid.Column="0" Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DimQueryAll}" TextWrapping="Wrap"/>
+                            <Button Grid.Column="1" Style="{StaticResource IconButton}" Command="{Binding CopyAllQueryCommand}" Content="Copy" Margin="6,0,0,0"/>
                         </Grid>
 
                         <!-- Legendary -->
-                        <TextBlock Text="Legendary Pieces" Style="{StaticResource SecondaryText}" Margin="0,0,0,4" />
+                        <TextBlock Text="Legendary Pieces" Style="{StaticResource SecondaryText}" Margin="0,0,0,4"/>
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DimQueryLegendary}" TextWrapping="Wrap" />
-                            <Button Grid.Column="1" Style="{StaticResource IconButton}" Command="{Binding CopyLegendaryQueryCommand}" Content="Copy" Margin="6,0,0,0" />
+                            <TextBox Grid.Column="0" Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DimQueryLegendary}" TextWrapping="Wrap"/>
+                            <Button Grid.Column="1" Style="{StaticResource IconButton}" Command="{Binding CopyLegendaryQueryCommand}" Content="Copy" Margin="6,0,0,0"/>
                         </Grid>
 
                         <!-- Exotic -->
-                        <TextBlock Text="Exotic Piece" Style="{StaticResource SecondaryText}" Margin="0,0,0,4" />
+                        <TextBlock Text="Exotic Piece" Style="{StaticResource SecondaryText}" Margin="0,0,0,4"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DimQueryExotic}" TextWrapping="Wrap" />
-                            <Button Grid.Column="1" Style="{StaticResource IconButton}" Command="{Binding CopyExoticQueryCommand}" Content="Copy" Margin="6,0,0,0" />
+                            <TextBox Grid.Column="0" Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DimQueryExotic}" TextWrapping="Wrap"/>
+                            <Button Grid.Column="1" Style="{StaticResource IconButton}" Command="{Binding CopyExoticQueryCommand}" Content="Copy" Margin="6,0,0,0"/>
                         </Grid>
                     </StackPanel>
                 </Border>

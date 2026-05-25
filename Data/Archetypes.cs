@@ -17,14 +17,13 @@ namespace D2ArmorCalc_Data {
         public static readonly Archetype Grenadier = new(ArchetypeType.Grenadier, Stat.Grenade, Stat.Super);
         public static readonly Archetype Paragon = new(ArchetypeType.Paragon, Stat.Super, Stat.Melee);
         public static readonly Archetype Bulwark = new(ArchetypeType.Bulwark, Stat.Health, Stat.Class);
-
         //All archetypes as array for iteration.
-        public static readonly Archetype[] All = [Brawler, Gunner, Specialist, Grenadier, Paragon, Bulwark];
+        public static readonly Archetype[] AllArchetypes = [Brawler, Gunner, Specialist, Grenadier, Paragon, Bulwark];
         /*
         Method        : GetTertiaryStats
-        Description   : Returns the 4 stats that are not primary or secondary
-                        for a given archetype (valid tertiary options).
-        Parameters    : Archetype archetype : The archetype to check against.
+        Description   : Returns 4 stats that arent primary or secondary
+                        for given archetype (valid tertiary options).
+        Parameters    : Archetype archetype : Archetype to check against.
         Return Values : Stat[]              : Array of 4 valid tertiary stats.
         */
         public static Stat[] GetTertiaryStats(Archetype archetype){

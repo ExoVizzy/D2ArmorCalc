@@ -16,15 +16,14 @@ namespace D2ArmorCalc_Data {
         //Shared Data.
         //=====================================================================
         private static readonly string[] WarlockJumps = ["Strafe Glide", "Burst Glide", "Balanced Glide"];
-        private static readonly string[] TitanJumps = ["High Lift", "Strafe Lift", "Catapult Lift"];
-        private static readonly string[] HunterJumps = ["High Jump", "Strafe Jump", "Triple Jump"];
-        private static readonly string[] BlinkJump = ["High Jump", "Strafe Jump", "Triple Jump", "Blink"];
         private static readonly string[] WarlockBlink = ["Strafe Glide", "Burst Glide", "Balanced Glide", "Blink"];
-
         private static readonly string[] WarlockClassAbilities = ["Healing Rift", "Empowering Rift"];
         private static readonly string[] WarlockSolarClassAbilities = ["Healing Rift", "Empowering Rift", "Phoenix Dive"];
+        private static readonly string[] TitanJumps = ["High Lift", "Strafe Lift", "Catapult Lift"];
         private static readonly string[] TitanClassAbilities = ["Rally Barricade", "Towering Barricade"];
         private static readonly string[] TitanArcClassAbilities = ["Rally Barricade", "Towering Barricade", "Thruster"];
+        private static readonly string[] HunterJumps = ["High Jump", "Strafe Jump", "Triple Jump"];
+        private static readonly string[] HunterBlink = ["High Jump", "Strafe Jump", "Triple Jump", "Blink"];
         private static readonly string[] HunterClassAbilities = ["Marksmans Dodge", "Gamblers Dodge"];
         private static readonly string[] HunterSolarClassAbilities = ["Marksmans Dodge", "Gamblers Dodge", "Acrobats Dodge"];
         //=====================================================================
@@ -37,43 +36,37 @@ namespace D2ArmorCalc_Data {
                 _ => Stat.Class //Warlock.
             };
             return [
-                new Fragment("Haste", "Arc"),
-                new Fragment("Instinct", "Arc"),
-                new Fragment("Beacons", "Arc"),
-                new Fragment("Protection", "Arc", new StatChange(Stat.Melee, +10)),
-                new Fragment("Momentum", "Arc"),
-                new Fragment("Shock", "Arc", new StatChange(Stat.Grenade, -10)),
-                new Fragment("Ions", "Arc"),
+                new Fragment("Brilliance", "Arc", new StatChange(Stat.Super, +10)),
                 new Fragment("Discharge", "Arc", new StatChange(Stat.Melee, -10)),
-                new Fragment("Frequency", "Arc"),
-                new Fragment("Focus", "Arc", new StatChange(focusStat, -10)),
-                new Fragment("Recharge", "Arc"),
-                new Fragment("Magnitude", "Arc"),
-                new Fragment("Amplitude", "Arc"),
                 new Fragment("Feedback", "Arc", new StatChange(Stat.Health, +10)),
+                new Fragment("Focus", "Arc", new StatChange(focusStat, -10)),
+                new Fragment("Protection", "Arc", new StatChange(Stat.Melee, +10)),
+                new Fragment("Shock", "Arc", new StatChange(Stat.Grenade, -10)),
                 new Fragment("Volts", "Arc", new StatChange(Stat.Class, +10)),
-                new Fragment("Brilliance", "Arc", new StatChange(Stat.Super, +10))];
+                new Fragment("Amplitude", "Arc"), new Fragment("Beacons", "Arc"),
+                new Fragment("Frequency", "Arc"), new Fragment("Haste", "Arc"),
+                new Fragment("Instinct", "Arc"), new Fragment("Ions", "Arc"),
+                new Fragment("Magnitude", "Arc"), new Fragment("Momentum", "Arc"),
+                new Fragment("Recharge", "Arc")];
         }
         //=====================================================================
         //Solar Fragments.
         //=====================================================================
         private static readonly Fragment[] SolarFragments = [
-            new Fragment("Mercy", "Solar", new StatChange(Stat.Health, +10)),
-            new Fragment("Resolve", "Solar"),
-            new Fragment("Singing", "Solar"),
-            new Fragment("Benevolence", "Solar", new StatChange(Stat.Grenade, -10)),
             new Fragment("Beams", "Solar", new StatChange(Stat.Super, +10)),
-            new Fragment("Empyrean", "Solar", new StatChange(Stat.Health, -10)),
-            new Fragment("Combustion", "Solar", new StatChange(Stat.Melee, +10)),
-            new Fragment("Torches", "Solar", new StatChange(Stat.Grenade, -10)),
+            new Fragment("Benevolence", "Solar", new StatChange(Stat.Grenade, -10)),
             new Fragment("Char", "Solar", new StatChange(Stat.Grenade, +10)),
-            new Fragment("Tempering", "Solar", new StatChange(Stat.Class, -10)),
-            new Fragment("Blistering", "Solar"),
-            new Fragment("Solace", "Solar"),
+            new Fragment("Combustion", "Solar", new StatChange(Stat.Melee, +10)),
+            new Fragment("Empyrean", "Solar", new StatChange(Stat.Health, -10)),
             new Fragment("Eruption", "Solar", new StatChange(Stat.Melee, +10)),
-            new Fragment("Ashes", "Solar"),
+            new Fragment("Mercy", "Solar", new StatChange(Stat.Health, +10)),
+            new Fragment("Searing", "Solar", new StatChange(Stat.Class, +10)),
+            new Fragment("Tempering", "Solar", new StatChange(Stat.Class, -10)),
+            new Fragment("Torches", "Solar", new StatChange(Stat.Grenade, -10)),
             new Fragment("Wonder", "Solar", new StatChange(Stat.Health, +10)),
-            new Fragment("Searing", "Solar", new StatChange(Stat.Class, +10))];
+            new Fragment("Ashes", "Solar"), new Fragment("Blistering", "Solar"),
+            new Fragment("Resolve", "Solar"), new Fragment("Singing", "Solar"),
+            new Fragment("Solace", "Solar")];
         //=====================================================================
         //Void Fragments.
         //=====================================================================
@@ -84,85 +77,74 @@ namespace D2ArmorCalc_Data {
                 _ => Stat.Class //Warlock.
             };
             return [
-                new Fragment("Vigilance", "Void"),
-                new Fragment("Cessation", "Void"),
-                new Fragment("Expulsion", "Void", new StatChange(Stat.Super, +10)),
-                new Fragment("Provision", "Void", new StatChange(Stat.Grenade, +10)),
-                new Fragment("Exchange", "Void", new StatChange(Stat.Melee, +10)),
-                new Fragment("Remnants", "Void"),
-                new Fragment("Reprisal", "Void"),
-                new Fragment("Undermining", "Void", new StatChange(Stat.Grenade, -10)),
-                new Fragment("Persistence", "Void", new StatChange(persistenceStat, -10)),
-                new Fragment("Leeching", "Void", new StatChange(Stat.Health, +10)),
-                new Fragment("Domineering", "Void", new StatChange(Stat.Grenade, +10)),
                 new Fragment("Dilation", "Void", new StatChange(Stat.Weapons, +10), new StatChange(Stat.Super, +10)),
+                new Fragment("Domineering", "Void", new StatChange(Stat.Grenade, +10)),
+                new Fragment("Exchange", "Void", new StatChange(Stat.Melee, +10)),
+                new Fragment("Expulsion", "Void", new StatChange(Stat.Super, +10)),
                 new Fragment("Instability", "Void", new StatChange(Stat.Melee, +10)),
-                new Fragment("Harvest", "Void"),
+                new Fragment("Leeching", "Void", new StatChange(Stat.Health, +10)),
                 new Fragment("Obscurity", "Void", new StatChange(Stat.Class, +10)),
-                new Fragment("Starvation", "Void", new StatChange(Stat.Class, -10))];
+                new Fragment("Persistence", "Void", new StatChange(persistenceStat, -10)),
+                new Fragment("Provision", "Void", new StatChange(Stat.Grenade, +10)),
+                new Fragment("Starvation", "Void", new StatChange(Stat.Class, -10)),
+                new Fragment("Undermining", "Void", new StatChange(Stat.Grenade, -10)),
+                new Fragment("Cessation", "Void"), new Fragment("Harvest", "Void"),
+                new Fragment("Remnants", "Void"), new Fragment("Reprisal", "Void"),
+                new Fragment("Vigilance", "Void")];
         }
         //=====================================================================
         //Stasis Fragments.
         //=====================================================================
         private static readonly Fragment[] StasisFragments = [
-            new Fragment("Hedrons", "Stasis"),
-            new Fragment("Fissures", "Stasis"),
-            new Fragment("Refraction", "Stasis"),
-            new Fragment("Durance", "Stasis", new StatChange(Stat.Melee, +10)),
             new Fragment("Bonds", "Stasis", new StatChange(Stat.Super, -10)),
-            new Fragment("Shards", "Stasis"),
             new Fragment("Chains", "Stasis", new StatChange(Stat.Class, +10)),
-            new Fragment("Torment", "Stasis", new StatChange(Stat.Grenade, -10)),
-            new Fragment("Fractures", "Stasis"),
-            new Fragment("Impetus", "Stasis", new StatChange(Stat.Health, +10)),
             new Fragment("Conduction", "Stasis", new StatChange(Stat.Health, +10), new StatChange(Stat.Super, +10)),
-            new Fragment("Rending", "Stasis"),
+            new Fragment("Durance", "Stasis", new StatChange(Stat.Melee, +10)),
             new Fragment("Hunger", "Stasis", new StatChange(Stat.Melee, -20)),
-            new Fragment("Rime", "Stasis"),
-            new Fragment("Reversal", "Stasis"),
-            new Fragment("Chill", "Stasis")];
+            new Fragment("Impetus", "Stasis", new StatChange(Stat.Health, +10)),
+            new Fragment("Torment", "Stasis", new StatChange(Stat.Grenade, -10)),
+            new Fragment("Chill", "Stasis"), new Fragment("Fissures", "Stasis"),
+            new Fragment("Fractures", "Stasis"), new Fragment("Hedrons", "Stasis"),
+            new Fragment("Refraction", "Stasis"), new Fragment("Rending", "Stasis"),
+            new Fragment("Reversal", "Stasis"), new Fragment("Rime", "Stasis"),
+            new Fragment("Shards", "Stasis")];
         //=====================================================================
         //Strand Fragments.
         //=====================================================================
         private static readonly Fragment[] StrandFragments = [
-            new Fragment("Mind", "Strand"),
-            new Fragment("Fury", "Strand", new StatChange(Stat.Melee, -10)),
             new Fragment("Ascent", "Strand", new StatChange(Stat.Weapons, +10)),
-            new Fragment("Finality", "Strand", new StatChange(Stat.Class, +10)),
-            new Fragment("Warding", "Strand", new StatChange(Stat.Health, -10)),
-            new Fragment("Wisdom", "Strand"),
-            new Fragment("Redbirth", "Strand"),
-            new Fragment("Transmutation", "Strand", new StatChange(Stat.Melee, +10)),
-            new Fragment("Propagation", "Strand", new StatChange(Stat.Melee, +10)),
-            new Fragment("Evolution", "Strand", new StatChange(Stat.Super, +10)),
-            new Fragment("Isolation", "Strand"),
             new Fragment("Binding", "Strand", new StatChange(Stat.Health, +10)),
+            new Fragment("Evolution", "Strand", new StatChange(Stat.Super, +10)),
+            new Fragment("Finality", "Strand", new StatChange(Stat.Class, +10)),
+            new Fragment("Fury", "Strand", new StatChange(Stat.Melee, -10)),
             new Fragment("Generation", "Strand", new StatChange(Stat.Grenade, -10)),
-            new Fragment("Continuity", "Strand")];
+            new Fragment("Propagation", "Strand", new StatChange(Stat.Melee, +10)),
+            new Fragment("Transmutation", "Strand", new StatChange(Stat.Melee, +10)),
+            new Fragment("Warding", "Strand", new StatChange(Stat.Health, -10)),
+            new Fragment("Continuity", "Strand"), new Fragment("Isolation", "Strand"),
+            new Fragment("Mind", "Strand"), new Fragment("Redbirth", "Strand"),
+            new Fragment("Wisdom", "Strand")];
         //=====================================================================
         //Prismatic Fragments.
         //=====================================================================
         private static readonly Fragment[] PrismaticFragments = [
-            new Fragment("Grace", "Prismatic", new StatChange(Stat.Health, -10)),
-            new Fragment("Sacrifice", "Prismatic", new StatChange(Stat.Grenade, +10)),
-            new Fragment("Devotion", "Prismatic", new StatChange(Stat.Melee, +10)),
-            new Fragment("Generosity", "Prismatic"),
-            new Fragment("Justice", "Prismatic", new StatChange(Stat.Super, +10)),
-            new Fragment("Honor", "Prismatic", new StatChange(Stat.Melee, +10)),
-            new Fragment("Hope", "Prismatic"),
-            new Fragment("Courage", "Prismatic", new StatChange(Stat.Grenade, +10)),
-            new Fragment("Balance", "Prismatic"),
-            new Fragment("Bravery", "Prismatic"),
             new Fragment("Awakening", "Prismatic", new StatChange(Stat.Health, +10)),
-            new Fragment("Command", "Prismatic"),
+            new Fragment("Courage", "Prismatic", new StatChange(Stat.Grenade, +10)),
             new Fragment("Dawn", "Prismatic", new StatChange(Stat.Melee, -10)),
-            new Fragment("Protection", "Prismatic", new StatChange(Stat.Melee, +10)),
-            new Fragment("Blessing", "Prismatic"),
-            new Fragment("Purpose", "Prismatic", new StatChange(Stat.Class, -10)),
-            new Fragment("Mending", "Prismatic"),
             new Fragment("Defiance", "Prismatic", new StatChange(Stat.Class, +10)),
-            new Fragment("Solitude", "Prismatic"),
-            new Fragment("Ruin", "Prismatic", new StatChange(Stat.Weapons, +10))];
+            new Fragment("Devotion", "Prismatic", new StatChange(Stat.Melee, +10)),
+            new Fragment("Dominance", "Prismatic", new StatChange(Stat.Grenade, -10)),
+            new Fragment("Grace", "Prismatic", new StatChange(Stat.Health, -10)),
+            new Fragment("Honor", "Prismatic", new StatChange(Stat.Melee, +10)),
+            new Fragment("Justice", "Prismatic", new StatChange(Stat.Super, +10)),
+            new Fragment("Protection", "Prismatic", new StatChange(Stat.Melee, +10)),
+            new Fragment("Purpose", "Prismatic", new StatChange(Stat.Class, -10)),
+            new Fragment("Ruin", "Prismatic", new StatChange(Stat.Weapons, +10)),
+            new Fragment("Sacrifice", "Prismatic", new StatChange(Stat.Grenade, +10)),
+            new Fragment("Balance", "Prismatic"), new Fragment("Blessing", "Prismatic"),
+            new Fragment("Bravery", "Prismatic"), new Fragment("Command", "Prismatic"),
+            new Fragment("Generosity", "Prismatic"), new Fragment("Hope", "Prismatic"),
+            new Fragment("Mending", "Prismatic"), new Fragment("Solitude", "Prismatic")];
         //=====================================================================
         //Grenades.
         //=====================================================================
@@ -354,7 +336,7 @@ namespace D2ArmorCalc_Data {
             melees: ["Combination Blow", "Disorienting Blow"],
             grenades: ArcGrenades,
             classAbilities: HunterClassAbilities,
-            jumps: BlinkJump
+            jumps: HunterBlink
         );
         public static readonly Subclass HunterSolar = new(
             name: "Solar",
@@ -420,7 +402,7 @@ namespace D2ArmorCalc_Data {
             melees: ["Threaded Strike", "Withering Blade", "Snare Bomb", "Knife Trick", "Combination Blow"],
             grenades: PrismaticHunterGrenades,
             classAbilities: HunterSolarClassAbilities,
-            jumps: BlinkJump
+            jumps: HunterBlink
         );
         //=====================================================================
         //All Subclasses lookup.
@@ -437,7 +419,7 @@ namespace D2ArmorCalc_Data {
                         string name             : Subclass name (e.g. "Arc").
         Return Values : Subclass                : Matching subclass, or null if not found.
         */
-        public static Subclass GetSubclass(PlayerClass playerClass, string name){
+        public static Subclass? GetSubclass(PlayerClass playerClass, string name){
             foreach (Subclass subclass in All[playerClass]){
                 if (subclass.Name == name) return subclass;
             }

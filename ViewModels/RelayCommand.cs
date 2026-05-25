@@ -9,23 +9,18 @@
 using System.Windows.Input;
 
 namespace D2ArmorCalc_ViewModels {
-    public class RelayCommand(Action<object> execute, Func<object, bool> canExecute = null) : ICommand {
-        private readonly Action<object> _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-        private readonly Func<object, bool> _canExecute = canExecute;
-
-        public event EventHandler CanExecuteChanged {
-            add => CommandManager.RequerySuggested += value;
-            remove => CommandManager.RequerySuggested -= value;
-        }
-
+    public class RelayCommand(Action<object?> execute, Func<object?, bool>? canExecute = null) : ICommand {
+        private readonly Action<object?> _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+        private readonly Func<object?, bool>? _canExecute = canExecute;
+        public event EventHandler? CanExecuteChanged;
         /*
         Method        : CanExecute
         Description   : Returns whether command can currently execute.
                         Defaults to true if no canExecute predicate was provided.
         Parameters    : object parameter : Optional command parameter.
-        Return Values : bool             : True if the command can execute.
+        Return Values : bool             : True if command can execute.
         */
-        public bool CanExecute(object parameter){
+        bool ICommand.CanExecute(object? parameter){
             return _canExecute == null || _canExecute(parameter);
         }
         /*
@@ -34,7 +29,7 @@ namespace D2ArmorCalc_ViewModels {
         Parameters    : object parameter : Optional command parameter.
         Return Values : void
         */
-        public void Execute(object parameter){
+        void ICommand.Execute(object? parameter){
             _execute(parameter);
         }
     }

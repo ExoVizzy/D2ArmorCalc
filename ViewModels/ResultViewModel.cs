@@ -21,33 +21,39 @@ namespace D2ArmorCalc_ViewModels {
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         public Stat Stat {get;} = stat;
-        private int _baseStatValue;
         public int BaseStatValue {
-            get => _baseStatValue;
-            set {_baseStatValue = value; OnPropertyChanged(nameof(BaseStatValue));}
+            get;
+            set {field = value; OnPropertyChanged(nameof(BaseStatValue));}
         }
-        private int _fontBonus;
         public int FontBonus {
-            get => _fontBonus;
-            set {_fontBonus = value; OnPropertyChanged(nameof(FontBonus)); OnPropertyChanged(nameof(HasFontBonus)); OnPropertyChanged(nameof(BaseStatValue));}
-        }
-        public bool HasFontBonus  => _fontBonus > 0;
-        public string Label {get;} = stat.ToString();
-        private int _baseValue;
-        public int BaseValue {
-            get => _baseValue;
-            set {_baseValue = value; OnPropertyChanged(nameof(BaseValue));}
-        }
-        private int _moddedValue;
-        public int ModdedValue {
-            get => _moddedValue;
-            set {_moddedValue = value; OnPropertyChanged(nameof(ModdedValue));}
-        }
-        private int _finalValue;
-        public int FinalValue {
-            get => _finalValue;
+            get;
             set {
-                _finalValue = value;
+                field = value; 
+                OnPropertyChanged(nameof(FontBonus)); 
+                OnPropertyChanged(nameof(HasFontBonus)); 
+                OnPropertyChanged(nameof(BaseStatValue));
+            }
+        }
+        public bool HasFontBonus => FontBonus > 0;
+        public string Label {get;} = stat.ToString();
+        public int BaseValue {
+            get;
+            set {
+                field = value; 
+                OnPropertyChanged(nameof(BaseValue));
+            }
+        }
+        public int ModdedValue {
+            get;
+            set {
+                field = value; 
+                OnPropertyChanged(nameof(ModdedValue));
+            }
+        }
+        public int FinalValue {
+            get;
+            set {
+                field = value;
                 OnPropertyChanged(nameof(FinalValue));
                 OnPropertyChanged(nameof(OverflowValue));
                 OnPropertyChanged(nameof(HasOverflow));
@@ -55,27 +61,33 @@ namespace D2ArmorCalc_ViewModels {
                 OnPropertyChanged(nameof(IsOverCap));
             }
         }
-        private int _targetMin;
         public int TargetMin {
-            get => _targetMin;
-            set {_targetMin = value; OnPropertyChanged(nameof(TargetMin)); OnPropertyChanged(nameof(MeetsMin));}
+            get;
+            set {
+                field = value; 
+                OnPropertyChanged(nameof(TargetMin)); 
+                OnPropertyChanged(nameof(MeetsMin));
+            }
         }
-        private int _targetMax;
         public int TargetMax {
-            get => _targetMax;
-            set {_targetMax = value; OnPropertyChanged(nameof(TargetMax)); OnPropertyChanged(nameof(ExceedsMax));}
+            get;
+            set {
+                field = value; 
+                OnPropertyChanged(nameof(TargetMax)); 
+                OnPropertyChanged(nameof(ExceedsMax));
+            }
         }
         //Overflow above 100.
-        public int OverflowValue => StatHelper.GetOverflow(_finalValue);
+        public int OverflowValue => StatHelper.GetOverflow(FinalValue);
         public bool HasOverflow => OverflowValue > 0;
         //Whether stat is over 200 cap.
-        public bool IsOverCap => _finalValue > StatHelper.StatMax;
+        public bool IsOverCap => FinalValue > StatHelper.StatMax;
         //Whether stat meets its minimum target.
-        public bool MeetsMin => _targetMin == 0 || _finalValue >= _targetMin;
+        public bool MeetsMin => TargetMin == 0 || FinalValue >= TargetMin;
         //Whether stat exceeds its maximum target.
-        public bool ExceedsMax => _targetMax > 0 && _finalValue > _targetMax;
+        public bool ExceedsMax => TargetMax > 0 && FinalValue > TargetMax;
         //Buff string from StatHelper.
-        public string BuffString => StatHelper.GetBuff(Stat, _finalValue);
+        public string BuffString => StatHelper.GetBuff(Stat, FinalValue);
     }
     //Represents single armor piece row in results display.
     public class PieceResultItem {
@@ -97,18 +109,17 @@ namespace D2ArmorCalc_ViewModels {
         //=====================================================================
         //Properties.
         //=====================================================================
-        private StatBlock _fontBonuses = new StatBlock();
+        private StatBlock _fontBonuses = new();
         //Stat result rows (one per stat).
         public ObservableCollection<StatResultItem> StatResults {get;} = [];
         //Piece result rows (one per armor slot).
         public ObservableCollection<PieceResultItem> PieceResults {get;} = [];
         public ObservableCollection<PieceResultItem> PieceResultsUngrouped {get;} = [];
         //Build status.
-        private BuildStatus _status;
         public BuildStatus Status {
-            get => _status;
+            get;
             set {
-                _status = value;
+                field = value;
                 OnPropertyChanged(nameof(Status));
                 OnPropertyChanged(nameof(StatusMessage));
                 OnPropertyChanged(nameof(IsSuccess));
@@ -118,31 +129,28 @@ namespace D2ArmorCalc_ViewModels {
             }
         }
         public string StatusMessage => _buildResult?.GetStatusMessage() ?? string.Empty;
-        public bool IsSuccess => _status == BuildStatus.Success;
-        public bool IsMinsFailed => _status == BuildStatus.MinsFailed;
-        public bool IsMaxsExceeded => _status == BuildStatus.MaxsExceeded;
+        public bool IsSuccess => Status == BuildStatus.Success;
+        public bool IsMinsFailed => Status == BuildStatus.MinsFailed;
+        public bool IsMaxsExceeded => Status == BuildStatus.MaxsExceeded;
         public bool HasResult => _buildResult != null && !IsMinsFailed;
+
         //DIM queries.
-        private string? _dimQueryAll;
         public string DimQueryAll {
-            get => _dimQueryAll;
-            set {_dimQueryAll = value; OnPropertyChanged(nameof(DimQueryAll));}
-        }
-        private string? _dimQueryLegendary;
+            get;
+            set {field = value; OnPropertyChanged(nameof(DimQueryAll));}
+        } = string.Empty;
         public string DimQueryLegendary {
-            get => _dimQueryLegendary;
-            set {_dimQueryLegendary = value; OnPropertyChanged(nameof(DimQueryLegendary));}
-        }
-        private string? _dimQueryExotic;
+            get;
+            set {field = value; OnPropertyChanged(nameof(DimQueryLegendary));}
+        } = string.Empty;
         public string DimQueryExotic {
-            get => _dimQueryExotic;
-            set {_dimQueryExotic = value; OnPropertyChanged(nameof(DimQueryExotic));}
-        }
+            get;
+            set {field = value; OnPropertyChanged(nameof(DimQueryExotic));}
+        } = string.Empty;
         //DIM query visibility toggle.
-        private bool _showDimQueries;
         public bool ShowDimQueries {
-            get => _showDimQueries;
-            set {_showDimQueries = value; OnPropertyChanged(nameof(ShowDimQueries));}
+            get;
+            set {field = value; OnPropertyChanged(nameof(ShowDimQueries));}
         }
         //Clipboard commands.
         public RelayCommand CopyAllQueryCommand {get;}
@@ -157,17 +165,16 @@ namespace D2ArmorCalc_ViewModels {
         //=====================================================================
         public ResultViewModel(){
             //Initialize stat rows.
-            foreach (Stat stat in Enum.GetValues<Stat>())
-                StatResults.Add(new StatResultItem(stat));
+            foreach (Stat stat in Enum.GetValues<Stat>()) StatResults.Add(new StatResultItem(stat));
             //Clipboard commands.
             CopyAllQueryCommand = new RelayCommand(_ => {
-                if (!string.IsNullOrEmpty(_dimQueryAll)) Clipboard.SetText(_dimQueryAll);
+                if (!string.IsNullOrEmpty(DimQueryAll)) Clipboard.SetText(DimQueryAll);
             });
             CopyLegendaryQueryCommand = new RelayCommand(_ => {
-                if (!string.IsNullOrEmpty(_dimQueryLegendary)) Clipboard.SetText(_dimQueryLegendary);
+                if (!string.IsNullOrEmpty(DimQueryLegendary)) Clipboard.SetText(DimQueryLegendary);
             });
             CopyExoticQueryCommand = new RelayCommand(_ => {
-                if (!string.IsNullOrEmpty(_dimQueryExotic)) Clipboard.SetText(_dimQueryExotic);
+                if (!string.IsNullOrEmpty(DimQueryExotic)) Clipboard.SetText(DimQueryExotic);
             });
         }
         //=====================================================================
@@ -178,9 +185,9 @@ namespace D2ArmorCalc_ViewModels {
         Description   : Populates all result display data from BuildResult,
                         updating stat rows, piece rows, status, & DIM queries.
         Parameters    : BuildResult result  : Build result to display.
-                        StatBlock mins    : Minimum stat targets for display.
-                        StatBlock maxs    : Maximum stat targets for display.
-                        bool      showDim : Whether to show DIM query section.
+                        StatBlock   mins    : Minimum stat targets for display.
+                        StatBlock   maxs    : Maximum stat targets for display.
+                        bool        showDim : Whether to show DIM query section.
         Return Values : void
         */
         public void LoadResult(BuildResult result, StatBlock mins, StatBlock maxs, bool showDim, Dictionary<ArmorSlot, int> fontCounts, bool fontsEnabled){
@@ -267,17 +274,17 @@ namespace D2ArmorCalc_ViewModels {
                       : StatBlock   mins   : Minimum targets for determining "Any" display on focus/tertiary.
         Return Values : void
         */
-        private void UpdatePieceRows(BuildResult result, StatBlock mins) {
+        private void UpdatePieceRows(BuildResult result, StatBlock mins){
             PieceResults.Clear();
             PieceResultsUngrouped.Clear();
             int slotNumber = 1;
             List<(PieceResultItem item, int count)> groups = [];
 
-            foreach (ArmorPiece piece in result.GetPieces()) {
-                if (piece == null) { slotNumber++; continue; }
+            foreach (ArmorPiece ?piece in result.GetPieces()){
+                if (piece == null){slotNumber++; continue;}
 
                 string fonts = string.Empty;
-                if (piece.Fonts != null && piece.Fonts.Length > 0) {
+                if (piece.Fonts != null && piece.Fonts.Length > 0){
                     List<string> fontNames = [];
                     foreach (Font font in piece.Fonts) fontNames.Add(font.Stat.ToString());
                     fonts = string.Join(", ", fontNames);
@@ -288,40 +295,32 @@ namespace D2ArmorCalc_ViewModels {
                 bool tertiaryIsAny = mins.Get(piece.TertiaryStat) == 0;
                 bool focusIsAny = piece.Rarity == ArmorRarity.Exotic || piece.FocusStat == piece.FocusMinus || mins.Get(piece.FocusStat) == 0;
 
-                var item = new PieceResultItem {
-                    SlotLabel = piece.Slot.ToString(),
-                    SlotNumber = slotNumber,
-                    IsExotic = piece.Rarity == ArmorRarity.Exotic,
-                    Rarity = piece.Rarity.ToString(),
+                PieceResultItem item = new(){
+                    SlotLabel = piece.Slot.ToString(), SlotNumber = slotNumber,
+                    IsExotic = piece.Rarity == ArmorRarity.Exotic, Rarity = piece.Rarity.ToString(),
                     Archetype = piece.Archetype?.Type.ToString() ?? "Custom",
                     Tertiary = tertiaryIsAny ? $"Any ({piece.TertiaryStat})" : piece.TertiaryStat.ToString(),
                     Focus = piece.Rarity == ArmorRarity.Exotic ? "Exotic (No Tuning)" : focusIsAny ? "Any" : $"+{piece.FocusStat} / -{piece.FocusMinus}",
-                    StatMod = statMod,
-                    Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,
-                    EnergyUsed  = $"{piece.FontEnergy + piece.StatModEnergy} / {piece.TotalEnergy}"
+                    StatMod = statMod, Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,
+                    EnergyUsed = $"{piece.FontEnergy + piece.StatModEnergy} / {piece.TotalEnergy}"
                 };
-
-                // Always add to ungrouped
-                PieceResultItem ungroupedItem = new() {
-                    SlotLabel = piece.Slot.ToString(),
-                    SlotNumber = slotNumber,
-                    IsExotic = piece.Rarity == ArmorRarity.Exotic,
-                    Rarity = piece.Rarity.ToString(),
+                //Always add to ungrouped.
+                PieceResultItem ungroupedItem = new(){
+                    SlotLabel = piece.Slot.ToString(), SlotNumber = slotNumber,
+                    IsExotic = piece.Rarity == ArmorRarity.Exotic, Rarity = piece.Rarity.ToString(),
                     Archetype = piece.Archetype?.Type.ToString() ?? "Custom",
                     Tertiary = tertiaryIsAny ? $"Any ({piece.TertiaryStat})" : piece.TertiaryStat.ToString(),
                     Focus = piece.Rarity == ArmorRarity.Exotic ? "Exotic (No Tuning)" : focusIsAny ? "Any" : $"+{piece.FocusStat} / -{piece.FocusMinus}",
-                    StatMod = statMod,
-                    Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,
+                    StatMod = statMod, Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,
                     EnergyUsed = $"{piece.FontEnergy + piece.StatModEnergy} / {piece.TotalEnergy}"
                 };
                 PieceResultsUngrouped.Add(ungroupedItem);
-
                 //Check if this matches last group (same archetype + tertiary + rarity + focus).
                 bool merged = false;
-                for (int i = 0; i < groups.Count; i++) {
+                for (int i = 0; i < groups.Count; i++){
                     (PieceResultItem? existing, int count) = groups[i];
                     if (existing.Archetype == item.Archetype && existing.Tertiary == item.Tertiary &&
-                        existing.Rarity == item.Rarity) {
+                        existing.Rarity == item.Rarity){
                         groups[i] = (existing, count + 1);
                         merged = true;
                         break;
@@ -330,9 +329,8 @@ namespace D2ArmorCalc_ViewModels {
                 if (!merged) groups.Add((item, 1));
                 slotNumber++;
             }
-
             //Add grouped items with count suffix.
-            foreach ((PieceResultItem? item, int count) in groups) {
+            foreach ((PieceResultItem? item, int count) in groups){
                 if (count > 1) item.Archetype = $"{item.Archetype} ×{count}";
                 PieceResults.Add(item);
             }

@@ -4,7 +4,7 @@
 *   PROGRAMMER    : ExoVizzy
 *   FIRST VERSION : May 17, 2026
 *   DESCRIPTION   : Defines Fragment model, including name, subclass,
-*                   & any stat changes the fragment applies.
+*                   & any stat changes fragment applies.
 */
 using D2ArmorCalc_Models;
 
@@ -14,7 +14,6 @@ namespace D2ArmorCalc_Models {
         public Stat Stat {get;} = stat;
         public int Value {get;} = value;
     }
-
     //Represents single fragment.
     public class Fragment {
         public string Name {get;}

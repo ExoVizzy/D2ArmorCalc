@@ -6,24 +6,23 @@
 *   DESCRIPTION   : About dialog window displaying application info & usage.
 -->
 <Window x:Class="D2ArmorCalc.AboutBox" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Style="{StaticResource WindowStyle}" Title="About D2 Armor Calc" Width="460" Height="320" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
-
     <Border Padding="24">
         <StackPanel>
 
             <!-- Title -->
-            <TextBlock Text="D2 Armor Calc" Style="{StaticResource TitleText}" Margin="0,0,0,6" />
-            <TextBlock Text="by ExoVizzy" Style="{StaticResource SecondaryText}" Margin="0,0,0,16" />
-            <Separator Style="{StaticResource DarkSeparator}" />
+            <TextBlock Text="D2 Armor Calc" Style="{StaticResource TitleText}" Margin="0,0,0,6"/>
+            <TextBlock Text="by ExoVizzy" Style="{StaticResource SecondaryText}" Margin="0,0,0,16"/>
+            <Separator Style="{StaticResource DarkSeparator}"/>
 
             <!-- Description -->
-            <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="D2 Armor Calc is a local Destiny 2 armor optimization tool. Set your target stats, configure your exotic, subclass fragments, and mods, then calculate the best armor combination to hit your goals. Results include a build summary, mod breakdown, stat totals vs targets, and optional DIM search queries to find your armor in-game." TextWrapping="Wrap" BorderThickness="0" Background="Transparent" Margin="0,12,0,12" IsReadOnly="True" />
-            <Separator Style="{StaticResource DarkSeparator}" />
+            <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="D2 Armor Calc is a local Destiny 2 armor optimization tool. Set your target stats, configure your exotic, subclass fragments, and mods, then calculate the best armor combination to hit your goals. Results include a build summary, mod breakdown, stat totals vs targets, and optional DIM search queries to find your armor in-game." TextWrapping="Wrap" BorderThickness="0" Background="Transparent" Margin="0,12,0,12" IsReadOnly="True"/>
+            <Separator Style="{StaticResource DarkSeparator}"/>
 
             <!-- Disclaimer -->
-            <TextBlock Text="Exotic armor assumes 30 primary / 20 secondary / 12 tertiary unless a custom roll is provided." Style="{StaticResource SecondaryText}" TextWrapping="Wrap" Margin="0,12,0,16" />
+            <TextBlock Text="Exotic armor assumes 30 primary / 20 secondary / 12 tertiary unless a custom roll is provided." Style="{StaticResource SecondaryText}" TextWrapping="Wrap" Margin="0,12,0,16"/>
 
             <!-- Close button -->
-            <Button Style="{StaticResource PrimaryButton}" Content="Close" Width="80" HorizontalAlignment="Right" Click="CloseButton_Click" />
+            <Button Style="{StaticResource PrimaryButton}" Content="Close" Width="80" HorizontalAlignment="Right" Click="CloseButton_Click"/>
         </StackPanel>
     </Border>
 </Window>

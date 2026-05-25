@@ -13,49 +13,44 @@ using System.ComponentModel;
 namespace D2ArmorCalc_ViewModels {
     public class StatSliderViewModel(Stat stat) : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string name){
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================
         //Properties.
         //=====================================================================
         public Stat Stat {get;} = stat;
         public string Label {get;} = stat.ToString();
-        private bool _isEnabled = false;
         public bool IsEnabled {
-            get => _isEnabled;
+            get;
             set {
-                _isEnabled = value;
+                field = value;
                 OnPropertyChanged(nameof(IsEnabled));
             }
-        }
-        private int _minValue = 0;
+        } = false;
         public int MinValue {
-            get => _minValue;
+            get;
             set {
-                _minValue = Math.Max(0, Math.Min(value, _maxValue > 0 ? _maxValue : StatHelper.StatMax));
-                _isEnabled = _minValue > 0 || _maxValue < StatHelper.StatMax;
+                field = Math.Max(0, Math.Min(value, MaxValue > 0 ? MaxValue : StatHelper.StatMax));
+                IsEnabled = MinValue > 0 || MaxValue < StatHelper.StatMax;
                 OnPropertyChanged(nameof(MinValue));
                 OnPropertyChanged(nameof(IsEnabled));
             }
-        }
-        private int _maxValue = 200;
+        } = 0;
         public int MaxValue {
-            get => _maxValue;
+            get;
             set {
-                _maxValue = value == 0 ? 200 : Math.Max(_minValue, Math.Min(value, StatHelper.StatMax));
-                _isEnabled = _minValue > 0 || _maxValue < StatHelper.StatMax;
+                field = value == 0 ? 200 : Math.Max(MinValue, Math.Min(value, StatHelper.StatMax));
+                IsEnabled = MinValue > 0 || MaxValue < StatHelper.StatMax;
                 OnPropertyChanged(nameof(MaxValue));
                 OnPropertyChanged(nameof(IsEnabled));
             }
-        }
+        } = 200;
         //Slider proxies: keep sliders & text boxes in sync.
         public int MinSlider {
-            get => _minValue;
+            get => MinValue;
             set {MinValue = value;}
         }
         public int MaxSlider {
-            get => _maxValue;
+            get => MaxValue;
             set {MaxValue = value;}
         }
         //=====================================================================
@@ -63,23 +58,23 @@ namespace D2ArmorCalc_ViewModels {
         //=====================================================================
         /*
         Method        : ToMinStatBlock
-        Description   : Returns stat's minimum value as contribution
+        Description   : Returns stats minimum value as contribution
                         to StatBlock. Returns 0 if not enabled.
         Parameters    : None.
         Return Values : int : Minimum value or 0 if disabled.
         */
         public int ToMinValue(){
-            return _isEnabled ? _minValue : 0;
+            return IsEnabled ? MinValue : 0;
         }
         /*
         Method        : ToMaxValue
-        Description   : Returns stat's maximum value as contribution
+        Description   : Returns stats maximum value as contribution
                         to StatBlock. Returns 0 if not enabled or not set.
         Parameters    : None.
         Return Values : int : Maximum value or 0 if disabled/unset.
         */
         public int ToMaxValue(){
-            return _isEnabled ? _maxValue : 0;
+            return IsEnabled ? MaxValue : 0;
         }
         /*
         Method        : Reset
@@ -89,9 +84,9 @@ namespace D2ArmorCalc_ViewModels {
         Return Values : void
         */
         public void Reset(){
-            _minValue  = 0;
-            _maxValue  = 200;
-            _isEnabled = false;
+            MinValue = 0;
+            MaxValue = 200;
+            IsEnabled = false;
             OnPropertyChanged(nameof(MinValue));
             OnPropertyChanged(nameof(MaxValue));
             OnPropertyChanged(nameof(IsEnabled));

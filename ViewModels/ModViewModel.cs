@@ -16,45 +16,40 @@ namespace D2ArmorCalc_ViewModels {
         public ArmorMod Mod {get;} = mod;
         public string Name => Mod.Name;
         public string EnergyCost => $"{Mod.EnergyCost} energy";
-
         public override string ToString() => $"{Mod.Name} ({Mod.EnergyCost})";
     }
     public class ModViewModel : INotifyPropertyChanged {
-        public int MajorModCount => 5 - MinorModCount;
-
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string name) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================
         //Properties.
         //=====================================================================
+        public int MajorModCount => 5 - MinorModCount;
         //Toggle between simple minor mod count & full mod customization.
-        private bool _armorModsEnabled;
         public bool ArmorModsEnabled {
-            get => _armorModsEnabled;
+            get;
             set {
-                _armorModsEnabled = value;
+                field = value;
                 OnPropertyChanged(nameof(ArmorModsEnabled));
                 OnPropertyChanged(nameof(IsSimpleMode));
             }
         }
-        public bool IsSimpleMode => !_armorModsEnabled;
+        public bool IsSimpleMode => !ArmorModsEnabled;
         //Simple mode: how many of the 5 stat mod slots will be minor mods.
-        private int _minorModCount;
         public int MinorModCount {
-            get => _minorModCount;
+            get;
             set {
-                _minorModCount = Math.Max(0, Math.Min(5, value));
+                field = Math.Max(0, Math.Min(5, value));
                 OnPropertyChanged(nameof(MinorModCount));
                 OnPropertyChanged(nameof(MajorModCount));
             }
         }
         //Per-slot mod ViewModels (full customization mode).
-        public SlotModViewModel HelmetMods {get;} = new SlotModViewModel(ArmorSlot.Helmet);
-        public SlotModViewModel ArmsMods {get;} = new SlotModViewModel(ArmorSlot.Arms);
-        public SlotModViewModel ChestplateMods {get;} = new SlotModViewModel(ArmorSlot.Chestplate);
-        public SlotModViewModel BootsMods {get;} = new SlotModViewModel(ArmorSlot.Boots);
-        public SlotModViewModel ClassItemMods {get;} = new SlotModViewModel(ArmorSlot.ClassItem);
+        public SlotModViewModel HelmetMods {get;} = new(ArmorSlot.Helmet);
+        public SlotModViewModel ArmsMods {get;} = new(ArmorSlot.Arms);
+        public SlotModViewModel ChestplateMods {get;} = new(ArmorSlot.Chestplate);
+        public SlotModViewModel BootsMods {get;} = new(ArmorSlot.Boots);
+        public SlotModViewModel ClassItemMods {get;} = new(ArmorSlot.ClassItem);
         //=====================================================================
         //Output Helpers.
         //=====================================================================

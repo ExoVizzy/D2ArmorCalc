@@ -11,10 +11,10 @@
 
     <Grid>
         <!-- Track background -->
-        <Border x:Name="TrackBackground" Height="6" VerticalAlignment="Center" Background="{StaticResource SliderTrackBrush}" CornerRadius="3" />
+        <Border x:Name="TrackBackground" Height="6" VerticalAlignment="Center" Background="{StaticResource SliderTrackBrush}" CornerRadius="3"/>
 
         <!-- Filled range between thumbs -->
-        <Border x:Name="RangeBar" Height="6" VerticalAlignment="Center" Background="{StaticResource SliderRangeBrush}" CornerRadius="3" HorizontalAlignment="Left" />
+        <Border x:Name="RangeBar" Height="6" VerticalAlignment="Center" Background="{StaticResource SliderRangeBrush}" CornerRadius="3" HorizontalAlignment="Left"/>
 
         <!-- Canvas for thumb positioning -->
         <Canvas x:Name="ThumbCanvas" Height="20" VerticalAlignment="Center">
@@ -23,7 +23,7 @@
             <Ellipse x:Name="MinThumb" Width="20" Height="20" Fill="{StaticResource ThumbBrush}" Cursor="Hand" Canvas.Left="0" Canvas.Top="0">
                 <Ellipse.ToolTip>
                     <ToolTip x:Name="MinThumbTooltip" Background="{StaticResource SurfaceAltBrush}" BorderBrush="{StaticResource BorderBrush}" Foreground="{StaticResource TextPrimaryBrush}" FontFamily="{StaticResource PrimaryFont}" FontSize="11" Padding="8,4,8,4">
-                        <TextBlock x:Name="MinBuffText" />
+                        <TextBlock x:Name="MinBuffText"/>
                     </ToolTip>
                 </Ellipse.ToolTip>
             </Ellipse>
@@ -32,7 +32,7 @@
             <Ellipse x:Name="MaxThumb" Width="20" Height="20" Fill="{StaticResource ThumbBrush}" Cursor="Hand" Canvas.Left="0" Canvas.Top="0">
                 <Ellipse.ToolTip>
                     <ToolTip x:Name="MaxThumbTooltip" Background="{StaticResource SurfaceAltBrush}" BorderBrush="{StaticResource BorderBrush}" Foreground="{StaticResource TextPrimaryBrush}" FontFamily="{StaticResource PrimaryFont}" FontSize="11" Padding="8,4,8,4">
-                        <TextBlock x:Name="MaxBuffText" />
+                        <TextBlock x:Name="MaxBuffText"/>
                     </ToolTip>
                 </Ellipse.ToolTip>
             </Ellipse>

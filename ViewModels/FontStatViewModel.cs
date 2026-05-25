@@ -13,8 +13,7 @@ using System.ComponentModel;
 namespace D2ArmorCalc_ViewModels {
     public class FontStatViewModel(Stat stat, ArmorSlot slot) : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string name) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================
         //Properties.
         //=====================================================================
@@ -22,19 +21,18 @@ namespace D2ArmorCalc_ViewModels {
         public ArmorSlot Slot {get;} = slot;
         public string? StatLabel {get;} = stat.ToString();
         public string? SlotLabel {get;} = slot.ToString();
-        public static int MaxFonts  => 3;
-        private int _fontCount = 0;
+        public static int MaxFonts => 3;
         public int FontCount {
-            get => _fontCount;
+            get;
             set {
-                _fontCount = Math.Max(0, Math.Min(MaxFonts, value));
+                field = Math.Max(0, Math.Min(MaxFonts, value));
                 OnPropertyChanged(nameof(FontCount));
                 OnPropertyChanged(nameof(TotalBonus));
                 OnPropertyChanged(nameof(BonusLabel));
             }
-        }
+        } = 0;
         //Total stat bonus from current font count.
-        public int TotalBonus => Fonts.GetTotalBonus(_fontCount);
-        public string BonusLabel => _fontCount > 0 ? $"+{TotalBonus}" : "None";
+        public int TotalBonus => Fonts.GetTotalBonus(FontCount);
+        public string BonusLabel => FontCount > 0 ? $"+{TotalBonus}" : "None";
     }
 }

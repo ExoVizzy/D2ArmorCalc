@@ -13,30 +13,25 @@ using System.ComponentModel;
 namespace D2ArmorCalc_ViewModels {
     public class TuningSlotViewModel(string slotLabel, string defaultFocusStat, string defaultFocusMinus) : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string name) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         //=====================================================================
         //Properties.
         //=====================================================================
         public string SlotLabel {get;} = slotLabel;
-        public ObservableCollection<string> StatOptions {get;} = ["Health", "Melee", "Grenade", "Super", "Class", "Weapons"];
-        private string _focusStat = defaultFocusStat;
         public string FocusStat {
-            get => _focusStat;
+            get;
             set {
-                _focusStat = value;
+                field = value;
                 OnPropertyChanged(nameof(FocusStat));
             }
-        }
-        private string _focusMinus = defaultFocusMinus;
+        } = defaultFocusStat;
         public string FocusMinus {
-            get => _focusMinus;
+            get;
             set {
-                _focusMinus = value;
+                field = value;
                 OnPropertyChanged(nameof(FocusMinus));
             }
-        }
-
+        } = defaultFocusMinus;
         //=====================================================================
         //Helpers.
         //=====================================================================
@@ -47,7 +42,7 @@ namespace D2ArmorCalc_ViewModels {
         Return Values : Stat : Selected +5 focus stat.
         */
         public Stat GetFocusStat(){
-            _ = Enum.TryParse(_focusStat, out Stat stat);
+            _ = Enum.TryParse(FocusStat, out Stat stat);
             return stat;
         }
         /*
@@ -57,7 +52,7 @@ namespace D2ArmorCalc_ViewModels {
         Return Values : Stat : Selected -5 focus stat.
         */
         public Stat GetFocusMinus(){
-            _ = Enum.TryParse(_focusMinus, out Stat stat);
+            _ = Enum.TryParse(FocusMinus, out Stat stat);
             return stat;
         }
     }

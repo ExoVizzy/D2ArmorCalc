@@ -24,20 +24,20 @@ namespace D2ArmorCalc_Models {
         public int StandardSecondary {get; set;}
         public int StandardTertiary {get; set;}
         public ArmorRarity Rarity {get; set;} = rarity;
-        //Archetype determines primary (30) and secondary (25) stats.
+        //Archetype determines primary (30) & secondary (25) stats.
         public Archetype? Archetype {get; set;}
         //Tertiary stat is any of the 4 stats not in the archetype (value: 20).
         public Stat TertiaryStat {get; set;}
         //Focus: +5 to focus stat, -5 from any other stat.
         public Stat FocusStat {get; set;}
         public Stat FocusMinus {get; set;}
-        //Stat mod in the dedicated stat mod slot (can be null if none).
+        //Stat mod in dedicated stat mod slot (null if none).
         public StatMod? StatMod {get; set;}
-        //Up to 3 fonts in the general mod slots (slot-locked, validated externally).
+        //Up to 3 fonts in general mod slots (slot-locked, validated externally).
         public Font[] Fonts {get; set;} = [];
         //Energy.
         public int TotalEnergy {get;} = rarity == ArmorRarity.Exotic ? 10 : 11;
-        public int FontEnergy => Fonts  != null ? Fonts.Length  * 3 : 0;
+        public int FontEnergy => Fonts != null ? Fonts.Length  * 3 : 0;
         public int StatModEnergy => StatMod != null ? StatMod.EnergyCost : 0;
         public int RemainingEnergy => TotalEnergy - FontEnergy - StatModEnergy;
         /*
@@ -62,7 +62,6 @@ namespace D2ArmorCalc_Models {
                 if (stat == FocusStat) value += 5;
                 if (stat == FocusMinus) value -= 5;
             }
-
             return value;
         }
         /*
@@ -75,8 +74,7 @@ namespace D2ArmorCalc_Models {
         public int GetTotalStat(Stat stat){
             int total = GetBaseStat(stat);
 
-            if (StatMod != null && StatMod.Stat == stat)
-                total += StatMod.Bonus;
+            if (StatMod != null && StatMod.Stat == stat) total += StatMod.Bonus;
 
             int fontCount = 0;
             foreach (Font font in Fonts){

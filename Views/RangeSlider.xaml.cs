@@ -18,14 +18,11 @@ namespace D2ArmorCalc {
         //=====================================================================
         //Dependency Properties.
         //=====================================================================
-        public static readonly DependencyProperty MinValueProperty =
-            DependencyProperty.Register(nameof(MinValue), typeof(int), typeof(RangeSlider),
+        public static readonly DependencyProperty MinValueProperty = DependencyProperty.Register(nameof(MinValue), typeof(int), typeof(RangeSlider),
                 new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValueChanged));
-        public static readonly DependencyProperty MaxValueProperty =
-            DependencyProperty.Register(nameof(MaxValue), typeof(int), typeof(RangeSlider),
+        public static readonly DependencyProperty MaxValueProperty = DependencyProperty.Register(nameof(MaxValue), typeof(int), typeof(RangeSlider),
                 new FrameworkPropertyMetadata(200, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValueChanged));
-        public static readonly DependencyProperty StatProperty =
-            DependencyProperty.Register(nameof(Stat), typeof(Stat), typeof(RangeSlider), new PropertyMetadata(Stat.Health));
+        public static readonly DependencyProperty StatProperty = DependencyProperty.Register(nameof(Stat), typeof(Stat), typeof(RangeSlider), new PropertyMetadata(Stat.Health));
         public int MinValue {get => (int)GetValue(MinValueProperty); set => SetValue(MinValueProperty, value);}
         public int MaxValue {get => (int)GetValue(MaxValueProperty); set => SetValue(MaxValueProperty, value);}
         public Stat Stat {get => (Stat)GetValue(StatProperty); set => SetValue(StatProperty, value);}
@@ -94,18 +91,17 @@ namespace D2ArmorCalc {
             if (TrackWidth <= 0) return;
 
             _isUpdating = true;
-
             double minPos = ValueToPosition(MinValue);
             double maxPos = ValueToPosition(MaxValue);
 
             Canvas.SetLeft(MinThumb, minPos);
             Canvas.SetLeft(MaxThumb, maxPos);
 
-            double barLeft  = minPos + 10;
+            double barLeft = minPos + 10;
             double barWidth = Math.Max(0, maxPos - minPos);
 
             RangeBar.Margin = new Thickness(barLeft, 0, 0, 0);
-            RangeBar.Width  = barWidth;
+            RangeBar.Width = barWidth;
 
             UpdateTooltips();
 
@@ -113,8 +109,8 @@ namespace D2ArmorCalc {
         }
         /*
         Method        : UpdateTooltips
-        Description   : Updates tooltip content for both thumbs. Tooltips
-        *               only show when thumb value exceeds 100.
+        Description   : Updates tooltip content for both thumbs. 
+                        Tooltips only show when thumb value exceeds 100.
         Parameters    : None.
         Return Values : void
         */
@@ -143,7 +139,7 @@ namespace D2ArmorCalc {
         Parameters    : double position : Canvas X position.
         Return Values : int             : Clamped stat value.
         */
-        private int PositionToValue(double position) {
+        private int PositionToValue(double position){
             int value = (int)Math.Round((position / TrackWidth) * 200.0);
             value = (int)Math.Round(value / 5.0) * 5; //snap to nearest 5.
             return Math.Max(0, Math.Min(200, value));

@@ -1,4 +1,4 @@
-﻿/*
+/*
 *   FILE          : AppSettings.cs
 *   PROJECT       : D2ArmorCalc
 *   PROGRAMMER    : ExoVizzy
@@ -15,14 +15,19 @@ namespace D2ArmorCalc_Models {
         //=====================================================================
         //Defaults.
         //=====================================================================
-        private const Stat   DefaultLeastWantedStat = Stat.Health;
-        private const bool   DefaultShowDimQueries = true;
-        private const bool   DefaultCustomExoticRolls = false;
-        private const bool   DefaultFontsEnabled = false;
-        private const bool   DefaultArmorModsEnabled = true;
-        private const bool   DefaultSubclassCustomization = false;
-        private const bool   DefaultCustomTuning = false;
-        private const bool   DefaultT5ExoticEnabled = false;
+        private const Stat DefaultLeastWantedStat = Stat.Health;
+        private const bool DefaultShowDimQueries = false;
+        private const bool DefaultCustomExoticRolls = false;
+        private const bool DefaultFontsEnabled = false;
+        private const bool DefaultFontsInStats = false;
+        private const bool DefaultArmorModsEnabled = true;
+        private const bool DefaultSubclassCustomization = false;
+        private const bool DefaultCustomTuning = false;
+        private const bool DefaultT5ExoticEnabled = false;
+        private const bool DefaultFragmentsEnabled = false;
+        private const bool DefaultShowFullSubclass = false;
+        private const string DefaultSelectedClass = "Warlock";
+        private const string DefaultSelectedSlot = "Helmet";
         //=====================================================================
         //Properties (read from App.config, fall back to defaults if missing).
         //=====================================================================
@@ -42,6 +47,10 @@ namespace D2ArmorCalc_Models {
             get => ParseBool(Read("FontsEnabled"), DefaultFontsEnabled);
             set => Write("FontsEnabled", value.ToString());
         }
+        public static bool FontsInStats {
+            get => ParseBool(Read("FontsInStats"), DefaultFontsInStats);
+            set => Write("FontsInStats", value.ToString());
+        }
         public static bool ArmorModsEnabled {
             get => ParseBool(Read("ArmorModsEnabled"), DefaultArmorModsEnabled);
             set => Write("ArmorModsEnabled", value.ToString());
@@ -58,28 +67,43 @@ namespace D2ArmorCalc_Models {
             get => ParseBool(Read("T5ExoticEnabled"), DefaultT5ExoticEnabled);
             set => Write("T5ExoticEnabled", value.ToString());
         }
+        public static bool FragmentsEnabled {
+            get => ParseBool(Read("FragmentsEnabled"), DefaultFragmentsEnabled);
+            set => Write("FragmentsEnabled", value.ToString());
+        }
+        public static bool ShowFullSubclass {
+            get => ParseBool(Read("ShowFullSubclass"), DefaultShowFullSubclass);
+            set => Write("ShowFullSubclass", value.ToString());
+        }
+        public static string SelectedClass {
+            get => Read("SelectedClass") ?? DefaultSelectedClass;
+            set => Write("SelectedClass", value);
+        }
+        public static string SelectedSlot {
+            get => Read("SelectedSlot") ?? DefaultSelectedSlot;
+            set => Write("SelectedSlot", value);
+        }
         //=====================================================================
         //Private Helpers.
         //=====================================================================
         /*
         Method        : Read
-        Description   : Reads value from App.config by key. 
+        Description   : Reads value from App.config by key.
                         Returns null if key does not exist.
         Parameters    : string key : App.config key to read.
         Return Values : string     : Stored value, or null if not found.
         */
-        private static string Read(string key){
+        private static string? Read(string key){
             return ConfigurationManager.AppSettings[key];
         }
-
         /*
-Method        : Write
-Description   : Writes value to App.config by key, 
-               creating entry if does not already exist.
-Parameters    : string key   : App.config key to write.
-               string value : Value to store.
-Return Values : void
-*/
+        Method        : Write
+        Description   : Writes value to App.config by key,
+                        creating entry if does not already exist.
+        Parameters    : string key   : App.config key to write.
+                        string value : Value to store.
+        Return Values : void
+        */
         private static void Write(string key, string value){
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             if (config.AppSettings.Settings[key] == null) config.AppSettings.Settings.Add(key, value);
@@ -95,9 +119,8 @@ Return Values : void
                         bool defaultValue : Fallback value if parsing fails.
         Return Values : bool              : Parsed or default bool value.
         */
-        private static bool ParseBool(string value, bool defaultValue){
-            if (bool.TryParse(value, out bool result)) return result;
-            return defaultValue;
+        private static bool ParseBool(string? value, bool defaultValue){
+            return bool.TryParse(value, out bool result) ? result : defaultValue;
         }
         /*
         Method        : ParseStat
@@ -107,14 +130,13 @@ Return Values : void
                         Stat defaultValue : Fallback Stat if parsing fails.
         Return Values : Stat              : Parsed or default Stat value.
         */
-        private static Stat ParseStat(string value, Stat defaultValue){
-            if (System.Enum.TryParse(value, out Stat result)) return result;
-            return defaultValue;
+        private static Stat ParseStat(string? value, Stat defaultValue){
+            return Enum.TryParse(value, out Stat result) ? result : defaultValue;
         }
         /*
         Method        : ResetToDefaults
-        Description   : Resets all settings to their default values &
-                        saves them to App.config.
+        Description   : Resets all settings to default values &
+                        saves to App.config.
         Parameters    : None.
         Return Values : void
         */
@@ -123,10 +145,15 @@ Return Values : void
             ShowDimQueries = DefaultShowDimQueries;
             CustomExoticRolls = DefaultCustomExoticRolls;
             FontsEnabled = DefaultFontsEnabled;
+            FontsInStats = DefaultFontsInStats;
             ArmorModsEnabled = DefaultArmorModsEnabled;
             SubclassCustomization = DefaultSubclassCustomization;
             CustomTuning = DefaultCustomTuning;
             T5ExoticEnabled = DefaultT5ExoticEnabled;
+            FragmentsEnabled = DefaultFragmentsEnabled;
+            ShowFullSubclass = DefaultShowFullSubclass;
+            SelectedClass = DefaultSelectedClass;
+            SelectedSlot = DefaultSelectedSlot;
         }
     }
 }
