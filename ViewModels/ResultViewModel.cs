@@ -95,13 +95,24 @@ namespace D2ArmorCalc_ViewModels {
         public string? Rarity {get; set;}
         public string? Archetype {get; set;}
         public string? Tertiary {get; set;}
+        public List<TertiaryItem> Tertiaries {get; set;} = [];
         public string? Focus {get; set;}
         public string? StatMod {get; set;}
         public string? Fonts {get; set;}
         public string? EnergyUsed {get; set;}
         public int TotalAnyPoints {get; set;}
         public int SlotNumber {get; set;}
-        public bool IsExotic {get; set;}
+        public bool IsExotic {get; set;} 
+        public int GroupCount { get; set; } = 1;
+        public string CountBadge => $"×{GroupCount}";
+        public Visibility CountBadgeVisibility => GroupCount > 1 ? Visibility.Visible : Visibility.Collapsed;
+    }
+    //Represents single tertiary tag with optional count for duplicates.
+    public class TertiaryItem {
+        public string Label {get; set;} = string.Empty;
+        public int Count {get; set;}
+        public string CountBadge => $"×{Count}";
+        public Visibility CountBadgeVisibility => Count > 1 ? Visibility.Visible : Visibility.Collapsed;
     }
     public class ResultViewModel : INotifyPropertyChanged {
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -289,17 +300,18 @@ namespace D2ArmorCalc_ViewModels {
                     foreach (Font font in piece.Fonts) fontNames.Add(font.Stat.ToString());
                     fonts = string.Join(", ", fontNames);
                 }
-
                 string statMod = piece.StatMod != null ? $"{piece.StatMod.ModType} {piece.StatMod.Stat} (+{piece.StatMod.Bonus})" : "None";
 
                 bool tertiaryIsAny = mins.Get(piece.TertiaryStat) == 0;
                 bool focusIsAny = piece.Rarity == ArmorRarity.Exotic || piece.FocusStat == piece.FocusMinus || mins.Get(piece.FocusStat) == 0;
 
+                string tertiaryLabel = tertiaryIsAny ? $"Any ({piece.TertiaryStat})" : piece.TertiaryStat.ToString();
+
                 PieceResultItem item = new(){
                     SlotLabel = piece.Slot.ToString(), SlotNumber = slotNumber,
                     IsExotic = piece.Rarity == ArmorRarity.Exotic, Rarity = piece.Rarity.ToString(),
                     Archetype = piece.Archetype?.Type.ToString() ?? "Custom",
-                    Tertiary = tertiaryIsAny ? $"Any ({piece.TertiaryStat})" : piece.TertiaryStat.ToString(),
+                    Tertiaries = [new TertiaryItem{Label = tertiaryLabel, Count = 1}],
                     Focus = piece.Rarity == ArmorRarity.Exotic ? "Exotic (No Tuning)" : focusIsAny ? "Any" : $"+{piece.FocusStat} / -{piece.FocusMinus}",
                     StatMod = statMod, Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,
                     EnergyUsed = $"{piece.FontEnergy + piece.StatModEnergy} / {piece.TotalEnergy}"
@@ -309,18 +321,21 @@ namespace D2ArmorCalc_ViewModels {
                     SlotLabel = piece.Slot.ToString(), SlotNumber = slotNumber,
                     IsExotic = piece.Rarity == ArmorRarity.Exotic, Rarity = piece.Rarity.ToString(),
                     Archetype = piece.Archetype?.Type.ToString() ?? "Custom",
-                    Tertiary = tertiaryIsAny ? $"Any ({piece.TertiaryStat})" : piece.TertiaryStat.ToString(),
+                    Tertiaries = [new TertiaryItem{Label = tertiaryLabel, Count = 1}],
                     Focus = piece.Rarity == ArmorRarity.Exotic ? "Exotic (No Tuning)" : focusIsAny ? "Any" : $"+{piece.FocusStat} / -{piece.FocusMinus}",
                     StatMod = statMod, Fonts = string.IsNullOrEmpty(fonts) ? "None" : fonts,
                     EnergyUsed = $"{piece.FontEnergy + piece.StatModEnergy} / {piece.TotalEnergy}"
                 };
                 PieceResultsUngrouped.Add(ungroupedItem);
-                //Check if this matches last group (same archetype + tertiary + rarity + focus).
+                //Check if this matches an existing group (same archetype + rarity, tertiary collected separately).
                 bool merged = false;
                 for (int i = 0; i < groups.Count; i++){
                     (PieceResultItem? existing, int count) = groups[i];
-                    if (existing.Archetype == item.Archetype && existing.Tertiary == item.Tertiary &&
-                        existing.Rarity == item.Rarity){
+                    if (existing.Archetype == item.Archetype && existing.Rarity == item.Rarity){
+                        //Increment or add the tertiary count within this group.
+                        TertiaryItem? existing_t = existing.Tertiaries.FirstOrDefault(t => t.Label == tertiaryLabel);
+                        if (existing_t == null) existing.Tertiaries.Add(new TertiaryItem{Label = tertiaryLabel, Count = 1});
+                        else existing_t.Count++;
                         groups[i] = (existing, count + 1);
                         merged = true;
                         break;
@@ -331,7 +346,7 @@ namespace D2ArmorCalc_ViewModels {
             }
             //Add grouped items with count suffix.
             foreach ((PieceResultItem? item, int count) in groups){
-                if (count > 1) item.Archetype = $"{item.Archetype} ×{count}";
+                if (count > 1) item.GroupCount = count;
                 PieceResults.Add(item);
             }
         }

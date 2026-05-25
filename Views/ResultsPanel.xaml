@@ -36,21 +36,44 @@
                                 <DataTemplate>
                                     <Border Style="{StaticResource CardAltStyle}" Margin="0,0,0,6">
                                         <StackPanel>
-                                            
+
                                             <!-- Archetype + Rarity header -->
-                                            <TextBlock Style="{StaticResource BodyText}" FontWeight="SemiBold">
-                                                <Run Text="{Binding Archetype, Mode=OneWay}"/>
-                                                <Run Text=" (" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                                <Run Text="{Binding Rarity, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                                <Run Text=")" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                            </TextBlock>
-                                            
-                                            <!-- Tertiary tag -->
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource BodyText}" FontWeight="SemiBold">
+                                                    <Run Text="{Binding Archetype, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <!-- ×N badge between name and rarity, hidden when count is 1 -->
+                                                <Border Style="{StaticResource TagBorder}" Visibility="{Binding CountBadgeVisibility}" Margin="6,0,0,0" Padding="5,1">
+                                                    <TextBlock Text="{Binding CountBadge}" Style="{StaticResource SecondaryText}" FontSize="11"/>
+                                                </Border>
+                                                <TextBlock Style="{StaticResource BodyText}" FontWeight="SemiBold">
+                                                    <Run Text=" (" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                    <Run Text="{Binding Rarity, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                    <Run Text=")" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+
+                                            <!-- Tertiary tags -->
                                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                                 <TextBlock Text="Tertiary: " Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
-                                                <Border Style="{StaticResource TagBorder}">
-                                                    <TextBlock Text="{Binding Tertiary}" Style="{StaticResource TagText}"/>
-                                                </Border>
+                                                <ItemsControl ItemsSource="{Binding Tertiaries}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel Orientation="Horizontal"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Style="{StaticResource TagBorder}" Margin="0,0,4,0">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="{Binding Label}" Style="{StaticResource TagText}" Margin="0,0,4,0"/>
+                                                                    <!-- ×N only shown when count > 1 -->
+                                                                    <TextBlock Text="{Binding CountBadge}" Style="{StaticResource TagText}" Visibility="{Binding CountBadgeVisibility}"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
                                             </StackPanel>
                                         </StackPanel>
                                     </Border>

@@ -65,22 +65,24 @@ namespace D2ArmorCalc_Algorithm {
             //Generate exotic candidates separately.
             List<ArmorCandidate>? exoticCandidates = input.Exotic.IsCustomRoll && input.Exotic.CustomStatBlock != null ? null : input.CustomTuning != null ? ComboGenerator.GenerateCandidatesNoFocus(adjustedMins, input.LeastWantedStat)
                 : ComboGenerator.GenerateCandidates(adjustedMins, input.LeastWantedStat);
-
-            List<ArmorCandidate[]> combinations = ComboGenerator.GenerateAllCombinations(candidates);
+            
             ConcurrentBag<(ArmorCandidate[] combo, ArmorCandidate? exoticCandidate, ResolvedResult result)> validResults = [];
 
-            foreach (ArmorCandidate[] combo in combinations){
+            int count = candidates.Count;
+            Parallel.For(0, count * count * count * count, index => {
+                int a = index / (count * count * count);
+                int b = (index / (count * count)) % count;
+                int c = (index / count) % count;
+                int d = index % count;
+                ArmorCandidate[] combo = [candidates[a], candidates[b], candidates[c], candidates[d]];
                 if (exoticCandidates == null){
-                    //Custom exotic. use as-is.
                     ResolvedResult resolved = StatResolver.Resolve(combo, input.Exotic, input.Mins, input.Maxs,
-                                              adjustedMins, adjustedMaxs, input.Fragments, input.LeastWantedStat,
-                                              input.FontsEnabled, input.FontCounts, input.AdvancedModEnergy,
-                                              input.MinorModCount, input.CustomTuning);
+                        adjustedMins, adjustedMaxs, input.Fragments, input.LeastWantedStat,
+                        input.FontsEnabled, input.FontCounts, input.AdvancedModEnergy,
+                        input.MinorModCount, input.CustomTuning);
                     if (resolved.MeetsMinimums) validResults.Add((combo, null, resolved));
                 } else {
-                    //Try each exotic candidate.
                     foreach (ArmorCandidate exoticCandidate in exoticCandidates){
-                        //Build temporary exotic piece from candidate.
                         ArmorPiece exoticPiece = BuildExoticFromCandidate(exoticCandidate, input.Exotic.Slot);
                         ResolvedResult resolved = StatResolver.Resolve(combo, exoticPiece, input.Mins, input.Maxs,
                             adjustedMins, adjustedMaxs, input.Fragments, input.LeastWantedStat,
@@ -89,7 +91,7 @@ namespace D2ArmorCalc_Algorithm {
                         if (resolved.MeetsMinimums) validResults.Add((combo, exoticCandidate, resolved));
                     }
                 }
-            }
+            });
             return BuildBestResult(validResults, input, adjustedMins, adjustedMaxs);
         }
         /*

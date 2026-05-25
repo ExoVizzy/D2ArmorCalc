@@ -200,6 +200,10 @@ namespace D2ArmorCalc_Algorithm {
             //Step 1: Pure armor base stats. no tuning, no fonts, no fragments.
             StatBlock stats = ResolveBaseStats(legendaries, exotic);
 
+            //Early exit: if deficit is hopeless even with max mods, skip full resolve.
+            int quickDeficit = StatHelper.GetTotalDeficit(stats, adjustedMins);
+            if (quickDeficit > 50) return new ResolvedResult { MeetsMinimums = false };
+
             //Step 2: Apply stat mods against adjusted targets.
             stats = ApplyStatMods(stats, adjustedMins, leastWanted, fontCounts, advancedModEnergy, minorModCount, GameConstants.SlotOrder);
 

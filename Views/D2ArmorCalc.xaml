@@ -14,7 +14,7 @@
         xmlns:vm="clr-namespace:D2ArmorCalc_ViewModels"
         Style="{StaticResource WindowStyle}" Title="D2 Armor Calc" Width="1200" Height="1000" WindowStartupLocation="CenterScreen">
     <Window.DataContext>
-        <vm:D2ArmorCalcViewModel />
+        <vm:D2ArmorCalcViewModel/>
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
@@ -123,7 +123,7 @@
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="{Binding SlotLabel}" Style="{StaticResource SecondaryText}" VerticalAlignment="Center"/>
-                                                <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding DataContext.Constants.Stats, RelativeSource={RelativeSource AncestorType=Window}}" SelectedItem="{Binding FocusStat}" ToolTip="+5 focus stat" />
+                                                <ComboBox Grid.Column="1" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding DataContext.Constants.Stats, RelativeSource={RelativeSource AncestorType=Window}}" SelectedItem="{Binding FocusStat}" ToolTip="+5 focus stat"/>
                                                 <TextBlock Grid.Column="2" Text="/" Style="{StaticResource SecondaryText}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 <ComboBox Grid.Column="3" Style="{StaticResource DarkComboBox}" ItemsSource="{Binding DataContext.Constants.Stats, RelativeSource={RelativeSource AncestorType=Window}}" SelectedItem="{Binding FocusMinus}" ToolTip="-5 focus stat"/>
                                             </Grid>
@@ -513,7 +513,7 @@
             <!-- =============================================================-->
             <!-- Right Panel (Results).                                       -->
             <!-- =============================================================-->
-            <local:ResultsPanel Grid.Column="2" DataContext="{Binding ResultVM}" />
+            <local:ResultsPanel Grid.Column="2" DataContext="{Binding ResultVM}"/>
         </Grid>
     </Grid>
 </Window>

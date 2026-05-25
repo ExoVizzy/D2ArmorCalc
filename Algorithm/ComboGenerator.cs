@@ -118,6 +118,26 @@ namespace D2ArmorCalc_Algorithm {
             return valid;
         }
         /*
+        Method        : GenerateAllCombinations
+        Description   : Generates all 4-piece legendary combinations from
+                        candidate list as arrays of 4 ArmorCandidates.
+        Parameters    : List<ArmorCandidate> candidates : All valid single-piece candidates.
+        Return Values : List<ArmorCandidate[]>          : All 4-piece combinations.
+        */
+        public static List<ArmorCandidate[]> GenerateAllCombinations(List<ArmorCandidate> candidates){
+            List<ArmorCandidate[]> combinations = [];
+            int count = candidates.Count;
+
+            for (int a = 0; a < count; a++){
+                for (int b = 0; b < count; b++){
+                    for (int c = 0; c < count; c++){
+                        for (int d = 0; d < count; d++) combinations.Add([candidates[a], candidates[b], candidates[c], candidates[d]]);
+                    } 
+                } 
+            }
+            return combinations;
+        }
+        /*
         Method        : GenerateCandidates
         Description   : Generates all valid ArmorCandidate combinations for
                         single legendary armor piece based on pruned options.
@@ -154,27 +174,7 @@ namespace D2ArmorCalc_Algorithm {
                     }
                 }
             }
-            return candidates;
-        }
-        /*
-        Method        : GenerateAllCombinations
-        Description   : Generates all 4-piece legendary combinations from
-                        candidate list as arrays of 4 ArmorCandidates.
-        Parameters    : List<ArmorCandidate> candidates : All valid single-piece candidates.
-        Return Values : List<ArmorCandidate[]>          : All 4-piece combinations.
-        */
-        public static List<ArmorCandidate[]> GenerateAllCombinations(List<ArmorCandidate> candidates){
-            List<ArmorCandidate[]> combinations = [];
-            int count = candidates.Count;
-
-            for (int a = 0; a < count; a++){
-                for (int b = 0; b < count; b++){
-                    for (int c = 0; c < count; c++){
-                        for (int d = 0; d < count; d++) combinations.Add([candidates[a], candidates[b], candidates[c], candidates[d]]);
-                    } 
-                } 
-            }
-            return combinations;
+            return candidates.GroupBy(c => (c.Archetype, c.Tertiary, c.FocusStat, c.FocusMinus)).Select(g => g.First()).ToList();;
         }
         /*
         Method        : GenerateCandidatesNoFocus
@@ -194,7 +194,7 @@ namespace D2ArmorCalc_Algorithm {
                 //Only add no-focus candidate (focusStat == focusMinus = net zero).
                 foreach (Stat tertiary in validTertiaries) candidates.Add(new ArmorCandidate(archetype.Type, tertiary, focusMinus, focusMinus));
             }
-            return candidates;
+            return candidates.GroupBy(c => (c.Archetype, c.Tertiary)).Select(g => g.First()).ToList();;
         }
     }
 }
