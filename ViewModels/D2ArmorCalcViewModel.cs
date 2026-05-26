@@ -46,7 +46,7 @@ namespace D2ArmorCalc_ViewModels {
             set {
                 field = value;
                 OnPropertyChanged(nameof(FontsEnabled));
-                AppSettings.FontsEnabled = value;
+                //AppSettings.FontsEnabled = value;
             }
         }
         public bool FontsInStats {
@@ -54,7 +54,7 @@ namespace D2ArmorCalc_ViewModels {
             set {
                 field = value;
                 OnPropertyChanged(nameof(FontsInStats));
-                AppSettings.FontsInStats = value;
+                //AppSettings.FontsInStats = value;
             }
         }
         public bool ArmorModsEnabled {
@@ -63,7 +63,7 @@ namespace D2ArmorCalc_ViewModels {
                 field = value;
                 OnPropertyChanged(nameof(ArmorModsEnabled));
                 ModVM.ArmorModsEnabled = value;
-                AppSettings.ArmorModsEnabled = value;
+                //AppSettings.ArmorModsEnabled = value;
             }
         }
         public bool SubclassCustomization {
@@ -71,7 +71,7 @@ namespace D2ArmorCalc_ViewModels {
             set {
                 field = value;
                 OnPropertyChanged(nameof(SubclassCustomization));
-                AppSettings.SubclassCustomization = value;
+                //AppSettings.SubclassCustomization = value;
             }
         }
         public bool CustomTuning {
@@ -79,7 +79,7 @@ namespace D2ArmorCalc_ViewModels {
             set {
                 field = value;
                 OnPropertyChanged(nameof(CustomTuning));
-                AppSettings.CustomTuning = value;
+                //AppSettings.CustomTuning = value;
             }
         }
         public bool ShowDimQueries {
@@ -105,7 +105,7 @@ namespace D2ArmorCalc_ViewModels {
                 field = value;
                 FragmentVM.FragmentsEnabled = value;
                 OnPropertyChanged(nameof(FragmentsEnabled));
-                AppSettings.FragmentsEnabled = value;
+                //AppSettings.FragmentsEnabled = value;
             }
         }
         //=====================================================================
@@ -156,7 +156,7 @@ namespace D2ArmorCalc_ViewModels {
             );
 
             ImportCommand = new RelayCommand(_ => RunImport());
-            ExportCommand = new RelayCommand(_ => RunExport(), _ => ResultVM.HasResult);
+            ExportCommand = new RelayCommand(_ => RunExport());
             ResetCommand = new RelayCommand(_ => Reset());
             OpenAboutCommand = new RelayCommand(_ => OpenAbout());
 
@@ -180,10 +180,6 @@ namespace D2ArmorCalc_ViewModels {
                 }
             };
             //Persist FragmentsEnabled sub-state: ShowFullSubclass.
-            FragmentVM.PropertyChanged += (s, e) => {
-                if (e.PropertyName == nameof(FragmentViewModel.ShowFullSubclass))
-                    AppSettings.ShowFullSubclass = FragmentVM.ShowFullSubclass;
-            };
             TuningSlots = [
                 new("Slot 1", "Weapons", "Health"), new("Slot 2", "Weapons", "Health"),
                 new("Slot 3", "Weapons", "Health"), new("Slot 4", "Weapons", "Health")
@@ -214,36 +210,15 @@ namespace D2ArmorCalc_ViewModels {
         Return Values : void
         */
         private void LoadSettings(){
-            //Load all persisted toggles directly into backing fields to avoid
-            //setters writing them back before everything is initialised.
-            FontsEnabled = AppSettings.FontsEnabled;
-            FontsInStats = AppSettings.FontsInStats;
-            ArmorModsEnabled = AppSettings.ArmorModsEnabled;
-            SubclassCustomization = AppSettings.SubclassCustomization;
-            CustomTuning = AppSettings.CustomTuning;
-            ShowDimQueries = AppSettings.ShowDimQueries;
-            T5ExoticEnabled = AppSettings.T5ExoticEnabled;
-            FragmentsEnabled = AppSettings.FragmentsEnabled;
             LeastWantedStat = AppSettings.LeastWantedStat.ToString();
-            //Restore class & slot selections.
-            ExoticVM.SelectedClass = AppSettings.SelectedClass;
+            ShowDimQueries = AppSettings.ShowDimQueries;
+            ExoticVM.SelectedClass = FragmentVM.SelectedClass = AppSettings.SelectedClass;
             ExoticVM.SelectedSlot = AppSettings.SelectedSlot;
-            //Restore ShowFullSubclass toggle in FragmentVM.
-            FragmentVM.ShowFullSubclass = AppSettings.ShowFullSubclass;
-            //Sync dependent sub-ViewModels.
-            ModVM.ArmorModsEnabled = ArmorModsEnabled;
-            ExoticVM.T5ExoticEnabled = T5ExoticEnabled;
-            FragmentVM.FragmentsEnabled = FragmentsEnabled;
-            //Notify all toggle & dropdown properties so bindings refresh.
-            OnPropertyChanged(nameof(FontsEnabled));
-            OnPropertyChanged(nameof(FontsInStats));
-            OnPropertyChanged(nameof(ArmorModsEnabled));
-            OnPropertyChanged(nameof(SubclassCustomization));
-            OnPropertyChanged(nameof(CustomTuning));
+            T5ExoticEnabled = AppSettings.T5ExoticEnabled;
+
+            OnPropertyChanged(nameof(LeastWantedStat));
             OnPropertyChanged(nameof(ShowDimQueries));
             OnPropertyChanged(nameof(T5ExoticEnabled));
-            OnPropertyChanged(nameof(FragmentsEnabled));
-            OnPropertyChanged(nameof(LeastWantedStat));
         }
         //=====================================================================
         //Calculation.
@@ -498,7 +473,7 @@ namespace D2ArmorCalc_ViewModels {
                 if (!string.IsNullOrEmpty(export.Subclass.Jump)) FragmentVM.SelectedJump = export.Subclass.Jump;
                 //Fragments & Aspects.
                 if (FragmentVM.Aspects != null){
-                    foreach (var item in FragmentVM.Aspects) item.IsSelected = export.Subclass.Aspects.Contains(item.Name); 
+                    foreach (AspectSelectionItem item in FragmentVM.Aspects) item.IsSelected = export.Subclass.Aspects.Contains(item.Name); 
                 }
                 if (export.Subclass.Fragments != null){
                     foreach (FragmentSelectionItem item in FragmentVM.Fragments) item.IsSelected = export.Subclass.Fragments.Contains(item.Name); 

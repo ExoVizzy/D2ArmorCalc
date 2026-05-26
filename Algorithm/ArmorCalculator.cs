@@ -218,8 +218,16 @@ namespace D2ArmorCalc_Algorithm {
                     }
                 }
             }
-            AssignStatMods(pieces, exotic, adjMins, adjMaxs, input.LeastWantedStat, input.MinorModCount, input.FontCounts, input.AdvModEnergy, input.PerStatFonts);
-            //Build final result.
+            //Assign stat mods. returns dictionary, does not mutate pieces.
+            Dictionary<ArmorSlot, StatMod?> modAssignments = AssignStatMods(
+                finalCombo, exotic, [..legendarySlots], adjMins, adjMaxs,
+                input.LeastWantedStat, input.MinorModCount, input.FontCounts,
+                input.AdvModEnergy, input.PerStatFonts);
+
+            //Apply mod assignments to pieces.
+            foreach (ArmorPiece piece in pieces) piece.StatMod = modAssignments.TryGetValue(piece.Slot, out StatMod? mod) ? mod : null;
+            exotic.StatMod = modAssignments.TryGetValue(exotic.Slot, out StatMod? exoticMod) ? exoticMod : null; //Build final result.
+            
             BuildResult buildResult = new(){
                 Status = finalResult.MeetsMaximums ? BuildStatus.Success : BuildStatus.MaxsExceeded,
                 Fragments = input.Fragments, BaseStats = finalResult.BaseStats,
@@ -301,42 +309,45 @@ namespace D2ArmorCalc_Algorithm {
         }
         /*
         Method        : AssignStatMods
-        Description   : Re-runs mod assignment logic & stores chosen StatMod
-                        on each ArmorPiece for display in results panel.
-        Parameters    : ArmorPiece[] pieces        : 4 legendary pieces.
-                      : ArmorPiece   exotic        : Exotic piece.
-                      : StatBlock    adjMins       : Minimum stat targets.
-                      : StatBlock    adjMaxs       : Maximum stat targets.
-                      : Stat         leastWanted   : Stat to avoid modding.
-                      : int          minorModCount : Number of minor mods to apply.
-                      : Dictionary   fontCounts    : Number of fonts per slot.
-                      : Dictionary   advModEnergy  : Armor energy per slot.
-                      : Dictionary   perStatFonts  : Number of fonts per stat.
-        Return Values : void
+        Description   : Determines best stat mod per slot based on remaining
+                        deficit against adjusted minimums. Returns mod assignments
+                        as a dictionary rather than mutating ArmorPiece objects,
+                        eliminating stale state bugs from prior calls.
+        Parameters    : ArmorCandidate[] legendaries      : 4 legendary candidates.
+                        ArmorPiece       exotic           : Exotic piece.
+                        ArmorSlot[]      legendarySlots   : Slot for each legendary candidate.
+                        StatBlock        adjMins          : Minimum targets adjusted for bonuses.
+                        StatBlock        adjMaxs          : Maximum targets adjusted for bonuses.
+                        Stat             leastWanted      : Stat to avoid modding.
+                        int              minorModCount    : Number of minor mods to apply.
+                        Dictionary       fontCounts       : Font counts per slot.
+                        Dictionary       advModEnergy     : Advanced mod energy per slot.
+                        Dictionary       perStatFonts     : Font counts per stat.
+        Return Values : Dictionary<ArmorSlot, StatMod?>   : Mod assigned per slot, null if none.
         */
-        private static void AssignStatMods(ArmorPiece[] pieces, ArmorPiece exotic, StatBlock adjMins, StatBlock adjMaxs, 
-                                           Stat leastWanted, int minorModCount, Dictionary<ArmorSlot, int> fontCounts, 
-                                           Dictionary<ArmorSlot, int> advModEnergy, Dictionary<Stat, int> perStatFonts){
-            List<ArmorPiece> allPieces = [..pieces, exotic];
+        private static Dictionary<ArmorSlot, StatMod?> AssignStatMods(
+            ArmorCandidate[] legendaries, ArmorPiece exotic, ArmorSlot[] legendarySlots,
+            StatBlock adjMins, StatBlock adjMaxs, Stat leastWanted, int minorModCount,
+            Dictionary<ArmorSlot, int> fontCounts, Dictionary<ArmorSlot, int> advModEnergy,
+            Dictionary<Stat, int> perStatFonts){
+
+            Dictionary<ArmorSlot, StatMod?> assignments = [];
             int minorsRemaining = minorModCount;
             int majorsRemaining = 5 - minorModCount;
-            //Build running total from pure armor stats only. no focus/tuning
-            //Use ArmorCandidate base logic: primary=30, secondary=25, tertiary=20, rest=5
-            //Since pieces already have Archetype/TertiaryStat set, GetAllStats() includes
-            //focus from FocusStat/FocusMinus. We need to exclude that.
-            //Solution: rebuild stats without focus.
-            StatBlock running = new();
-            foreach (ArmorPiece p in allPieces){
-                //Get stats without focus by temporarily zeroing focus effect.
-                Stat savedFocusStat = p.FocusStat;
-                Stat savedFocusMinus = p.FocusMinus;
-                //Set focus to same stat so net effect is zero.
-                p.FocusStat = p.FocusMinus;
-                running = running.Add(p.GetAllStats());
-                p.FocusStat = savedFocusStat;
-                p.FocusMinus = savedFocusMinus;
-            }
-            foreach (ArmorPiece piece in allPieces){
+
+            //Build running total from pure base stats only — no GetAllStats(), no stale mods.
+            StatBlock running = exotic.IsCustomRoll && exotic.CustomStatBlock != null
+                ? exotic.CustomStatBlock : exotic.GetAllStats();
+
+            for (int i = 0; i < legendaries.Length; i++) running = running.Add(legendaries[i].BaseStats);
+
+            //Build slot list: legendaries first, then exotic.
+            List<(ArmorSlot slot, ArmorRarity rarity)> allSlots = [];
+            for (int i = 0; i < legendaries.Length; i++) allSlots.Add((legendarySlots[i], ArmorRarity.Legendary));
+            allSlots.Add((exotic.Slot, exotic.Rarity));
+
+            foreach ((ArmorSlot slot, ArmorRarity rarity) in allSlots){
+                //Find stat with highest deficit.
                 Stat bestStat = leastWanted;
                 int bestDeficit = 0;
 
@@ -344,36 +355,49 @@ namespace D2ArmorCalc_Algorithm {
                     if (stat == leastWanted) continue;
                     if (adjMins.Get(stat) == 0) continue;
                     int deficit = StatHelper.GetDeficit(running.Get(stat), adjMins.Get(stat));
-                    if (deficit > bestDeficit){bestDeficit = deficit; bestStat = stat;}
+                    if (deficit > bestDeficit){ bestDeficit = deficit; bestStat = stat; }
                 }
 
-                if (bestStat != leastWanted && bestDeficit > 0){
-                    int fontCount = fontCounts.TryGetValue(piece.Slot, out int fc) ? fc : 0;
-                    int advEnergy = advModEnergy.TryGetValue(piece.Slot, out int ae) ? ae : 0;
-                    int remainingEnergy = EnergyHelper.GetRemainingGeneralEnergy(piece.Rarity, fontCount) - advEnergy;
-                    bool majorFits = remainingEnergy >= EnergyHelper.MajorModEnergyCost;
-                    bool minorFits = remainingEnergy >= EnergyHelper.MinorModEnergyCost;
-
-                    if (!minorFits) continue;
-                    bool energyForced = !majorFits;
-                    ModType modType;
-
-                    if (!majorFits || majorsRemaining == 0){
-                        if (!energyForced && minorsRemaining <= 0) continue;
-                        if (!energyForced) minorsRemaining--;
-                        modType = ModType.Minor;
-                    } else {
-                        modType = ModType.Major;
-                        majorsRemaining--;
-                    }
-                    StatMod mod = Mods.GetMod(modType, bestStat);
-                    int fontBonus = perStatFonts.TryGetValue(bestStat, out int fsc) ? Fonts.GetTotalBonus(fsc) : 0;
-                    int projected = running.Get(bestStat) + mod.Bonus;
-                    if (adjMaxs.Get(bestStat) > 0 && projected > adjMaxs.Get(bestStat)) continue;
-                    piece.StatMod = mod;
-                    running.Set(bestStat, running.Get(bestStat) + mod.Bonus);
+                if (bestStat == leastWanted || bestDeficit == 0){
+                    assignments[slot] = null;
+                    continue;
                 }
+
+                int fontCount = fontCounts.TryGetValue(slot, out int fc) ? fc : 0;
+                int advEnergy = advModEnergy.TryGetValue(slot, out int ae) ? ae : 0;
+                int remaining = EnergyHelper.GetRemainingGeneralEnergy(rarity, fontCount) - advEnergy;
+                bool majorFits = remaining >= EnergyHelper.MajorModEnergyCost;
+                bool minorFits = remaining >= EnergyHelper.MinorModEnergyCost;
+
+                if (!minorFits){ assignments[slot] = null; continue; }
+
+                bool energyForced = !majorFits;
+                ModType modType;
+
+                if (!majorFits || majorsRemaining == 0){
+                    if (!energyForced && minorsRemaining <= 0){ assignments[slot] = null; continue; }
+                    if (!energyForced) minorsRemaining--;
+                    modType = ModType.Minor;
+                } else {
+                    modType = ModType.Major;
+                    majorsRemaining--;
+                }
+
+                StatMod mod = Mods.GetMod(modType, bestStat);
+                if (!Mods.IsCompatible(mod, remaining)){assignments[slot] = null; continue;}
+
+                //Max check. only block if already meeting min without mod.
+                int fontBonus  = perStatFonts.TryGetValue(bestStat, out int fsc) ? Fonts.GetTotalBonus(fsc) : 0;
+                int projected  = running.Get(bestStat) + mod.Bonus;
+                bool meetsMins = running.Get(bestStat) + fontBonus >= adjMins.Get(bestStat);
+                if (meetsMins && adjMaxs.Get(bestStat) > 0 && projected + fontBonus > adjMaxs.Get(bestStat)){
+                    assignments[slot] = null;
+                    continue;
+                }
+                assignments[slot] = mod;
+                running.Set(bestStat, running.Get(bestStat) + mod.Bonus);
             }
+            return assignments;
         }
     }
 }

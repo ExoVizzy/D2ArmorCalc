@@ -20,7 +20,7 @@ namespace D2ArmorCalc_Models {
         private const bool DefaultCustomExoticRolls = false;
         private const bool DefaultFontsEnabled = false;
         private const bool DefaultFontsInStats = false;
-        private const bool DefaultArmorModsEnabled = true;
+        private const bool DefaultArmorModsEnabled = false;
         private const bool DefaultSubclassCustomization = false;
         private const bool DefaultCustomTuning = false;
         private const bool DefaultT5ExoticEnabled = false;
@@ -39,41 +39,9 @@ namespace D2ArmorCalc_Models {
             get => ParseBool(Read("ShowDimQueries"), DefaultShowDimQueries);
             set => Write("ShowDimQueries", value.ToString());
         }
-        public static bool CustomExoticRolls {
-            get => ParseBool(Read("CustomExoticRolls"), DefaultCustomExoticRolls);
-            set => Write("CustomExoticRolls", value.ToString());
-        }
-        public static bool FontsEnabled {
-            get => ParseBool(Read("FontsEnabled"), DefaultFontsEnabled);
-            set => Write("FontsEnabled", value.ToString());
-        }
-        public static bool FontsInStats {
-            get => ParseBool(Read("FontsInStats"), DefaultFontsInStats);
-            set => Write("FontsInStats", value.ToString());
-        }
-        public static bool ArmorModsEnabled {
-            get => ParseBool(Read("ArmorModsEnabled"), DefaultArmorModsEnabled);
-            set => Write("ArmorModsEnabled", value.ToString());
-        }
-        public static bool SubclassCustomization {
-            get => ParseBool(Read("SubclassCustomization"), DefaultSubclassCustomization);
-            set => Write("SubclassCustomization", value.ToString());
-        }
-        public static bool CustomTuning {
-            get => ParseBool(Read("CustomTuning"), DefaultCustomTuning);
-            set => Write("CustomTuning", value.ToString());
-        }
         public static bool T5ExoticEnabled {
             get => ParseBool(Read("T5ExoticEnabled"), DefaultT5ExoticEnabled);
             set => Write("T5ExoticEnabled", value.ToString());
-        }
-        public static bool FragmentsEnabled {
-            get => ParseBool(Read("FragmentsEnabled"), DefaultFragmentsEnabled);
-            set => Write("FragmentsEnabled", value.ToString());
-        }
-        public static bool ShowFullSubclass {
-            get => ParseBool(Read("ShowFullSubclass"), DefaultShowFullSubclass);
-            set => Write("ShowFullSubclass", value.ToString());
         }
         public static string SelectedClass {
             get => Read("SelectedClass") ?? DefaultSelectedClass;
@@ -143,15 +111,7 @@ namespace D2ArmorCalc_Models {
         public static void ResetToDefaults(){
             LeastWantedStat = DefaultLeastWantedStat;
             ShowDimQueries = DefaultShowDimQueries;
-            CustomExoticRolls = DefaultCustomExoticRolls;
-            FontsEnabled = DefaultFontsEnabled;
-            FontsInStats = DefaultFontsInStats;
-            ArmorModsEnabled = DefaultArmorModsEnabled;
-            SubclassCustomization = DefaultSubclassCustomization;
-            CustomTuning = DefaultCustomTuning;
             T5ExoticEnabled = DefaultT5ExoticEnabled;
-            FragmentsEnabled = DefaultFragmentsEnabled;
-            ShowFullSubclass = DefaultShowFullSubclass;
             SelectedClass = DefaultSelectedClass;
             SelectedSlot = DefaultSelectedSlot;
         }
